@@ -1,0 +1,10 @@
+.swiper-pagination-custom .swiper-pagination-bullet {
+     background-color: #ec4899;
+     opacity: 0.5;
+     transition: all 200ms ease-in-out;
+}
+
+.swiper-pagination-custom .swiper-pagination-bullet-active {
+     opacity: 1;
+     transform: scale(1.2);
+}
