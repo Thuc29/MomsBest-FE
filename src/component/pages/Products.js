@@ -148,7 +148,9 @@ const Product = () => {
 
   const getListProduct = async () => {
     try {
-      const res = await axios.get("http://localhost:9999/api/products");
+      const res = await axios.get(
+        "https://momsbest-be.onrender.com/api/products"
+      );
       setProductsDb(res?.data);
     } catch (error) {
       message.error(error.toString());

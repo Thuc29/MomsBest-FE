@@ -97,9 +97,8 @@ export default function ProductDetail() {
   const [selectedImg, setSelectedImg] = useState(0);
   const [cartMsg, setCartMsg] = useState("");
   const [review, setReview] = useState({ rating: 0, comment: "" });
-  const [product, setProduct] = useState()
-  const [reviews, setReviews] = useState([])
-
+  const [product, setProduct] = useState();
+  const [reviews, setReviews] = useState([]);
 
   const [quantity, setQuantity] = useState(1);
   const [replyingId, setReplyingId] = useState(null);
@@ -107,8 +106,7 @@ export default function ProductDetail() {
   const [isFavorite, setIsFavorite] = useState(false);
   const [visibleReviews, setVisibleReviews] = useState(5);
   const [visibleReplies, setVisibleReplies] = useState({});
-  const { user, token } = useAuth()
-
+  const { user, token } = useAuth();
 
   const handleAddToCart = () => {
     addToCart(product, quantity);
@@ -123,19 +121,23 @@ export default function ProductDetail() {
 
   const handleReview = async (e) => {
     e.preventDefault();
-    if (!user) return message.error("Hãy đăng nhập")
+    if (!user) return message.error("Hãy đăng nhập");
     if (review.rating && review.comment) {
       const data = {
         ...review,
-        product_id: productId
-      }
-      const res = await axios.post('http://localhost:9999/api/productReviews/createReview', data, {
-        headers: {
-          Authorization: `Bearer ${token}`
+        product_id: productId,
+      };
+      const res = await axios.post(
+        "https://momsbest-be.onrender.com/api/productReviews/createReview",
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      })
-      getListReview()
-      setReview({ rating: 0, comment: "" })
+      );
+      getListReview();
+      setReview({ rating: 0, comment: "" });
     }
   };
 
@@ -171,16 +173,16 @@ export default function ProductDetail() {
       prev.map((rv) =>
         rv.id === reviewId
           ? {
-            ...rv,
-            replies: [
-              ...rv.replies,
-              {
-                id: Date.now(),
-                user: "Bạn",
-                comment: replyText,
-              },
-            ],
-          }
+              ...rv,
+              replies: [
+                ...rv.replies,
+                {
+                  id: Date.now(),
+                  user: "Bạn",
+                  comment: replyText,
+                },
+              ],
+            }
           : rv
       )
     );
@@ -195,29 +197,33 @@ export default function ProductDetail() {
 
   const getProduct = async () => {
     try {
-      const res = await axios.get(`http://localhost:9999/api/products/${productId}`)
-      setProduct(res?.data)
+      const res = await axios.get(
+        `https://momsbest-be.onrender.com/api/products/${productId}`
+      );
+      setProduct(res?.data);
     } catch (error) {
-      message.error(error.toString())
+      message.error(error.toString());
     }
-  }
+  };
 
   const getListReview = async () => {
     try {
-      const res = await axios.get(`http://localhost:9999/api/productReviews/getListReviewByProduct/${productId}`)
-      setReviews(res?.data)
+      const res = await axios.get(
+        `https://momsbest-be.onrender.com/api/productReviews/getListReviewByProduct/${productId}`
+      );
+      setReviews(res?.data);
     } catch (error) {
-      message.error(error.toString())
+      message.error(error.toString());
     }
-  }
+  };
 
   useEffect(() => {
-    if (productId) getProduct()
-  }, [productId])
+    if (productId) getProduct();
+  }, [productId]);
 
   useEffect(() => {
-    if (product) getListReview()
-  }, [product])
+    if (product) getListReview();
+  }, [product]);
 
   return (
     <div className="min-h-screen pt-24 bg-gradient-to-br from-pink-50 to-blue-50 text-black py-8 font-space-grotesk">
@@ -246,10 +252,11 @@ export default function ProductDetail() {
                 key={idx}
                 src={img}
                 alt="thumb"
-                className={`w-16 h-16 object-cover rounded-lg border-2 cursor-pointer transition-all duration-200 shadow-sm hover:scale-105 hover:border-pink-400 ${selectedImg === idx
-                  ? "border-pink-500 ring-2 ring-pink-300"
-                  : "border-gray-200"
-                  }`}
+                className={`w-16 h-16 object-cover rounded-lg border-2 cursor-pointer transition-all duration-200 shadow-sm hover:scale-105 hover:border-pink-400 ${
+                  selectedImg === idx
+                    ? "border-pink-500 ring-2 ring-pink-300"
+                    : "border-gray-200"
+                }`}
                 onClick={() => setSelectedImg(idx)}
               />
             ))}
@@ -269,7 +276,9 @@ export default function ProductDetail() {
                   color={
                     star <= Math.round(product?.rating) ? "#fbbf24" : "#e5e7eb"
                   }
-                  fill={star <= Math.round(product?.rating) ? "#fbbf24" : "none"}
+                  fill={
+                    star <= Math.round(product?.rating) ? "#fbbf24" : "none"
+                  }
                   strokeWidth={1}
                 />
               ))}
@@ -329,10 +338,11 @@ export default function ProductDetail() {
             </div>
             <button
               onClick={() => setIsFavorite((f) => !f)}
-              className={`flex items-center gap-2 px-2 py-2 rounded-full font-bold text-lg shadow transition border-2 ${isFavorite
-                ? "bg-pink-100 border-pink-500 text-pink-600"
-                : "bg-white border-pink-200 text-pink-400 hover:bg-pink-50"
-                }`}
+              className={`flex items-center gap-2 px-2 py-2 rounded-full font-bold text-lg shadow transition border-2 ${
+                isFavorite
+                  ? "bg-pink-100 border-pink-500 text-pink-600"
+                  : "bg-white border-pink-200 text-pink-400 hover:bg-pink-50"
+              }`}
               title={isFavorite ? "Bỏ yêu thích" : "Yêu thích"}
             >
               {isFavorite ? (
@@ -463,10 +473,11 @@ export default function ProductDetail() {
                       <button
                         key={em.key}
                         type="button"
-                        className={`flex items-center gap-1 px-2 py-1 rounded-full text-base transition ${rv.userReaction === em.key
-                          ? "bg-pink-200"
-                          : "bg-gray-100 hover:bg-pink-100"
-                          }`}
+                        className={`flex items-center gap-1 px-2 py-1 rounded-full text-base transition ${
+                          rv.userReaction === em.key
+                            ? "bg-pink-200"
+                            : "bg-gray-100 hover:bg-pink-100"
+                        }`}
                         onClick={() => handleReact(rv.id, em.key)}
                         disabled={rv.userReaction === em.key}
                       >
@@ -553,16 +564,16 @@ export default function ProductDetail() {
             ))}
           {reviews.filter((rv) => rv.user !== "Bạn").length >
             visibleReviews && (
-              <div className="flex justify-center mt-4">
-                <button
-                  type="button"
-                  className="px-4 py-2 bg-pink-100 text-pink-600 rounded-full font-semibold hover:bg-pink-200 transition"
-                  onClick={() => setVisibleReviews((v) => v + 5)}
-                >
-                  Xem thêm bình luận
-                </button>
-              </div>
-            )}
+            <div className="flex justify-center mt-4">
+              <button
+                type="button"
+                className="px-4 py-2 bg-pink-100 text-pink-600 rounded-full font-semibold hover:bg-pink-200 transition"
+                onClick={() => setVisibleReviews((v) => v + 5)}
+              >
+                Xem thêm bình luận
+              </button>
+            </div>
+          )}
         </div>
       </div>
       {/* Sản phẩm liên quan */}

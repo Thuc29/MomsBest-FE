@@ -58,7 +58,7 @@ const ThreadDetail = () => {
       setIsLoading(true);
       try {
         const res = await axios.get(
-          `http://localhost:9999/api/forumthreads/getDetail/${threadId}`,
+          `https://momsbest-be.onrender.com/api/forumthreads/getDetail/${threadId}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -69,14 +69,14 @@ const ThreadDetail = () => {
         const author = threadFromBE.author_id;
         // Fetch parent comments
         const commentsRes = await axios.get(
-          `http://localhost:9999/api/forumcomments/thread/${threadId}`
+          `https://momsbest-be.onrender.com/api/forumcomments/thread/${threadId}`
         );
         const comments = commentsRes.data;
         // Fetch replies for each parent comment
         const commentsWithReplies = await Promise.all(
           comments.map(async (comment) => {
             const repliesRes = await axios.get(
-              `http://localhost:9999/api/forumcomments/${comment._id}/replies`
+              `https://momsbest-be.onrender.com/api/forumcomments/${comment._id}/replies`
             );
             return { ...comment, replies: repliesRes.data };
           })
@@ -87,19 +87,19 @@ const ThreadDetail = () => {
           categoryDescription: threadFromBE.category_id?.description || "",
           author: author
             ? {
-              name: author.name,
-              avatar: author.avatar || "default.png",
-              joinDate: author.join_date,
-              posts: author.posts || 0,
-              current_level: author.current_level,
-            }
+                name: author.name,
+                avatar: author.avatar || "default.png",
+                joinDate: author.join_date,
+                posts: author.posts || 0,
+                current_level: author.current_level,
+              }
             : {
-              name: "Ẩn danh",
-              avatar: "default.png",
-              joinDate: "",
-              posts: 0,
-              current_level: "",
-            },
+                name: "Ẩn danh",
+                avatar: "default.png",
+                joinDate: "",
+                posts: 0,
+                current_level: "",
+              },
           comments: commentsWithReplies,
           relatedThreads: threadFromBE.relatedThreads || [],
           isFollowing: false, // Default to false, to be updated below
@@ -110,7 +110,7 @@ const ThreadDetail = () => {
         if (currentUser) {
           const [likeRes, saveRes, followRes] = await Promise.all([
             axios.get(
-              `http://localhost:9999/api/forumthreads/${threadId}/isliked`,
+              `https://momsbest-be.onrender.com/api/forumthreads/${threadId}/isliked`,
               {
                 headers: {
                   Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -118,7 +118,7 @@ const ThreadDetail = () => {
               }
             ),
             axios.get(
-              `http://localhost:9999/api/forumthreads/${threadId}/issaved`,
+              `https://momsbest-be.onrender.com/api/forumthreads/${threadId}/issaved`,
               {
                 headers: {
                   Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -126,7 +126,7 @@ const ThreadDetail = () => {
               }
             ),
             axios.get(
-              `http://localhost:9999/api/forumthreads/${threadId}/isfollowed`,
+              `https://momsbest-be.onrender.com/api/forumthreads/${threadId}/isfollowed`,
               {
                 headers: {
                   Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -161,7 +161,7 @@ const ThreadDetail = () => {
     const fetchRelatedThreads = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:9999/api/forumthreads/category/${categoryId}`
+          `https://momsbest-be.onrender.com/api/forumthreads/category/${categoryId}`
         );
         setRelatedThreads(res.data);
       } catch (err) {
@@ -200,7 +200,7 @@ const ThreadDetail = () => {
 
     try {
       const res = await axios.post(
-        `http://localhost:9999/api/forumcomments/thread/${threadId}`,
+        `https://momsbest-be.onrender.com/api/forumcomments/thread/${threadId}`,
         {
           content: commentText,
         },
@@ -246,7 +246,7 @@ const ThreadDetail = () => {
   const handleLike = async () => {
     try {
       const res = await axios.post(
-        `http://localhost:9999/api/forumthreads/${threadId}/like`,
+        `https://momsbest-be.onrender.com/api/forumthreads/${threadId}/like`,
         { like: !isLiked },
         {
           headers: {
@@ -270,7 +270,7 @@ const ThreadDetail = () => {
   const handleSave = async () => {
     try {
       const res = await axios.post(
-        `http://localhost:9999/api/forumthreads/${threadId}/save`,
+        `https://momsbest-be.onrender.com/api/forumthreads/${threadId}/save`,
         { save: !isSaved },
         {
           headers: {
@@ -292,7 +292,7 @@ const ThreadDetail = () => {
     }
     try {
       const res = await axios.post(
-        `http://localhost:9999/api/forumthreads/${threadId}/follow`,
+        `https://momsbest-be.onrender.com/api/forumthreads/${threadId}/follow`,
         { follow: !isFollowing },
         {
           headers: {
@@ -310,7 +310,7 @@ const ThreadDetail = () => {
   const handleReport = async () => {
     try {
       await axios.post(
-        `http://localhost:9999/api/forumthreads/${threadId}/report`
+        `https://momsbest-be.onrender.com/api/forumthreads/${threadId}/report`
       );
       alert("Cảm ơn bạn đã báo cáo. Chúng tôi sẽ xem xét chủ đề này.");
     } catch (err) {
@@ -322,7 +322,7 @@ const ThreadDetail = () => {
   const handleLikeParentComment = async (commentId) => {
     try {
       const res = await axios.post(
-        `http://localhost:9999/api/forumcomments/${commentId}/like`,
+        `https://momsbest-be.onrender.com/api/forumcomments/${commentId}/like`,
         {},
         {
           headers: {
@@ -335,10 +335,10 @@ const ThreadDetail = () => {
         comments: prev.comments.map((c) =>
           c._id === commentId
             ? {
-              ...c,
-              likes: c.likes + (res.data.liked ? 1 : -1),
-              isLiked: res.data.liked,
-            }
+                ...c,
+                likes: c.likes + (res.data.liked ? 1 : -1),
+                isLiked: res.data.liked,
+              }
             : c
         ),
       }));
@@ -350,7 +350,7 @@ const ThreadDetail = () => {
   const handleLikeReplyComment = async (parentCommentId, replyId) => {
     try {
       const res = await axios.post(
-        `http://localhost:9999/api/forumcomments/${replyId}/like`,
+        `https://momsbest-be.onrender.com/api/forumcomments/${replyId}/like`,
         {},
         {
           headers: {
@@ -363,17 +363,17 @@ const ThreadDetail = () => {
         comments: prev.comments.map((c) =>
           c._id === parentCommentId
             ? {
-              ...c,
-              replies: c.replies.map((r) =>
-                r._id === replyId
-                  ? {
-                    ...r,
-                    likes: r.likes + (res.data.liked ? 1 : -1),
-                    isLiked: res.data.liked,
-                  }
-                  : r
-              ),
-            }
+                ...c,
+                replies: c.replies.map((r) =>
+                  r._id === replyId
+                    ? {
+                        ...r,
+                        likes: r.likes + (res.data.liked ? 1 : -1),
+                        isLiked: res.data.liked,
+                      }
+                    : r
+                ),
+              }
             : c
         ),
       }));
@@ -386,7 +386,7 @@ const ThreadDetail = () => {
     if (!replyText.trim()) return;
     try {
       const res = await axios.post(
-        `http://localhost:9999/api/forumcomments/thread/${threadId}`,
+        `https://momsbest-be.onrender.com/api/forumcomments/thread/${threadId}`,
         {
           content: replyText,
           parent_comment_id: commentId,
@@ -427,7 +427,7 @@ const ThreadDetail = () => {
     if (!result.isConfirmed) return;
     try {
       await axios.delete(
-        `http://localhost:9999/api/forumcomments/${commentId}`
+        `https://momsbest-be.onrender.com/api/forumcomments/${commentId}`
       );
       setThread((prev) => ({
         ...prev,
@@ -463,7 +463,7 @@ const ThreadDetail = () => {
     if (!result.isConfirmed) return;
     try {
       const res = await axios.put(
-        `http://localhost:9999/api/forumcomments/${commentId}`,
+        `https://momsbest-be.onrender.com/api/forumcomments/${commentId}`,
         { content: newContent }
       );
       setThread((prev) => ({
@@ -494,7 +494,9 @@ const ThreadDetail = () => {
     });
     if (!result.isConfirmed) return;
     try {
-      await axios.delete(`http://localhost:9999/api/forumcomments/${replyId}`);
+      await axios.delete(
+        `https://momsbest-be.onrender.com/api/forumcomments/${replyId}`
+      );
       setThread((prev) => ({
         ...prev,
         comments: prev.comments.map((c) =>
@@ -526,7 +528,7 @@ const ThreadDetail = () => {
     if (!result.isConfirmed) return;
     try {
       const res = await axios.put(
-        `http://localhost:9999/api/forumcomments/${replyId}`,
+        `https://momsbest-be.onrender.com/api/forumcomments/${replyId}`,
         { content: newContent }
       );
       setThread((prev) => ({
@@ -534,11 +536,11 @@ const ThreadDetail = () => {
         comments: prev.comments.map((c) =>
           c._id === commentId
             ? {
-              ...c,
-              replies: c.replies.map((r) =>
-                r._id === replyId ? { ...r, content: res.data.content } : r
-              ),
-            }
+                ...c,
+                replies: c.replies.map((r) =>
+                  r._id === replyId ? { ...r, content: res.data.content } : r
+                ),
+              }
             : c
         ),
       }));
@@ -554,9 +556,9 @@ const ThreadDetail = () => {
   const pagedComments =
     thread && thread.comments
       ? thread.comments.slice(
-        (commentPage - 1) * COMMENTS_PER_PAGE,
-        commentPage * COMMENTS_PER_PAGE
-      )
+          (commentPage - 1) * COMMENTS_PER_PAGE,
+          commentPage * COMMENTS_PER_PAGE
+        )
       : [];
   const totalCommentPages =
     thread && thread.comments
@@ -650,10 +652,11 @@ const ThreadDetail = () => {
                     <button
                       onClick={handleLike}
                       disabled={!currentUser}
-                      className={`flex items-center gap-1 px-3 py-1.5 rounded-full transition-colors ${isLiked
-                        ? "bg-pink-100 text-pink-600"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                        } ${!currentUser ? "cursor-not-allowed opacity-50" : ""}`}
+                      className={`flex items-center gap-1 px-3 py-1.5 rounded-full transition-colors ${
+                        isLiked
+                          ? "bg-pink-100 text-pink-600"
+                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                      } ${!currentUser ? "cursor-not-allowed opacity-50" : ""}`}
                     >
                       <Heart
                         size={16}
@@ -665,10 +668,11 @@ const ThreadDetail = () => {
                     <button
                       onClick={handleSave}
                       disabled={!currentUser} // Disable if not logged in
-                      className={`flex items-center gap-1 px-3 py-1.5 rounded-full transition-colors ${isSaved
-                        ? "bg-blue-100 text-blue-600"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                        } ${!currentUser ? "cursor-not-allowed opacity-50" : ""}`}
+                      className={`flex items-center gap-1 px-3 py-1.5 rounded-full transition-colors ${
+                        isSaved
+                          ? "bg-blue-100 text-blue-600"
+                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                      } ${!currentUser ? "cursor-not-allowed opacity-50" : ""}`}
                     >
                       <BookmarkPlus
                         size={16}
@@ -692,10 +696,11 @@ const ThreadDetail = () => {
                   <button
                     onClick={handleFollow}
                     disabled={!currentUser} // Disable if not logged in
-                    className={`px-4 py-1.5 rounded-full transition-colors ${isFollowing
-                      ? "bg-pink-500 text-white"
-                      : "bg-pink-100 text-pink-600 hover:bg-pink-200"
-                      } ${!currentUser ? "cursor-not-allowed opacity-50" : ""}`}
+                    className={`px-4 py-1.5 rounded-full transition-colors ${
+                      isFollowing
+                        ? "bg-pink-500 text-white"
+                        : "bg-pink-100 text-pink-600 hover:bg-pink-200"
+                    } ${!currentUser ? "cursor-not-allowed opacity-50" : ""}`}
                   >
                     {isFollowing ? "Đang theo dõi" : "Theo dõi chủ đề"}
                   </button>
@@ -816,9 +821,9 @@ const ThreadDetail = () => {
                                 onBlur={() => setDropdownCommentId(null)}
                               >
                                 {currentUser &&
-                                  String(
-                                    comment.author_id?._id || comment.author_id
-                                  ) === String(currentUser._id) ? (
+                                String(
+                                  comment.author_id?._id || comment.author_id
+                                ) === String(currentUser._id) ? (
                                   <>
                                     <div className="absolute right-0 mt-1 w-36  border border-[#333] rounded-lg shadow-lg z-10">
                                       {" "}
@@ -919,13 +924,15 @@ const ThreadDetail = () => {
                         <div className="flex items-center gap-4 text-sm mt-1">
                           <button
                             className={`flex items-center gap-1 rounded-full px-2 py-1  
-                              ${!currentUser
-                                ? "cursor-not-allowed opacity-50"
-                                : ""
+                              ${
+                                !currentUser
+                                  ? "cursor-not-allowed opacity-50"
+                                  : ""
                               }
-                              ${comment.isLiked
-                                ? " text-gray-200 bg-pink-500"
-                                : " text-gray-400 "
+                              ${
+                                comment.isLiked
+                                  ? " text-gray-200 bg-pink-500"
+                                  : " text-gray-400 "
                               }
                             `}
                             onClick={() => handleLikeParentComment(comment._id)}
@@ -1045,7 +1052,7 @@ const ThreadDetail = () => {
                                       {currentUser &&
                                         String(
                                           reply.author_id?._id ||
-                                          reply.author_id
+                                            reply.author_id
                                         ) === String(currentUser._id) && (
                                           <>
                                             <button
@@ -1079,8 +1086,8 @@ const ThreadDetail = () => {
                                   </div>
                                   {/* Reply Content or Edit Form */}
                                   {editingReply &&
-                                    editingReply.replyId === reply._id &&
-                                    editingReply.commentId === comment._id ? (
+                                  editingReply.replyId === reply._id &&
+                                  editingReply.commentId === comment._id ? (
                                     <form
                                       className="mb-2 flex flex-col gap-2"
                                       onSubmit={(e) => {
@@ -1134,10 +1141,11 @@ const ThreadDetail = () => {
                                   <div className="flex items-center gap-4 text-xs">
                                     <div className="flex items-center gap-4 text-sm mt-1">
                                       <button
-                                        className={`flex items-center gap-1 hover:text-red-500 rounded-full px-2 py-1 ${reply.isLiked
-                                          ? "text-pink-500"
-                                          : "text-gray-400"
-                                          }`}
+                                        className={`flex items-center gap-1 hover:text-red-500 rounded-full px-2 py-1 ${
+                                          reply.isLiked
+                                            ? "text-pink-500"
+                                            : "text-gray-400"
+                                        }`}
                                         onClick={() =>
                                           handleLikeReplyComment(
                                             comment._id,

@@ -9,8 +9,8 @@ import { getRegexEmail } from "../lib/utils";
 const LoginPage = () => {
   const [isSignUp, setIsSignUp] = useState(false);
 
-  const [formLogin] = Form.useForm()
-  const [formRegister] = Form.useForm()
+  const [formLogin] = Form.useForm();
+  const [formRegister] = Form.useForm();
 
   const navigate = useNavigate();
   const { login: loginContext } = useAuth();
@@ -18,11 +18,14 @@ const LoginPage = () => {
   // Xử lý đăng nhập
   const handleLogin = async () => {
     try {
-      const values = await formLogin.validateFields()
-      const res = await axios.post("http://localhost:9999/api/auth/login", values);
-      if (!res.data.success) return message.error(res?.data?.message)
+      const values = await formLogin.validateFields();
+      const res = await axios.post(
+        "https://momsbest-be.onrender.com/api/auth/login",
+        values
+      );
+      if (!res.data.success) return message.error(res?.data?.message);
       loginContext(res.data.user, res.data.token);
-      message.success("Đăng nhập thành công!")
+      message.success("Đăng nhập thành công!");
       navigate("/");
     } catch (err) {
       message.error(err.toString());
@@ -32,10 +35,13 @@ const LoginPage = () => {
   // Xử lý đăng ký
   const handleRegister = async () => {
     try {
-      const values = await formRegister.validateFields()
-      const res = await axios.post("http://localhost:9999/api/auth/register", values);
-      if (!res.data.success) return message.error(res?.data?.message)
-      message.success("Đăng ký thành công! Hãy đăng nhập.")
+      const values = await formRegister.validateFields();
+      const res = await axios.post(
+        "https://momsbest-be.onrender.com/api/auth/register",
+        values
+      );
+      if (!res.data.success) return message.error(res?.data?.message);
+      message.success("Đăng ký thành công! Hãy đăng nhập.");
       setIsSignUp(false);
     } catch (err) {
       message.error(err.toString());
@@ -55,20 +61,21 @@ const LoginPage = () => {
       <div className="relative mx-auto w-full max-w-[768px] h-[500px] bg-white rounded-xl shadow-2xl overflow-hidden">
         {/* Form Sign In */}
         <div
-          className={`absolute inset-y-0 left-[50%] w-1/2 px-10 py-12 flex flex-col justify-center items-center transition-transform duration-700 ease-in-out ${isSignUp
-            ? "-translate-x-full opacity-0"
-            : "translate-x-0 opacity-100 z-10"
-            }`}
+          className={`absolute inset-y-0 left-[50%] w-1/2 px-10 py-12 flex flex-col justify-center items-center transition-transform duration-700 ease-in-out ${
+            isSignUp
+              ? "-translate-x-full opacity-0"
+              : "translate-x-0 opacity-100 z-10"
+          }`}
         >
           <Form form={formLogin} className="w-full">
             <h2 className="text-2xl font-semibold text-gray-700 mb-6">
               Sign In
             </h2>
             <Form.Item
-              name='email'
+              name="email"
               rules={[
                 { required: true, message: "Hãy nhập vào email của bạn" },
-                { pattern: getRegexEmail(), message: "Email sai định dạng" }
+                { pattern: getRegexEmail(), message: "Email sai định dạng" },
               ]}
             >
               <input
@@ -108,10 +115,11 @@ const LoginPage = () => {
 
         {/* Form Sign Up */}
         <div
-          className={`absolute top-0 left-0 w-1/2 h-full px-10 py-12 flex flex-col justify-center items-center transition-all duration-700 ease-in-out ${isSignUp
-            ? "opacity-100 z-10 translate-x-0"
-            : "translate-x-full opacity-0 z-0"
-            }`}
+          className={`absolute top-0 left-0 w-1/2 h-full px-10 py-12 flex flex-col justify-center items-center transition-all duration-700 ease-in-out ${
+            isSignUp
+              ? "opacity-100 z-10 translate-x-0"
+              : "translate-x-full opacity-0 z-0"
+          }`}
         >
           <Form form={formRegister} className="w-full">
             <h2 className="text-2xl font-semibold text-gray-700 mb-6">
@@ -119,9 +127,7 @@ const LoginPage = () => {
             </h2>
             <Form.Item
               name="name"
-              rules={[
-                { required: true, message: "Hãy nhập vào tên của bạn" },
-              ]}
+              rules={[{ required: true, message: "Hãy nhập vào tên của bạn" }]}
             >
               <input
                 type="text"
@@ -133,7 +139,7 @@ const LoginPage = () => {
               name="email"
               rules={[
                 { required: true, message: "Hãy nhập vào email của bạn" },
-                { pattern: getRegexEmail(), message: "Email sai định dạng" }
+                { pattern: getRegexEmail(), message: "Email sai định dạng" },
               ]}
             >
               <input
@@ -165,15 +171,17 @@ const LoginPage = () => {
 
         {/* Overlay Panel */}
         <div
-          className={`absolute top-0 w-1/2 h-full text-white flex items-center justify-center transition-transform duration-700 ease-in-out ${isSignUp ? "right-0" : "left-0"
-            }`}
+          className={`absolute top-0 w-1/2 h-full text-white flex items-center justify-center transition-transform duration-700 ease-in-out ${
+            isSignUp ? "right-0" : "left-0"
+          }`}
         >
           {/* Overlay Background with Animation */}
           <div
-            className={`absolute inset-0 bg-cover bg-center rounded-xl transition-all duration-700 ease-in-out ${isSignUp
-              ? "translate-x-0 opacity-100 "
-              : "-translate-x-0 opacity-100"
-              }`}
+            className={`absolute inset-0 bg-cover bg-center rounded-xl transition-all duration-700 ease-in-out ${
+              isSignUp
+                ? "translate-x-0 opacity-100 "
+                : "-translate-x-0 opacity-100"
+            }`}
             style={{
               backgroundImage:
                 "url('https://c4.wallpaperflare.com/wallpaper/1020/112/952/black-tree-beside-green-field-under-a-cloudy-sky-wallpaper-preview.jpg')",

@@ -14,8 +14,8 @@ import { useAuth } from "../context/AuthContext";
 import { generateSignature, randomNumber } from "../lib/utils";
 import { message } from "antd";
 
-const ClientID = "12bc5071-aa3c-43ae-b506-04e720ea7b03"
-const APIKey = "6bb72d3e-a9be-433d-a91a-069f52c23053"
+const ClientID = "12bc5071-aa3c-43ae-b506-04e720ea7b03";
+const APIKey = "6bb72d3e-a9be-433d-a91a-069f52c23053";
 
 export default function Checkout() {
   const [info, setInfo] = useState({
@@ -28,15 +28,15 @@ export default function Checkout() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const { cart } = useCart()
-  const { token } = useAuth()
-  const intervalRef = useRef(null)
-  const location = useLocation()
-  const queryParams = new URLSearchParams(location.search)
+  const { cart } = useCart();
+  const { token } = useAuth();
+  const intervalRef = useRef(null);
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
 
   const totalAmount = useMemo(() => {
-    return cart.reduce((acc, curr) => acc + curr.price * curr.quantity, 0)
-  }, [cart])
+    return cart.reduce((acc, curr) => acc + curr.price * curr.quantity, 0);
+  }, [cart]);
 
   const handleChange = (e) => {
     setInfo({ ...info, [e.target.name]: e.target.value });
@@ -47,83 +47,95 @@ export default function Checkout() {
     const bodyOrder = {
       total_amount: totalAmount,
       ...info,
-      orderItems: cart?.map(i => ({
+      orderItems: cart?.map((i) => ({
         product_id: i?._id,
         quantity: i?.quantity,
         unit_price: i?.price,
-        total_price: i?.price * i?.quantity
-      }))
-    }
-    localStorage.setItem("bodyOrder", JSON.stringify(bodyOrder))
+        total_price: i?.price * i?.quantity,
+      })),
+    };
+    localStorage.setItem("bodyOrder", JSON.stringify(bodyOrder));
     const body = {
       orderCode: randomNumber(),
       amount: totalAmount,
       description: "Thanh toán",
       cancelUrl: `http://localhost:3000/checkout`,
       returnUrl: `http://localhost:3000/checkout`,
-    }
-    const data = `amount=${body.amount}&cancelUrl=${body.cancelUrl}&description=${body.description}&orderCode=${body.orderCode}&returnUrl=${body.returnUrl}`
-    const resPaymemtLink = await axios.post("https://api-merchant.payos.vn/v2/payment-requests",
+    };
+    const data = `amount=${body.amount}&cancelUrl=${body.cancelUrl}&description=${body.description}&orderCode=${body.orderCode}&returnUrl=${body.returnUrl}`;
+    const resPaymemtLink = await axios.post(
+      "https://api-merchant.payos.vn/v2/payment-requests",
       {
         ...body,
-        signature: generateSignature(data)
+        signature: generateSignature(data),
       },
       {
         headers: {
           "x-client-id": ClientID,
-          "x-api-key": APIKey
-        }
-      })
-    if (resPaymemtLink?.data?.code !== "00") return message.error("Có lỗi xảy ra trong quá trình tạo thanh toán")
-    window.location.href = resPaymemtLink?.data?.data?.checkoutUrl
+          "x-api-key": APIKey,
+        },
+      }
+    );
+    if (resPaymemtLink?.data?.code !== "00")
+      return message.error("Có lỗi xảy ra trong quá trình tạo thanh toán");
+    window.location.href = resPaymemtLink?.data?.data?.checkoutUrl;
   };
 
   const handleCompleteOrder = async () => {
-    const body = JSON.parse(localStorage.getItem("bodyOrder"))
-    const res = await axios.post("http://localhost:9999/api/orders/createOrder", body, {
-      headers: {
-        Authorization: `Bearer ${token}`
+    const body = JSON.parse(localStorage.getItem("bodyOrder"));
+    const res = await axios.post(
+      "https://momsbest-be.onrender.com/api/orders/createOrder",
+      body,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       }
-    })
-    if (!!res?.isError) return
-    localStorage.removeItem("bodyOrder")
+    );
+    if (!!res?.isError) return;
+    localStorage.removeItem("bodyOrder");
     setSubmitting(true);
     setTimeout(() => {
       setSubmitting(false);
       setSuccess(true);
       setTimeout(() => navigate("/"), 2000);
     }, 1500);
-  }
+  };
 
   const checkPaymentLinkStatus = async (paymentLinkID) => {
-    const res = await axios.get(`https://api-merchant.payos.vn/v2/payment-requests/${paymentLinkID}`, {
-      headers: {
-        "x-client-id": ClientID,
-        "x-api-key": APIKey
+    const res = await axios.get(
+      `https://api-merchant.payos.vn/v2/payment-requests/${paymentLinkID}`,
+      {
+        headers: {
+          "x-client-id": ClientID,
+          "x-api-key": APIKey,
+        },
       }
-    })
+    );
     if (res?.data?.code !== "00") {
-      clearInterval(intervalRef.current)
+      clearInterval(intervalRef.current);
     }
     if (res?.data?.data?.status === "CANCELLED") {
-      clearInterval(intervalRef.current)
+      clearInterval(intervalRef.current);
     } else if (res?.data?.data?.status === "PENDING") {
-      window.location.href = `https://pay.payos.vn/web/${paymentLinkID}`
+      window.location.href = `https://pay.payos.vn/web/${paymentLinkID}`;
     } else if (res?.data?.data?.status === "PAID") {
-      clearInterval(intervalRef.current)
-      handleCompleteOrder()
+      clearInterval(intervalRef.current);
+      handleCompleteOrder();
     }
-  }
+  };
 
   useEffect(() => {
     if (!!queryParams.get("id")) {
-      const paymentLinkID = queryParams.get("id")
+      const paymentLinkID = queryParams.get("id");
       if (!intervalRef.current) {
-        intervalRef.current = setInterval(() => checkPaymentLinkStatus(paymentLinkID), 3000)
+        intervalRef.current = setInterval(
+          () => checkPaymentLinkStatus(paymentLinkID),
+          3000
+        );
       }
     }
-  }, [location.search])
-
+  }, [location.search]);
 
   return (
     <div className="min-h-screen pt-24 bg-gradient-to-br from-pink-50 to-blue-50 text-black py-8 font-space-grotesk">

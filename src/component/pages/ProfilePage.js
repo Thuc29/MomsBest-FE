@@ -120,7 +120,7 @@ function MyPostsTab() {
   const getListPost = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:9999/api/categories/getCategoryByAuthor",
+        "https://momsbest-be.onrender.com/api/categories/getCategoryByAuthor",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -179,7 +179,7 @@ function MyQuestionsTab() {
   const getListThread = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:9999/api/forumthreads/getForumThreadByAuthor",
+        "https://momsbest-be.onrender.com/api/forumthreads/getForumThreadByAuthor",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -236,7 +236,7 @@ function MyOrdersTab() {
   const getListOrder = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:9999/api/orders/getOrderByUser",
+        "https://momsbest-be.onrender.com/api/orders/getOrderByUser",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -307,7 +307,7 @@ function MyReviewsTab() {
   const getListReview = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:9999/api/productReviews/getListReviewByUser`,
+        `https://momsbest-be.onrender.com/api/productReviews/getListReviewByUser`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
