@@ -148,8 +148,8 @@
 html,
 :host {
   line-height: 1.5;
-  /* 1 */
   -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
   /* 2 */
   /* 3 */
   tab-size: 4;
@@ -2024,10 +2024,12 @@ video {
 }
 
 .underline {
+  -webkit-text-decoration-line: underline;
   text-decoration-line: underline;
 }
 
 .line-through {
+  -webkit-text-decoration-line: line-through;
   text-decoration-line: line-through;
 }
 
@@ -2319,6 +2321,7 @@ video {
 }
 
 .hover\:underline:hover {
+  -webkit-text-decoration-line: underline;
   text-decoration-line: underline;
 }
 
