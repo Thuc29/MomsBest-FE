@@ -128,7 +128,7 @@ export default function ProductDetail() {
         product_id: productId,
       };
       const res = await axios.post(
-        "https://momsbest-be.onrender.com/api/productReviews/createReview",
+        "http://localhost:9999/api/productReviews/createReview",
         data,
         {
           headers: {
@@ -198,7 +198,7 @@ export default function ProductDetail() {
   const getProduct = async () => {
     try {
       const res = await axios.get(
-        `https://momsbest-be.onrender.com/api/products/${productId}`
+        `http://localhost:9999/api/products/${productId}`
       );
       setProduct(res?.data);
     } catch (error) {
@@ -209,7 +209,7 @@ export default function ProductDetail() {
   const getListReview = async () => {
     try {
       const res = await axios.get(
-        `https://momsbest-be.onrender.com/api/productReviews/getListReviewByProduct/${productId}`
+        `http://localhost:9999/api/productReviews/getListReviewByProduct/${productId}`
       );
       setReviews(res?.data);
     } catch (error) {

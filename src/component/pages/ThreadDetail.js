@@ -58,7 +58,7 @@ const ThreadDetail = () => {
       setIsLoading(true);
       try {
         const res = await axios.get(
-          `https://momsbest-be.onrender.com/api/forumthreads/getDetail/${threadId}`,
+          `http://localhost:9999/api/forumthreads/getDetail/${threadId}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -69,14 +69,14 @@ const ThreadDetail = () => {
         const author = threadFromBE.author_id;
         // Fetch parent comments
         const commentsRes = await axios.get(
-          `https://momsbest-be.onrender.com/api/forumcomments/thread/${threadId}`
+          `http://localhost:9999/api/forumcomments/thread/${threadId}`
         );
         const comments = commentsRes.data;
         // Fetch replies for each parent comment
         const commentsWithReplies = await Promise.all(
           comments.map(async (comment) => {
             const repliesRes = await axios.get(
-              `https://momsbest-be.onrender.com/api/forumcomments/${comment._id}/replies`
+              `http://localhost:9999/api/forumcomments/${comment._id}/replies`
             );
             return { ...comment, replies: repliesRes.data };
           })
@@ -110,7 +110,7 @@ const ThreadDetail = () => {
         if (currentUser) {
           const [likeRes, saveRes, followRes] = await Promise.all([
             axios.get(
-              `https://momsbest-be.onrender.com/api/forumthreads/${threadId}/isliked`,
+              `http://localhost:9999/api/forumthreads/${threadId}/isliked`,
               {
                 headers: {
                   Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -118,7 +118,7 @@ const ThreadDetail = () => {
               }
             ),
             axios.get(
-              `https://momsbest-be.onrender.com/api/forumthreads/${threadId}/issaved`,
+              `http://localhost:9999/api/forumthreads/${threadId}/issaved`,
               {
                 headers: {
                   Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -126,7 +126,7 @@ const ThreadDetail = () => {
               }
             ),
             axios.get(
-              `https://momsbest-be.onrender.com/api/forumthreads/${threadId}/isfollowed`,
+              `http://localhost:9999/api/forumthreads/${threadId}/isfollowed`,
               {
                 headers: {
                   Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -161,7 +161,7 @@ const ThreadDetail = () => {
     const fetchRelatedThreads = async () => {
       try {
         const res = await axios.get(
-          `https://momsbest-be.onrender.com/api/forumthreads/category/${categoryId}`
+          `http://localhost:9999/api/forumthreads/category/${categoryId}`
         );
         setRelatedThreads(res.data);
       } catch (err) {
@@ -200,7 +200,7 @@ const ThreadDetail = () => {
 
     try {
       const res = await axios.post(
-        `https://momsbest-be.onrender.com/api/forumcomments/thread/${threadId}`,
+        `http://localhost:9999/api/forumcomments/thread/${threadId}`,
         {
           content: commentText,
         },
@@ -246,7 +246,7 @@ const ThreadDetail = () => {
   const handleLike = async () => {
     try {
       const res = await axios.post(
-        `https://momsbest-be.onrender.com/api/forumthreads/${threadId}/like`,
+        `http://localhost:9999/api/forumthreads/${threadId}/like`,
         { like: !isLiked },
         {
           headers: {
@@ -270,7 +270,7 @@ const ThreadDetail = () => {
   const handleSave = async () => {
     try {
       const res = await axios.post(
-        `https://momsbest-be.onrender.com/api/forumthreads/${threadId}/save`,
+        `http://localhost:9999/api/forumthreads/${threadId}/save`,
         { save: !isSaved },
         {
           headers: {
@@ -292,7 +292,7 @@ const ThreadDetail = () => {
     }
     try {
       const res = await axios.post(
-        `https://momsbest-be.onrender.com/api/forumthreads/${threadId}/follow`,
+        `http://localhost:9999/api/forumthreads/${threadId}/follow`,
         { follow: !isFollowing },
         {
           headers: {
@@ -310,7 +310,7 @@ const ThreadDetail = () => {
   const handleReport = async () => {
     try {
       await axios.post(
-        `https://momsbest-be.onrender.com/api/forumthreads/${threadId}/report`
+        `http://localhost:9999/api/forumthreads/${threadId}/report`
       );
       alert("Cảm ơn bạn đã báo cáo. Chúng tôi sẽ xem xét chủ đề này.");
     } catch (err) {
@@ -322,7 +322,7 @@ const ThreadDetail = () => {
   const handleLikeParentComment = async (commentId) => {
     try {
       const res = await axios.post(
-        `https://momsbest-be.onrender.com/api/forumcomments/${commentId}/like`,
+        `http://localhost:9999/api/forumcomments/${commentId}/like`,
         {},
         {
           headers: {
@@ -350,7 +350,7 @@ const ThreadDetail = () => {
   const handleLikeReplyComment = async (parentCommentId, replyId) => {
     try {
       const res = await axios.post(
-        `https://momsbest-be.onrender.com/api/forumcomments/${replyId}/like`,
+        `http://localhost:9999/api/forumcomments/${replyId}/like`,
         {},
         {
           headers: {
@@ -386,7 +386,7 @@ const ThreadDetail = () => {
     if (!replyText.trim()) return;
     try {
       const res = await axios.post(
-        `https://momsbest-be.onrender.com/api/forumcomments/thread/${threadId}`,
+        `http://localhost:9999/api/forumcomments/thread/${threadId}`,
         {
           content: replyText,
           parent_comment_id: commentId,
@@ -427,7 +427,7 @@ const ThreadDetail = () => {
     if (!result.isConfirmed) return;
     try {
       await axios.delete(
-        `https://momsbest-be.onrender.com/api/forumcomments/${commentId}`
+        `http://localhost:9999/api/forumcomments/${commentId}`
       );
       setThread((prev) => ({
         ...prev,
@@ -463,7 +463,7 @@ const ThreadDetail = () => {
     if (!result.isConfirmed) return;
     try {
       const res = await axios.put(
-        `https://momsbest-be.onrender.com/api/forumcomments/${commentId}`,
+        `http://localhost:9999/api/forumcomments/${commentId}`,
         { content: newContent }
       );
       setThread((prev) => ({
@@ -494,9 +494,7 @@ const ThreadDetail = () => {
     });
     if (!result.isConfirmed) return;
     try {
-      await axios.delete(
-        `https://momsbest-be.onrender.com/api/forumcomments/${replyId}`
-      );
+      await axios.delete(`http://localhost:9999/api/forumcomments/${replyId}`);
       setThread((prev) => ({
         ...prev,
         comments: prev.comments.map((c) =>
@@ -528,7 +526,7 @@ const ThreadDetail = () => {
     if (!result.isConfirmed) return;
     try {
       const res = await axios.put(
-        `https://momsbest-be.onrender.com/api/forumcomments/${replyId}`,
+        `http://localhost:9999/api/forumcomments/${replyId}`,
         { content: newContent }
       );
       setThread((prev) => ({

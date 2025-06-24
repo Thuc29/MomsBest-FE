@@ -20,13 +20,17 @@ const LoginPage = () => {
     try {
       const values = await formLogin.validateFields();
       const res = await axios.post(
-        "https://momsbest-be.onrender.com/api/auth/login",
+        "http://localhost:9999/api/auth/login",
         values
       );
       if (!res.data.success) return message.error(res?.data?.message);
       loginContext(res.data.user, res.data.token);
       message.success("Đăng nhập thành công!");
-      navigate("/");
+      if (res.data.user.role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
     } catch (err) {
       message.error(err.toString());
     }
@@ -37,7 +41,7 @@ const LoginPage = () => {
     try {
       const values = await formRegister.validateFields();
       const res = await axios.post(
-        "https://momsbest-be.onrender.com/api/auth/register",
+        "http://localhost:9999/api/auth/register",
         values
       );
       if (!res.data.success) return message.error(res?.data?.message);
