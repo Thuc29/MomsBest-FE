@@ -451,6 +451,21 @@ function getLevelColor(level) {
   }
 }
 
+function getPromotionByLevel(level) {
+  switch (level) {
+    case "Thành viên mới":
+      return "Không có khuyến mại";
+    case "Thành viên đồng":
+      return "Giảm 2% cho mỗi đơn hàng";
+    case "Thành viên bạc":
+      return "Giảm 5% cho mỗi đơn hàng";
+    case "Thành viên vàng":
+      return "Giảm 10% cho mỗi đơn hàng";
+    default:
+      return "Không có khuyến mại";
+  }
+}
+
 function ProfilePage() {
   const [activeTab, setActiveTab] = useState("posts");
   const [showEditModal, setShowEditModal] = useState(false);
@@ -516,6 +531,9 @@ function ProfilePage() {
               <span>{getLevelColor(user.current_level).icon}</span>
               {user.current_level}
             </span>
+            <div className="mt-2 text-xs text-blue-600 font-semibold flex items-center gap-1">
+              🎁 Khuyến mại: {getPromotionByLevel(user.current_level)}
+            </div>
           </div>
         </div>
 

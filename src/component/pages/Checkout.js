@@ -29,7 +29,7 @@ export default function Checkout() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const { cart } = useCart();
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const intervalRef = useRef(null);
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
@@ -37,6 +37,23 @@ export default function Checkout() {
   const totalAmount = useMemo(() => {
     return cart.reduce((acc, curr) => acc + curr.price * curr.quantity, 0);
   }, [cart]);
+
+  function getDiscountPercentByLevel(level) {
+    switch (level) {
+      case "Thành viên đồng":
+        return 0.02;
+      case "Thành viên bạc":
+        return 0.05;
+      case "Thành viên vàng":
+        return 0.1;
+      default:
+        return 0;
+    }
+  }
+
+  const discountPercent = getDiscountPercentByLevel(user?.current_level);
+  const discountAmount = Math.round(totalAmount * discountPercent);
+  const totalAfterDiscount = totalAmount - discountAmount;
 
   const handleChange = (e) => {
     setInfo({ ...info, [e.target.name]: e.target.value });
@@ -46,6 +63,10 @@ export default function Checkout() {
     e.preventDefault();
     const bodyOrder = {
       total_amount: totalAmount,
+      discount_percent: discountPercent,
+      discount_amount: discountAmount,
+      total_after_discount: totalAfterDiscount,
+      user_level: user?.current_level,
       ...info,
       orderItems: cart?.map((i) => ({
         product_id: i?._id,
@@ -57,7 +78,7 @@ export default function Checkout() {
     localStorage.setItem("bodyOrder", JSON.stringify(bodyOrder));
     const body = {
       orderCode: randomNumber(),
-      amount: totalAmount,
+      amount: totalAfterDiscount,
       description: "Thanh toán",
       cancelUrl: `http://localhost:3000/checkout`,
       returnUrl: `http://localhost:3000/checkout`,
@@ -204,6 +225,18 @@ export default function Checkout() {
               <div className="flex justify-between font-bold text-pink-600 text-lg">
                 <span>Tổng cộng:</span>
                 <span>{totalAmount?.toLocaleString()}đ</span>
+              </div>
+              {discountPercent > 0 && (
+                <div className="flex justify-between text-green-600 font-semibold text-base mt-1">
+                  <span>
+                    Khuyến mại ({Math.round(discountPercent * 100)}%):
+                  </span>
+                  <span>-{discountAmount.toLocaleString()}đ</span>
+                </div>
+              )}
+              <div className="flex justify-between font-bold text-blue-700 text-lg mt-1">
+                <span>Thành tiền:</span>
+                <span>{totalAfterDiscount.toLocaleString()}đ</span>
               </div>
             </div>
             {error && <div className="text-red-500 text-sm mb-2">{error}</div>}
