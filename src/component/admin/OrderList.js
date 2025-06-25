@@ -38,7 +38,7 @@ export default function OrderList() {
   async function fetchOrders() {
     setLoading(true);
     try {
-      const res = await axios.get("http://localhost:9999/api/admin/orders", {
+      const res = await axios.get("https://momsbest-be-r1im.onrender.com/api/admin/orders", {
         params: { page, limit, search, status, payment_status: paymentStatus },
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
@@ -53,7 +53,7 @@ export default function OrderList() {
 
   const handleUpdateStatus = async (id, order_status, payment_status) => {
     await axios.patch(
-      `http://localhost:9999/api/admin/orders/${id}`,
+      `https://momsbest-be-r1im.onrender.com/api/admin/orders/${id}`,
       { order_status, payment_status },
       { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
     );

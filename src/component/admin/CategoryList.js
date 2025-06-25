@@ -15,7 +15,7 @@ export default function CategoryList() {
     setLoading(true);
     try {
       const res = await axios.get(
-        "http://localhost:9999/api/admin/categories",
+        "https://momsbest-be-r1im.onrender.com/api/admin/categories",
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
@@ -30,7 +30,7 @@ export default function CategoryList() {
 
   const handleToggleActive = async (id) => {
     await axios.patch(
-      `http://localhost:9999/api/admin/categories/${id}/toggle-active`,
+      `https://momsbest-be-r1im.onrender.com/api/admin/categories/${id}/toggle-active`,
       {},
       {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },

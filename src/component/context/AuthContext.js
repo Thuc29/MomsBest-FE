@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }) => {
   const fetchUser = async () => {
     if (!token) return;
     try {
-      const res = await axios.get("http://localhost:9999/api/auth/me", {
+      const res = await axios.get("https://momsbest-be-r1im.onrender.com/api/auth/me", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUser(res.data.user);

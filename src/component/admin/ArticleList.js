@@ -32,7 +32,7 @@ export default function ArticleList() {
   async function fetchCategories() {
     try {
       const res = await axios.get(
-        "http://localhost:9999/api/admin/categories",
+        "https://momsbest-be-r1im.onrender.com/api/admin/categories",
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
@@ -44,7 +44,7 @@ export default function ArticleList() {
   async function fetchArticles() {
     setLoading(true);
     try {
-      const res = await axios.get("http://localhost:9999/api/admin/articles", {
+      const res = await axios.get("https://momsbest-be-r1im.onrender.com/api/admin/articles", {
         params: { page, limit, search, category },
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
@@ -59,7 +59,7 @@ export default function ArticleList() {
 
   const handleTogglePublished = async (id) => {
     await axios.patch(
-      `http://localhost:9999/api/admin/articles/${id}/toggle-published`,
+      `https://momsbest-be-r1im.onrender.com/api/admin/articles/${id}/toggle-published`,
       {},
       {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },

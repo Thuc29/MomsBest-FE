@@ -30,7 +30,7 @@ export default function UserList() {
   async function fetchUsers() {
     setLoading(true);
     try {
-      const res = await axios.get("http://localhost:9999/api/admin/users", {
+      const res = await axios.get("https://momsbest-be-r1im.onrender.com/api/admin/users", {
         params: { page, limit, search },
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -48,7 +48,7 @@ export default function UserList() {
   const handleToggleActive = async (id) => {
     try {
       await axios.patch(
-        `http://localhost:9999/api/admin/users/${id}/toggle-active`,
+        `https://momsbest-be-r1im.onrender.com/api/admin/users/${id}/toggle-active`,
         {},
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -63,7 +63,7 @@ export default function UserList() {
   const handleChangeRole = async (id, role) => {
     try {
       await axios.patch(
-        `http://localhost:9999/api/admin/users/${id}/change-role`,
+        `https://momsbest-be-r1im.onrender.com/api/admin/users/${id}/change-role`,
         { role },
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -79,7 +79,7 @@ export default function UserList() {
     try {
       const values = await form.validateFields()
       await axios.post(
-        `http://localhost:9999/api/admin/users`,
+        `https://momsbest-be-r1im.onrender.com/api/admin/users`,
         {
           ...values,
           role: 'user'

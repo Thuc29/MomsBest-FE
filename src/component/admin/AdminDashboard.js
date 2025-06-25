@@ -73,7 +73,7 @@ export default function AdminDashboard() {
       try {
         setLoading(true);
         const res = await axios.get(
-          "http://localhost:9999/api/admin/dashboard",
+          "https://momsbest-be-r1im.onrender.com/api/admin/dashboard",
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
