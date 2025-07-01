@@ -18,3 +18,8 @@ api.interceptors.request.use(
 );
 
 export default api;
+
+export const fetchForumThreads = async () => {
+  const response = await api.get("/forumthreads");
+  return response.data;
+};

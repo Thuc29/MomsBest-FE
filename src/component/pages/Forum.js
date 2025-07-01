@@ -570,6 +570,7 @@ const Forum = () => {
                 </h2>
                 <div className="space-y-3">
                   {threads
+                    .filter((thread) => thread.is_pinned)
                     .sort((a, b) => b.likes - a.likes)
                     .slice(0, 3)
                     .map((thread) => (
@@ -604,7 +605,7 @@ const Forum = () => {
                     // Selected Category View with Threads
                     <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6">
                       <div className="flex justify-between items-center mb-6">
-                        <div>
+                        <div className="flex flex-col gap-2 w-[80%]">
                           <button
                             onClick={() => setSelectedCategory(null)}
                             className="text-blue-500 underline text-sm hover:text-blue-700 mb-2 flex items-center gap-1"
@@ -616,7 +617,7 @@ const Forum = () => {
                               <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
                                 {selectedCategory.name}
                               </h2>
-                              <p className="text-gray-600 text-base">
+                              <p className="text-gray-600 text-base line-clamp-3">
                                 {selectedCategory.description}
                               </p>
                               <div className="flex gap-4 mt-2 text-sm text-gray-500">
@@ -751,58 +752,60 @@ const Forum = () => {
                     // Categories List View
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <AnimatePresence>
-                        {categories.map((category) => (
-                          <motion.div
-                            key={category._id}
-                            variants={cardVariants}
-                            initial="hidden"
-                            animate="visible"
-                            exit="exit"
-                            transition={{ duration: 0.3 }}
-                            className={`relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-2xl transition-shadow overflow-hidden cursor-pointer border-2 border-transparent hover:border-pink-400 group`}
-                          >
-                            <div className="p-5 flex flex-col h-full">
-                              <div className="flex items-center gap-4 mb-3">
-                                <div>
-                                  <h3 className="text-xl font-bold text-gray-800 group-hover:text-pink-600 transition flex items-center gap-2">
-                                    {category.name}
-                                    {category.author_id === user?._id && (
-                                      <button
-                                        className="ml-2 text-red-500 hover:text-red-700 text-sm font-medium"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleDeleteCategory(category._id);
-                                        }}
-                                      >
-                                        Xóa
-                                      </button>
-                                    )}
-                                  </h3>
-                                  <div className="flex justify-between items-center">
-                                    <span className="text-gray-500 text-sm">
-                                      {getThreadCount(category._id)} chủ đề
-                                    </span>
+                        {categories
+                          .filter((category) => category.is_active)
+                          .map((category) => (
+                            <motion.div
+                              key={category._id}
+                              variants={cardVariants}
+                              initial="hidden"
+                              animate="visible"
+                              exit="exit"
+                              transition={{ duration: 0.3 }}
+                              className={`relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-2xl transition-shadow overflow-hidden cursor-pointer border-2 border-transparent hover:border-pink-400 group`}
+                            >
+                              <div className="p-5 flex flex-col h-full">
+                                <div className="flex items-center gap-4 mb-3">
+                                  <div>
+                                    <h3 className="text-xl font-bold text-gray-800 group-hover:text-pink-600 transition flex items-center gap-2">
+                                      {category.name}
+                                      {category.author_id === user?._id && (
+                                        <button
+                                          className="ml-2 text-red-500 hover:text-red-700 text-sm font-medium"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleDeleteCategory(category._id);
+                                          }}
+                                        >
+                                          Xóa
+                                        </button>
+                                      )}
+                                    </h3>
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-gray-500 text-sm">
+                                        {getThreadCount(category._id)} chủ đề
+                                      </span>
+                                    </div>
                                   </div>
                                 </div>
+                                <div className="flex  items-center">
+                                  <p className="text-gray-600 justify-start truncate text-sm flex-1 group-hover:text-gray-800 transition">
+                                    {category.description}
+                                  </p>
+                                  <button
+                                    className="text-pink-500 justify-end hover:text-pink-700 text-sm font-medium"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setSelectedCategory(category);
+                                      setCurrentThreadPage(1);
+                                    }}
+                                  >
+                                    Xem tất cả →
+                                  </button>
+                                </div>
                               </div>
-                              <div className="flex  items-center">
-                                <p className="text-gray-600 justify-start truncate text-sm flex-1 group-hover:text-gray-800 transition">
-                                  {category.description}
-                                </p>
-                                <button
-                                  className="text-pink-500 justify-end hover:text-pink-700 text-sm font-medium"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setSelectedCategory(category);
-                                    setCurrentThreadPage(1);
-                                  }}
-                                >
-                                  Xem tất cả →
-                                </button>
-                              </div>
-                            </div>
-                          </motion.div>
-                        ))}
+                            </motion.div>
+                          ))}
                       </AnimatePresence>
                     </div>
                   )}

@@ -1,12 +1,12 @@
 import Hero from "../layouts/Hero";
 import HotTopics from "../ui/HotTopics";
 import FeaturedProducts from "../ui/FeaturedProducts";
-import FeaturedArticles from "../ui/FeaturedArticles";
+
 import FeaturedCategories from "../ui/FeaturedCategories";
 import QuickViewList from "../ui/QuickViewList";
 import ForumCard from "../ui/ForumCard";
 import NewsCard from "../ui/NewsCard";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 
 const quickViewItems = [
   {
@@ -14,6 +14,8 @@ const quickViewItems = [
     title: "Dinh dưỡng cho mẹ bầu 3 tháng đầu",
     description:
       "Những lưu ý về chế độ ăn uống giúp mẹ bầu khỏe mạnh trong tam cá nguyệt đầu tiên.",
+    detail:
+      "Trong 3 tháng đầu thai kỳ, mẹ bầu nên bổ sung axit folic, sắt, canxi và các vitamin cần thiết. Tránh các thực phẩm sống, chưa tiệt trùng và hạn chế đồ ngọt, dầu mỡ. Uống đủ nước và chia nhỏ bữa ăn để giảm buồn nôn.",
     author: "Bác sĩ Lan Anh",
     date: "2024-06-01",
     thumbnail:
@@ -25,6 +27,8 @@ const quickViewItems = [
     title: "Video: Kỹ thuật massage mẹ bầu chuẩn spa",
     description:
       "Trong thời kỳ mang thai, mẹ bầu rất dễ bị đau lưng do một số nguyên nhân như tăng cân đột ngột, thay đổi tư thế",
+    detail:
+      "Video hướng dẫn các động tác massage lưng, vai, chân giúp mẹ bầu giảm đau nhức, thư giãn tinh thần. Lưu ý: Nên massage nhẹ nhàng, tránh các vùng bụng và tham khảo ý kiến bác sĩ trước khi thực hiện.",
     videoUrl: "https://www.youtube.com/watch?v=qbgw3CigRWM",
     author: "CG.Vũ Hằng",
     date: "2024-06-02",
@@ -35,6 +39,8 @@ const quickViewItems = [
     title: "Cách phòng tránh cảm cúm cho mẹ bầu",
     description:
       "Hướng dẫn các biện pháp phòng tránh cảm cúm an toàn cho mẹ và thai nhi.",
+    detail:
+      "Mẹ bầu nên giữ ấm cơ thể, rửa tay thường xuyên, tránh tiếp xúc nơi đông người và tiêm phòng cúm đầy đủ. Nếu có dấu hiệu cảm cúm, nên đi khám bác sĩ để được tư vấn và điều trị an toàn.",
     author: "Dược sĩ Minh Trang",
     date: "2024-06-03",
     thumbnail:
@@ -46,6 +52,8 @@ const quickViewItems = [
     title: "Video: Sự Phát Triển Của Thai Nhi Qua Các tuần ",
     description:
       "Sự phát triển của thai nhi qua các tuần giúp mẹ bầu theo dõi sự phát triển của thai nhi một cách chính xác nhất.",
+    detail:
+      "Video mô tả chi tiết các giai đoạn phát triển của thai nhi từ tuần 1 đến tuần 40, giúp mẹ bầu hiểu rõ sự thay đổi của bé qua từng giai đoạn và lưu ý chăm sóc phù hợp.",
     videoUrl: "https://www.youtube.com/watch?v=OdORjnmUJEo",
     author: "Mamibabi",
     date: "2024-06-04",
@@ -74,6 +82,7 @@ const latestNews = [
     date: "2024-06-06",
     thumbnail:
       "https://images.pexels.com/photos/3952234/pexels-photo-3952234.jpeg?auto=compress&w=400",
+    url: "https://vnvc.vn/loi-khuyen-tiem-chung-cho-me-bau/",
   },
   {
     id: 102,
@@ -84,6 +93,7 @@ const latestNews = [
     date: "2024-06-06",
     thumbnail:
       "https://images.pexels.com/photos/3872362/pexels-photo-3872362.jpeg?auto=compress&w=400",
+    url: "https://hellobacsi.com/nuoi-day-con/cham-soc-be/di-ung-sua-cong-thuc/",
   },
   {
     id: 103,
@@ -93,6 +103,7 @@ const latestNews = [
     date: "2024-06-05",
     thumbnail:
       "https://images.pexels.com/photos/3933272/pexels-photo-3933272.jpeg?auto=compress&w=400",
+    url: "https://www.vinmec.com/vi/tin-tuc/thong-tin-suc-khoe/bi-quyet-giup-tre-so-sinh-ngu-ngon/",
   },
   {
     id: 104,
@@ -103,6 +114,7 @@ const latestNews = [
     date: "2024-06-05",
     thumbnail:
       "https://images.pexels.com/photos/3822190/pexels-photo-3822190.jpeg?auto=compress&w=400",
+    url: "https://benhvienphusanhaiphong.vn/che-do-tap-luyen-cho-me-bau/",
   },
   {
     id: 105,
@@ -113,6 +125,7 @@ const latestNews = [
     date: "2024-06-04",
     thumbnail:
       "https://images.pexels.com/photos/3933271/pexels-photo-3933271.jpeg?auto=compress&w=400",
+    url: "https://suckhoedoisong.vn/cach-xu-tri-khi-tre-bi-sot-cao-169210818093032024.htm",
   },
   {
     id: 106,
@@ -122,6 +135,7 @@ const latestNews = [
     date: "2024-06-04",
     thumbnail:
       "https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&w=400",
+    url: "https://vinmec.com/vi/tin-tuc/thong-tin-suc-khoe/thuc-don-bo-sung-sat-cho-me-bau/",
   },
   {
     id: 107,
@@ -131,6 +145,7 @@ const latestNews = [
     date: "2024-06-03",
     thumbnail:
       "https://images.pexels.com/photos/708777/pexels-photo-708777.jpeg?auto=compress&w=400",
+    url: "https://www.vinmec.com/vi/tin-tuc/thong-tin-suc-khoe/ham-ta-o-tre-so-sinh/",
   },
   {
     id: 108,
@@ -141,6 +156,7 @@ const latestNews = [
     date: "2024-06-03",
     thumbnail:
       "https://images.pexels.com/photos/3933272/pexels-photo-3933272.jpeg?auto=compress&w=400",
+    url: "https://www.marrybaby.vn/su-phat-trien-cua-tre/loi-ich-cua-viec-doc-truyen-cho-be-truoc-khi-ngu",
   },
   {
     id: 109,
@@ -150,6 +166,7 @@ const latestNews = [
     date: "2024-06-02",
     thumbnail:
       "https://images.pexels.com/photos/3952234/pexels-photo-3952234.jpeg?auto=compress&w=400",
+    url: "https://hellobacsi.com/mang-thai/dinh-duong-ba-bau/ba-bau-nen-uong-bao-nhieu-nuoc-moi-ngay/",
   },
   {
     id: 110,
@@ -159,13 +176,15 @@ const latestNews = [
     date: "2024-06-01",
     thumbnail:
       "https://images.pexels.com/photos/3872362/pexels-photo-3872362.jpeg?auto=compress&w=400",
+    url: "https://www.vinmec.com/vi/tin-tuc/thong-tin-suc-khoe/cach-nhan-biet-tre-moc-rang-dau-tien/",
   },
 ];
 
-const PAGE_SIZE_NEWS = 10;
+const PAGE_SIZE_NEWS = 6;
 
 const HomePage = () => {
   const [newsPage, setNewsPage] = useState(0);
+  const newsSectionRef = useRef(null);
   const totalNewsPages = Math.ceil(latestNews.length / PAGE_SIZE_NEWS);
   const pagedNews = latestNews.slice(
     newsPage * PAGE_SIZE_NEWS,
@@ -181,7 +200,10 @@ const HomePage = () => {
             {/* Cột trái: Feed chính */}
             <div className="w-full md:w-2/3 flex flex-col gap-6">
               <QuickViewList items={quickViewItems} />
-              <section className="bg-white/95 rounded-2xl shadow-lg p-4 border border-gray-100">
+              <section
+                ref={newsSectionRef}
+                className="bg-white/95 rounded-2xl shadow-lg p-4 border border-gray-100"
+              >
                 <h3 className="font-bold text-base mb-3 flex items-center gap-2 text-black">
                   <span className="text-blue-500 text-lg">📰</span> Tin tức mới
                   nhất
@@ -193,7 +215,18 @@ const HomePage = () => {
                 </div>
                 <div className="flex justify-center items-center gap-2 mt-4">
                   <button
-                    onClick={() => setNewsPage((p) => Math.max(0, p - 1))}
+                    onClick={() => {
+                      setNewsPage((p) => {
+                        const next = Math.max(0, p - 1);
+                        setTimeout(() => {
+                          newsSectionRef.current?.scrollIntoView({
+                            behavior: "smooth",
+                            block: "start",
+                          });
+                        }, 0);
+                        return next;
+                      });
+                    }}
                     disabled={newsPage === 0}
                     className="px-3 py-1 rounded bg-gray-200 text-gray-600 disabled:opacity-50"
                   >
@@ -203,9 +236,18 @@ const HomePage = () => {
                     Trang {newsPage + 1} / {totalNewsPages}
                   </span>
                   <button
-                    onClick={() =>
-                      setNewsPage((p) => Math.min(totalNewsPages - 1, p + 1))
-                    }
+                    onClick={() => {
+                      setNewsPage((p) => {
+                        const next = Math.min(totalNewsPages - 1, p + 1);
+                        setTimeout(() => {
+                          newsSectionRef.current?.scrollIntoView({
+                            behavior: "smooth",
+                            block: "start",
+                          });
+                        }, 0);
+                        return next;
+                      });
+                    }}
                     disabled={newsPage === totalNewsPages - 1}
                     className="px-3 py-1 rounded bg-gray-200 text-gray-600 disabled:opacity-50"
                   >
@@ -215,13 +257,7 @@ const HomePage = () => {
               </section>
               {/* Card bài viết/video xen kẽ */}
               <ForumCard post={demoCard} />
-              <section className="animate-fadeInUp bg-white/90 rounded-xl shadow p-4">
-                <h2 className="text-xl font-bold flex items-center gap-2 mb-4">
-                  <span className="text-blue-500 text-2xl">📰</span> Bài viết
-                  nổi bật
-                </h2>
-                <FeaturedArticles />
-              </section>
+
               <section className=" animate-fadeInUp bg-white/90 rounded-xl shadow p-4">
                 <h2 className="text-xl font-bold flex items-center gap-2 mb-4">
                   <span className="text-green-500 text-2xl">🛒</span> Sản phẩm

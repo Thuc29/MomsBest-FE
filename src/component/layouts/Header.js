@@ -58,7 +58,7 @@ const Header = () => {
   console.log("cart", cart);
 
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const { user, logout } = useAuth();
 
@@ -69,11 +69,13 @@ const Header = () => {
           <Navbar.Brand
             as={Link}
             to="/"
-            className="flex p-2 bg-white/90 shadow-xl rounded-full items-center gap-2"
+            className="flex p-2 items-center gap-2"
           >
-            <span className="text-2xl font-bold bg-gradient-to-r from-pink-400 to-blue-400 bg-clip-text text-transparent">
-              Mẹ & Bé
-            </span>
+            <img
+              src="./assets/logo.png"
+              alt="logo"
+              className="w-14 h-14 rounded-full "
+            />
           </Navbar.Brand>
           <div className="hidden p-2 bg-white/90 shadow-xl rounded-full md:flex items-center space-x-2">
             {menuItems.map((item, index) => {
@@ -108,10 +110,11 @@ const Header = () => {
                     onClick={() =>
                       item.subMenu && setIsServicesOpen(!isServicesOpen)
                     }
-                    className={`!text-sm !font-medium !font-space-grotesk !flex !items-center !gap-2 !px-4 border !py-2 !rounded-full !transition-all !duration-300 !ease-in-out ${isActive
-                      ? "!bg-pink-300 !text-white"
-                      : "!text-gray-700 hover:!bg-pink-100 hover:!text-pink-400"
-                      }`}
+                    className={`!text-sm !font-medium !font-space-grotesk !flex !items-center !gap-2 !px-4 border !py-2 !rounded-full !transition-all !duration-300 !ease-in-out ${
+                      isActive
+                        ? "!bg-pink-300 !text-white"
+                        : "!text-gray-700 hover:!bg-pink-100 hover:!text-pink-400"
+                    }`}
                     style={{ minWidth: "unset", color: "white" }}
                   >
                     {item.icon}
@@ -151,10 +154,11 @@ const Header = () => {
                                 "!text-white"
                               )
                             }
-                            className={`!w-full !flex !outline-none !items-center !gap-2 !px-4 !py-2 !rounded-lg !transition-colors !duration-300 !ease-in-out !justify-start !text-sm !font-medium !font-space-grotesk ${isSubActive
-                              ? "!bg-pink-400 !text-white"
-                              : "!text-gray-700 hover:!bg-pink-100 hover:!text-pink-400"
-                              }`}
+                            className={`!w-full !flex !outline-none !items-center !gap-2 !px-4 !py-2 !rounded-lg !transition-colors !duration-300 !ease-in-out !justify-start !text-sm !font-medium !font-space-grotesk ${
+                              isSubActive
+                                ? "!bg-pink-400 !text-white"
+                                : "!text-gray-700 hover:!bg-pink-100 hover:!text-pink-400"
+                            }`}
                             style={{ justifyContent: "flex-start" }}
                           >
                             {subItem.icon}
@@ -261,20 +265,22 @@ const Header = () => {
                     </button>
                     {/* Hiển thị submenu nếu mở */}
                     <div
-                      className={`flex flex-col font-space-grotesk gap-2 items-center justify-center transition-all duration-300 ease-in-out ${isServicesOpen
-                        ? "max-h-40 opacity-100"
-                        : "max-h-0 opacity-0 overflow-hidden"
-                        }`}
+                      className={`flex flex-col font-space-grotesk gap-2 items-center justify-center transition-all duration-300 ease-in-out ${
+                        isServicesOpen
+                          ? "max-h-40 opacity-100"
+                          : "max-h-0 opacity-0 overflow-hidden"
+                      }`}
                     >
                       {item.subMenu.map((subItem, subIndex) => (
                         <Nav.Link
                           key={subIndex}
                           as={Link}
                           to={subItem.path}
-                          className={`text-sm font-medium flex items-center gap-2 py-1 transition-colors duration-300 ease-in-out ${location.pathname === subItem.path
-                            ? "text-pink-400"
-                            : "text-gray-600 hover:text-pink-400"
-                            }`}
+                          className={`text-sm font-medium flex items-center gap-2 py-1 transition-colors duration-300 ease-in-out ${
+                            location.pathname === subItem.path
+                              ? "text-pink-400"
+                              : "text-gray-600 hover:text-pink-400"
+                          }`}
                           onClick={() => setIsOpen(false)}
                         >
                           {subItem.icon}
@@ -288,10 +294,11 @@ const Header = () => {
                   <Nav.Link
                     as={Link}
                     to={item.path}
-                    className={`text-sm font-medium flex items-center justify-center gap-2 w-full py-2 transition-colors duration-300 ease-in-out ${location.pathname === item.path
-                      ? "text-pink-400"
-                      : "text-gray-700 hover:text-pink-400"
-                      }`}
+                    className={`text-sm font-medium flex items-center justify-center gap-2 w-full py-2 transition-colors duration-300 ease-in-out ${
+                      location.pathname === item.path
+                        ? "text-pink-400"
+                        : "text-gray-700 hover:text-pink-400"
+                    }`}
                     onClick={() => setIsOpen(false)}
                   >
                     {item.icon}

@@ -1,11 +1,11 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
 import { Autoplay, Pagination } from "swiper/modules";
-import { featuredProducts } from "../data/featuredData";
+import axios from "axios";
 
 const StarRating = ({ rating }) => {
   const fullStars = Math.floor(rating);
@@ -61,6 +61,23 @@ const StarRating = ({ rating }) => {
 
 const FeaturedProducts = () => {
   const swiperRef = useRef(null);
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await axios.get("http://localhost:9999/api/products");
+        // Lọc sản phẩm nổi bật và đang hoạt động
+        const featured = res.data.filter(
+          (p) => p.is_featured === true && p.is_active === true
+        );
+        setFeaturedProducts(featured);
+      } catch (error) {
+        setFeaturedProducts([]);
+      }
+    };
+    fetchProducts();
+  }, []);
 
   useEffect(() => {
     if (swiperRef.current && swiperRef.current.swiper) {
@@ -106,11 +123,11 @@ const FeaturedProducts = () => {
           }}
         >
           {featuredProducts.map((product) => (
-            <SwiperSlide key={product.id}>
+            <SwiperSlide key={product._id || product.id}>
               <div className="min-w-[220px] h-[340px] bg-white rounded-2xl shadow hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 p-4 flex flex-col items-center group">
                 <div className="w-full flex justify-center">
                   <img
-                    src={product.image}
+                    src={product.images ? product.images[0] : product.image}
                     alt={product.name}
                     className="w-32 h-32 object-cover rounded-xl border border-gray-200 group-hover:scale-105 transition"
                   />
@@ -119,13 +136,18 @@ const FeaturedProducts = () => {
                   {product.name}
                 </h3>
                 <div className="text-pink-600 font-bold text-lg mb-2 bg-gradient-to-r from-pink-400 to-pink-600 bg-clip-text text-transparent text-center">
-                  {product.price.toLocaleString()}₫
+                  {product.price?.toLocaleString()}₫
                 </div>
+                {product.original_price && (
+                  <div className="text-gray-400 text-sm line-through mb-1">
+                    {product.original_price?.toLocaleString()}₫
+                  </div>
+                )}
                 <div className="flex justify-center">
                   <StarRating rating={product.rating} />
                 </div>
                 <Link
-                  to={`/shop/${product.id}`}
+                  to={`/products/${product._id || product.id}`}
                   className="mt-auto px-3 py-1 bg-gradient-to-r from-pink-400 to-pink-600 text-white rounded-full shadow font-semibold text-normal hover:from-pink-500 hover:to-pink-700 transition"
                 >
                   Xem chi tiết

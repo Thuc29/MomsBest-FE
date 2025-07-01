@@ -1,12 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { fetchForumThreads } from "../../api/axiosConfig";
 
 const PAGE_SIZE = 4;
 
-const HotTopics = ({ topics = [] }) => {
+const HotTopics = () => {
+  const [topics, setTopics] = useState([]);
   const [page, setPage] = useState(0);
-  const totalPages = Math.ceil(topics.length / PAGE_SIZE);
-  const pagedTopics = topics.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+  useEffect(() => {
+    fetchForumThreads().then(setTopics).catch(console.error);
+  }, []);
+  const pinnedTopics = topics.filter((topic) => topic.is_pinned);
+  const totalPages = Math.ceil(pinnedTopics.length / PAGE_SIZE);
+  const pagedTopics = pinnedTopics.slice(
+    page * PAGE_SIZE,
+    (page + 1) * PAGE_SIZE
+  );
 
   return (
     <section className="bg-white bg-opacity-80 rounded-xl shadow p-6 my-8">
@@ -20,12 +29,9 @@ const HotTopics = ({ topics = [] }) => {
             className="bg-pink-50 border border-pink-200 rounded-lg p-4 flex flex-col justify-between shadow hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
           >
             <div>
-              <Link
-                to={`/forum/${topic.id}`}
-                className="text-base font-semibold text-pink-700 hover:text-pink-500 block mb-2 line-clamp-2"
-              >
+              <div className="text-base font-semibold text-pink-700 hover:text-pink-500 block mb-2 line-clamp-2">
                 {topic.title}
-              </Link>
+              </div>
               <div className="text-sm text-gray-500 mb-2">
                 {topic.replies} trả lời • {topic.views} lượt xem
               </div>
@@ -34,7 +40,7 @@ const HotTopics = ({ topics = [] }) => {
               </div>
             </div>
             <Link
-              to={`/forum/${topic.id}`}
+              to={`/forumthreads/${topic.id}`}
               className="mt-4 px-3 py-1 bg-pink-100 text-pink-600 rounded hover:bg-pink-200 text-sm font-medium text-center"
             >
               Xem chi tiết

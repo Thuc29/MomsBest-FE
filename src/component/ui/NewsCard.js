@@ -5,7 +5,18 @@ const NewsCard = ({ news }) => {
     <div className="flex flex-row items-stretch bg-white rounded-lg shadow border border-gray-100 px-0 py-0 hover:bg-gray-50 transition-all cursor-pointer min-h-[120px] overflow-hidden">
       <div className="flex-1 pr-4 py-3 pl-4 min-w-0 border-r-2 border-gray-200 flex flex-col justify-center">
         <div className="font-semibold text-base text-black line-clamp-2 mb-1">
-          {news.title}
+          {news.url ? (
+            <a
+              href={news.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:underline"
+            >
+              {news.title}
+            </a>
+          ) : (
+            news.title
+          )}
         </div>
         <div className="text-sm text-gray-600 line-clamp-2 mb-1">
           {news.description}
