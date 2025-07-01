@@ -20,7 +20,7 @@ const LoginPage = () => {
     try {
       const values = await formLogin.validateFields();
       const res = await axios.post(
-        "http://localhost:9999/api/auth/login",
+        "https://momsbest-be-r1im.onrender.com/api/auth/login",
         values
       );
       if (!res.data.success) return message.error(res?.data?.message);
@@ -41,7 +41,7 @@ const LoginPage = () => {
     try {
       const values = await formRegister.validateFields();
       const res = await axios.post(
-        "http://localhost:9999/api/auth/register",
+        "https://momsbest-be-r1im.onrender.com/api/auth/register",
         values
       );
       if (!res.data.success) return message.error(res?.data?.message);

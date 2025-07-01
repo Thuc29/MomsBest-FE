@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import {
   FaBaby,
-  FaUserTie,
   FaLock,
   FaUnlock,
   FaSearch,
   FaSmile,
   FaUser,
 } from "react-icons/fa";
+import { Button, Col, Form, Input, message, Modal, Row } from "antd";
+import { getRegexEmail } from "../lib/utils";
 
 export default function UserList() {
   const [users, setUsers] = useState([]);
@@ -18,6 +19,8 @@ export default function UserList() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
+  const [openModalCreateUser, setOpenModalCreateUser] = useState(false)
+  const [form] = Form.useForm()
 
   useEffect(() => {
     fetchUsers();
@@ -27,7 +30,7 @@ export default function UserList() {
   async function fetchUsers() {
     setLoading(true);
     try {
-      const res = await axios.get("http://localhost:9999/api/admin/users", {
+      const res = await axios.get("https://momsbest-be-r1im.onrender.com/api/admin/users", {
         params: { page, limit, search },
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -43,26 +46,54 @@ export default function UserList() {
   }
 
   const handleToggleActive = async (id) => {
-    await axios.patch(
-      `http://localhost:9999/api/admin/users/${id}/toggle-active`,
-      {},
-      {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      }
-    );
-    fetchUsers();
+    try {
+      await axios.patch(
+        `https://momsbest-be-r1im.onrender.com/api/admin/users/${id}/toggle-active`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
+      fetchUsers();
+    } catch (error) {
+      message.error(error.toString())
+    }
   };
 
   const handleChangeRole = async (id, role) => {
-    await axios.patch(
-      `http://localhost:9999/api/admin/users/${id}/change-role`,
-      { role },
-      {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      }
-    );
-    fetchUsers();
+    try {
+      await axios.patch(
+        `https://momsbest-be-r1im.onrender.com/api/admin/users/${id}/change-role`,
+        { role },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
+      fetchUsers();
+    } catch (error) {
+      message.error(error.toString())
+    }
   };
+
+  const handleCreateUser = async () => {
+    try {
+      const values = await form.validateFields()
+      await axios.post(
+        `https://momsbest-be-r1im.onrender.com/api/admin/users`,
+        {
+          ...values,
+          role: 'user'
+        },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      )
+      fetchUsers();
+      setOpenModalCreateUser(false)
+    } catch (error) {
+      message.error(error.toString())
+    }
+  }
 
   if (loading)
     return (
@@ -83,7 +114,7 @@ export default function UserList() {
       <h1 className="text-2xl font-extrabold mb-6 flex items-center gap-2 text-pink-400">
         <FaBaby className="text-pink-300 text-3xl" /> Quản lý tài khoản
       </h1>
-      <div className="mb-6 flex items-center gap-3">
+      <div className="mb-6 flex justify-between items-center">
         <div className="relative">
           <input
             type="text"
@@ -97,6 +128,13 @@ export default function UserList() {
           />
           <FaSearch className="absolute right-3 top-3 text-pink-300" />
         </div>
+        <Button
+          color="pink"
+          variant="outlined"
+          onClick={() => setOpenModalCreateUser(true)}
+        >
+          Thêm tài khoản
+        </Button>
       </div>
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white/80 rounded-2xl shadow-xl">
@@ -150,9 +188,8 @@ export default function UserList() {
                   </td>
                   <td className="px-4 py-3">
                     <span
-                      className={`flex items-center gap-1 font-semibold ${
-                        user.is_active ? "text-green-500" : "text-gray-400"
-                      }`}
+                      className={`flex items-center gap-1 font-semibold ${user.is_active ? "text-green-500" : "text-gray-400"
+                        }`}
                     >
                       {user.is_active ? (
                         <>
@@ -169,11 +206,10 @@ export default function UserList() {
                   <td className="px-4 py-3">
                     <button
                       onClick={() => handleToggleActive(user._id)}
-                      className={`px-4 py-2 rounded-2xl font-bold shadow-sm transition-all duration-200 flex items-center gap-2 text-white ${
-                        user.is_active
-                          ? "bg-pink-400 hover:bg-pink-500"
-                          : "bg-blue-300 hover:bg-blue-400"
-                      }`}
+                      className={`px-4 py-2 rounded-2xl font-bold shadow-sm transition-all duration-200 flex items-center gap-2 text-white ${user.is_active
+                        ? "bg-pink-400 hover:bg-pink-500"
+                        : "bg-blue-300 hover:bg-blue-400"
+                        }`}
                     >
                       {user.is_active ? <FaLock /> : <FaUnlock />}
                       {user.is_active ? "Khóa" : "Mở khóa"}
@@ -190,16 +226,66 @@ export default function UserList() {
           <button
             key={i}
             onClick={() => setPage(i + 1)}
-            className={`px-4 py-2 rounded-full font-bold shadow-sm transition-all duration-200 text-lg ${
-              page === i + 1
-                ? "bg-pink-400 text-white scale-110"
-                : "bg-white/80 text-pink-400 hover:bg-pink-100"
-            }`}
+            className={`px-4 py-2 rounded-full font-bold shadow-sm transition-all duration-200 text-lg ${page === i + 1
+              ? "bg-pink-400 text-white scale-110"
+              : "bg-white/80 text-pink-400 hover:bg-pink-100"
+              }`}
           >
             {i + 1}
           </button>
         ))}
       </div>
+
+      {
+        !!openModalCreateUser &&
+        <Modal
+          open={openModalCreateUser}
+          title="Tạo tài khoản"
+          width="50vw"
+          onCancel={() => setOpenModalCreateUser(false)}
+          onOk={handleCreateUser}
+        >
+          <Form form={form} layout="vertical">
+            <Row>
+              <Col span={24}>
+                <Form.Item
+                  name='email'
+                  label='Email'
+                  rules={[
+                    { required: true, message: "Thông tin không được để trống" },
+                    { pattern: getRegexEmail(), message: "Email sai định dạng" },
+                  ]}
+                >
+                  <Input />
+                </Form.Item>
+              </Col>
+              <Col span={24}>
+                <Form.Item
+                  name='password'
+                  label='Mật khẩu'
+                  rules={[
+                    { required: true, message: "Thông tin không được để trống" }
+                  ]}
+                >
+                  <Input />
+                </Form.Item>
+              </Col>
+              <Col span={24}>
+                <Form.Item
+                  name='name'
+                  label='Tên tài khoản'
+                  rules={[
+                    { required: true, message: "Thông tin không được để trống" }
+                  ]}
+                >
+                  <Input />
+                </Form.Item>
+              </Col>
+            </Row>
+          </Form>
+        </Modal>
+      }
+
     </div>
   );
 }
