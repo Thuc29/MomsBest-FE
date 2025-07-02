@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Input } from "../ui/input";
 import { message } from "antd";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
+import api from "../../api/axiosConfig";
+import Swal from "sweetalert2";
 
 const PAGE_SIZE = 4;
 
@@ -119,25 +121,41 @@ const FavoriteIcon = () => (
 );
 
 // Component con cho từng tab
-function MyPostsTab({ setTabCount }) {
+function MyPostsTab({ setTabCount, user }) {
   const [posts, setPosts] = useState([]);
   const [page, setPage] = useState(1);
   const { token } = useAuth();
 
   const getListPost = async () => {
     try {
-      const res = await axios.get(
-        "https://momsbest-be.onrender.com/api/categories/getCategoryByAuthor",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const res = await api.get("/categories/getCategoryByAuthor");
       setPosts(res?.data);
       setTabCount && setTabCount("posts", res?.data?.length || 0);
     } catch (error) {
       message.error(error.toString());
+    }
+  };
+
+  // Xóa post
+  const handleDeletePost = async (id) => {
+    const result = await Swal.fire({
+      title: "Bạn có chắc muốn xóa chuyên mục này?",
+      text: "Hành động này không thể hoàn tác!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Xóa",
+      cancelButtonText: "Hủy",
+    });
+    if (!result.isConfirmed) return;
+    try {
+      await api.delete(`/categories/${id}`);
+      setPosts((prev) => prev.filter((p) => p.id !== id));
+      setTabCount && setTabCount("posts", posts.length - 1);
+      Swal.fire("Đã xóa!", "Chuyên mục đã được xóa.", "success");
+    } catch (err) {
+      Swal.fire("Lỗi!", "Xóa chuyên mục thất bại.", "error");
     }
   };
 
@@ -167,13 +185,23 @@ function MyPostsTab({ setTabCount }) {
             {pagedPosts.map((post) => (
               <li
                 key={post?.id}
-                className="bg-blue-50 border border-blue-100 rounded-xl shadow-sm p-4 flex flex-col gap-2 hover:shadow-lg transition"
+                className="bg-blue-50 border border-blue-100 rounded-xl shadow-sm p-4 flex flex-col gap-2 hover:shadow-lg transition relative"
               >
                 <div className="flex items-center gap-2">
                   <PostIcon />
                   <span className="font-semibold text-blue-700">
                     {post?.name}
                   </span>
+                  {/* Nút xóa nếu là tác giả */}
+                  {user && post.author_id === user._id && (
+                    <button
+                      className="ml-auto text-red-500 hover:text-red-700 text-xs font-bold bg-white rounded-full w-7 h-7 flex items-center justify-center shadow absolute top-2 right-2"
+                      title="Xóa chuyên mục"
+                      onClick={() => handleDeletePost(post.id)}
+                    >
+                      &times;
+                    </button>
+                  )}
                 </div>
                 <span className="text-xs text-gray-500 mt-1">
                   {formatDate(post?.created_at)}
@@ -207,25 +235,41 @@ function MyPostsTab({ setTabCount }) {
     </div>
   );
 }
-function MyQuestionsTab({ setTabCount }) {
+function MyQuestionsTab({ setTabCount, user }) {
   const [threads, setThreads] = useState([]);
   const [page, setPage] = useState(1);
   const { token } = useAuth();
 
   const getListThread = async () => {
     try {
-      const res = await axios.get(
-        "https://momsbest-be.onrender.com/api/forumthreads/getForumThreadByAuthor",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const res = await api.get("/forumthreads/getForumThreadByAuthor");
       setThreads(res?.data);
       setTabCount && setTabCount("questions", res?.data?.length || 0);
     } catch (error) {
       message.error(error.toString());
+    }
+  };
+
+  // Xóa thread
+  const handleDeleteThread = async (id) => {
+    const result = await Swal.fire({
+      title: "Bạn có chắc muốn xóa chủ đề này?",
+      text: "Hành động này không thể hoàn tác!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Xóa",
+      cancelButtonText: "Hủy",
+    });
+    if (!result.isConfirmed) return;
+    try {
+      await api.delete(`/forumthreads/${id}`);
+      setThreads((prev) => prev.filter((t) => t._id !== id));
+      setTabCount && setTabCount("questions", threads.length - 1);
+      Swal.fire("Đã xóa!", "Chủ đề đã được xóa.", "success");
+    } catch (err) {
+      Swal.fire("Lỗi!", "Xóa chủ đề thất bại.", "error");
     }
   };
 
@@ -255,13 +299,23 @@ function MyQuestionsTab({ setTabCount }) {
             {pagedThreads.map((q) => (
               <li
                 key={q._id}
-                className="bg-purple-50 border border-purple-100 rounded-xl shadow-sm p-4 flex flex-col gap-2 hover:shadow-lg transition"
+                className="bg-purple-50 border border-purple-100 rounded-xl shadow-sm p-4 flex flex-col gap-2 hover:shadow-lg transition relative"
               >
                 <div className="flex items-center gap-2">
                   <QuestionIcon />
                   <span className="font-semibold text-purple-700">
                     {q.title}
                   </span>
+                  {/* Nút xóa nếu là tác giả */}
+                  {user && q.author_id === user._id && (
+                    <button
+                      className="ml-auto text-red-500 hover:text-red-700 text-xs font-bold bg-white rounded-full w-7 h-7 flex items-center justify-center shadow absolute top-2 right-2"
+                      title="Xóa chủ đề"
+                      onClick={() => handleDeleteThread(q._id)}
+                    >
+                      &times;
+                    </button>
+                  )}
                 </div>
                 <span className="text-xs text-gray-500 mt-1">
                   {formatDate(q.created_at)}
@@ -727,6 +781,7 @@ function ProfilePage() {
   const [tabCounts, setTabCounts] = useState({});
   const [editData, setEditData] = useState({ name: "", email: "", avatar: "" });
   const [avatarPreview, setAvatarPreview] = useState("");
+  const contentRef = useRef(null);
 
   const setTabCount = (key, count) => {
     setTabCounts((prev) => ({ ...prev, [key]: count }));
@@ -795,6 +850,18 @@ function ProfilePage() {
     }
   };
 
+  const handleTabClick = (key) => {
+    setActiveTab(key);
+    setTimeout(() => {
+      if (contentRef.current) {
+        contentRef.current.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }
+    }, 50);
+  };
+
   return (
     <div className=" text-black pt-16 mx-auto bg-cover font-space-grotesk bg-[url('https://images.pexels.com/photos/1157389/pexels-photo-1157389.jpeg?auto=compress&cs=tinysrgb&w=600')] p-4">
       <main className="max-w-4xl mx-auto px-4 py-8">
@@ -858,7 +925,7 @@ function ProfilePage() {
                   : "border-transparent text-gray-500 hover:text-blue-500 hover:bg-blue-50"
               }
             `}
-              onClick={() => setActiveTab(tab.key)}
+              onClick={() => handleTabClick(tab.key)}
             >
               {tab.label}
               {typeof tabCounts[tab.key] === "number" && (
@@ -871,10 +938,15 @@ function ProfilePage() {
         </div>
 
         {/* Nội dung từng tab */}
-        <div className="bg-white rounded-xl shadow p-6 min-h-[220px]">
-          {activeTab === "posts" && <MyPostsTab setTabCount={setTabCount} />}
+        <div
+          ref={contentRef}
+          className="bg-white rounded-xl shadow p-6 min-h-[220px]"
+        >
+          {activeTab === "posts" && (
+            <MyPostsTab setTabCount={setTabCount} user={user} />
+          )}
           {activeTab === "questions" && (
-            <MyQuestionsTab setTabCount={setTabCount} />
+            <MyQuestionsTab setTabCount={setTabCount} user={user} />
           )}
           {activeTab === "orders" && <MyOrdersTab setTabCount={setTabCount} />}
           {activeTab === "reviews" && (
