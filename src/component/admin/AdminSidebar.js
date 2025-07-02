@@ -9,6 +9,7 @@ import {
   FaRegNewspaper,
   FaComments,
   FaRegCommentDots,
+  FaProductHunt,
 } from "react-icons/fa";
 
 const menu = [
@@ -28,8 +29,13 @@ const menu = [
     icon: <FaBox className="text-green-400" />,
   },
   {
+    path: "/admin/categoryproducts",
+    label: "Danh mục sản phẩm",
+    icon: <FaProductHunt className="text-yellow-400" />,
+  },
+  {
     path: "/admin/categories",
-    label: "Quản lý danh mục",
+    label: "Quản lý chuyên mục",
     icon: <FaListUl className="text-yellow-400" />,
   },
   {
@@ -67,7 +73,7 @@ export default function AdminSidebar() {
             <li key={item.path}>
               <Link
                 to={item.path}
-                className={`flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold transition-all text-lg shadow-sm hover:scale-105 hover:bg-pink-100/60 hover:text-pink-500 hover:shadow-lg duration-200 cursor-pointer ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold transition-all text-base shadow-sm hover:scale-105 hover:bg-pink-100/60 hover:text-pink-500 hover:shadow-lg duration-200 cursor-pointer ${
                   location.pathname === item.path
                     ? "bg-pink-200/80 text-pink-600 shadow-lg"
                     : "bg-white/80 text-gray-700"

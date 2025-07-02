@@ -84,3 +84,19 @@
      background-image: radial-gradient(circle, #FFB6D9 1px, transparent 1px);
      background-size: 20px 20px;
 }
+
+/* Custom scrollbar for modal */
+.custom-scrollbar::-webkit-scrollbar {
+     width: 8px;
+     border-radius: 8px;
+     background: #f3f4f6;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+     background: #a7f3d0;
+     border-radius: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+     background: #6ee7b7;
+}

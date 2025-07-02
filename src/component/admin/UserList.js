@@ -10,6 +10,7 @@ import {
 } from "react-icons/fa";
 import { Button, Col, Form, Input, message, Modal, Row } from "antd";
 import { getRegexEmail } from "../lib/utils";
+import api from "../../api/axiosConfig";
 
 export default function UserList() {
   const [users, setUsers] = useState([]);
@@ -21,24 +22,19 @@ export default function UserList() {
   const [limit] = useState(10);
   const [openModalCreateUser, setOpenModalCreateUser] = useState(false);
   const [form] = Form.useForm();
+  const [roleTab, setRoleTab] = useState("user");
 
   useEffect(() => {
     fetchUsers();
     // eslint-disable-next-line
-  }, [page, search]);
+  }, [page, search, roleTab]);
 
   async function fetchUsers() {
     setLoading(true);
     try {
-      const res = await axios.get(
-        "https://momsbest-be.onrender.com/api/admin/users",
-        {
-          params: { page, limit, search },
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
+      const res = await api.get("/api/admin/users", {
+        params: { page, limit, search, role: roleTab },
+      });
       setUsers(res.data.users);
       setTotal(res.data.total);
     } catch (err) {
@@ -117,6 +113,34 @@ export default function UserList() {
       <h1 className="text-2xl font-extrabold mb-6 flex items-center gap-2 text-pink-400">
         <FaBaby className="text-pink-300 text-3xl" /> Quản lý tài khoản
       </h1>
+      <div className="flex gap-4 mb-4">
+        <button
+          className={`px-4 py-2 rounded-full font-bold shadow-sm transition-all duration-200 text-lg ${
+            roleTab === "user"
+              ? "bg-pink-400 text-white scale-110"
+              : "bg-white/80 text-pink-400 hover:bg-pink-100"
+          }`}
+          onClick={() => {
+            setRoleTab("user");
+            setPage(1);
+          }}
+        >
+          Tài khoản User
+        </button>
+        <button
+          className={`px-4 py-2 rounded-full font-bold shadow-sm transition-all duration-200 text-lg ${
+            roleTab === "admin"
+              ? "bg-pink-400 text-white scale-110"
+              : "bg-white/80 text-pink-400 hover:bg-pink-100"
+          }`}
+          onClick={() => {
+            setRoleTab("admin");
+            setPage(1);
+          }}
+        >
+          Tài khoản Admin
+        </button>
+      </div>
       <div className="mb-6 flex justify-between items-center">
         <div className="relative">
           <input
@@ -176,18 +200,22 @@ export default function UserList() {
                     <FaUser className="text-pink-200" />
                     <span className="font-medium">{user.name}</span>
                   </td>
-                  <td className="px-4 py-3">{user.email}</td>
-                  <td className="px-4 py-3">
-                    <select
-                      value={user.role}
-                      onChange={(e) =>
-                        handleChangeRole(user._id, e.target.value)
-                      }
-                      className="border rounded px-2 py-1 bg-pink-50 text-pink-600 font-semibold"
-                    >
-                      <option value="user">User</option>
-                      <option value="admin">Admin</option>
-                    </select>
+                  <td className="px-4 py-3 text-start">{user.email}</td>
+                  <td className="px-4 py-3 text-start">
+                    {roleTab === "user" ? (
+                      <select
+                        value={user.role}
+                        onChange={(e) =>
+                          handleChangeRole(user._id, e.target.value)
+                        }
+                        className="border rounded px-2 py-1 bg-pink-50 text-pink-600 font-semibold"
+                      >
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                      </select>
+                    ) : (
+                      <span className="font-semibold text-pink-600">Admin</span>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <span
@@ -208,17 +236,19 @@ export default function UserList() {
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <button
-                      onClick={() => handleToggleActive(user._id)}
-                      className={`px-4 py-2 rounded-2xl font-bold shadow-sm transition-all duration-200 flex items-center gap-2 text-white ${
-                        user.is_active
-                          ? "bg-pink-400 hover:bg-pink-500"
-                          : "bg-blue-300 hover:bg-blue-400"
-                      }`}
-                    >
-                      {user.is_active ? <FaLock /> : <FaUnlock />}
-                      {user.is_active ? "Khóa" : "Mở khóa"}
-                    </button>
+                    {roleTab === "user" ? (
+                      <button
+                        onClick={() => handleToggleActive(user._id)}
+                        className={`px-4 py-2 rounded-2xl font-bold shadow-sm transition-all duration-200 flex items-center gap-2 text-white ${
+                          user.is_active
+                            ? "bg-pink-400 hover:bg-pink-500"
+                            : "bg-blue-300 hover:bg-blue-400"
+                        }`}
+                      >
+                        {user.is_active ? <FaLock /> : <FaUnlock />}
+                        {user.is_active ? "Khóa" : "Mở khóa"}
+                      </button>
+                    ) : null}
                   </td>
                 </tr>
               ))

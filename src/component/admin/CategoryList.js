@@ -15,7 +15,7 @@ export default function CategoryList() {
     setLoading(true);
     try {
       const res = await axios.get(
-        "https://momsbest-be.onrender.com/api/admin/categories",
+        "https://momsbest-fe.onrender.com/api/admin/categories",
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
@@ -30,7 +30,7 @@ export default function CategoryList() {
 
   const handleToggleActive = async (id) => {
     await axios.patch(
-      `https://momsbest-be.onrender.com/api/admin/categories/${id}/toggle-active`,
+      `https://momsbest-fe.onrender.com/api/admin/categories/${id}/toggle-active`,
       {},
       {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -56,14 +56,14 @@ export default function CategoryList() {
   return (
     <div className="p-6 min-h-screen text-blue-700 font-space-grotesk bg-[url('https://images.pexels.com/photos/3847874/pexels-photo-3847874.jpeg')] bg-cover bg-center">
       <h1 className="text-2xl font-extrabold mb-6 flex items-center gap-2 text-yellow-400">
-        <FaListUl className="text-yellow-300 text-3xl" /> Quản lý danh mục
+        <FaListUl className="text-yellow-300 text-3xl" /> Quản lý chuyên mục
       </h1>
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white/80 rounded-2xl shadow-xl">
           <thead>
             <tr className="bg-yellow-100 text-yellow-600">
               <th className="px-4 py-3 rounded-tl-2xl font-bold text-left">
-                Tên danh mục
+                Tên chuyên mục
               </th>
               <th className="px-4 py-3 font-bold text-left">Mô tả</th>
               <th className="px-4 py-3 font-bold text-left">Trạng thái</th>

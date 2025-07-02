@@ -34,7 +34,7 @@ import ArticleList from "./component/admin/ArticleList";
 import ForumThreadList from "./component/admin/ForumThreadList";
 import ForumCommentList from "./component/admin/ForumCommentList";
 import AdminRoute from "./component/admin/AdminRoute";
-
+import CategoryProductList from "./component/admin/CategoryProductList";
 function AdminLayout() {
   return (
     <div className="flex min-h-screen">
@@ -74,6 +74,7 @@ function App() {
           <Route index element={<AdminDashboard />} />
           <Route path="users" element={<UserList />} />
           <Route path="products" element={<ProductList />} />
+          <Route path="categoryproducts" element={<CategoryProductList />} />
           <Route path="categories" element={<CategoryList />} />
           <Route path="orders" element={<OrderList />} />
           <Route path="articles" element={<ArticleList />} />
