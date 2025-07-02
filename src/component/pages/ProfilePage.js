@@ -127,7 +127,7 @@ function MyPostsTab({ setTabCount }) {
   const getListPost = async () => {
     try {
       const res = await axios.get(
-        "https://momsbest-be-r1im.onrender.com/api/categories/getCategoryByAuthor",
+        "https://momsbest-be.onrender.com/api/categories/getCategoryByAuthor",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -215,7 +215,7 @@ function MyQuestionsTab({ setTabCount }) {
   const getListThread = async () => {
     try {
       const res = await axios.get(
-        "https://momsbest-be-r1im.onrender.com/api/forumthreads/getForumThreadByAuthor",
+        "https://momsbest-be.onrender.com/api/forumthreads/getForumThreadByAuthor",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -303,7 +303,7 @@ function MyOrdersTab({ setTabCount }) {
   const getListOrder = async () => {
     try {
       const res = await axios.get(
-        "https://momsbest-be-r1im.onrender.com/api/orders/getOrderByUser",
+        "https://momsbest-be.onrender.com/api/orders/getOrderByUser",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -404,7 +404,7 @@ function MyReviewsTab({ setTabCount }) {
   const getListReview = async () => {
     try {
       const res = await axios.get(
-        `https://momsbest-be-r1im.onrender.com/api/productReviews/getListReviewByUser`,
+        `https://momsbest-be.onrender.com/api/productReviews/getListReviewByUser`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -555,7 +555,7 @@ function FavoritesTab({ setTabCount }) {
   const getFavorites = async () => {
     try {
       const res = await axios.get(
-        `https://momsbest-be-r1im.onrender.com/api/favorite/getWishlistByUser`,
+        `https://momsbest-be.onrender.com/api/favorite/getWishlistByUser`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -759,7 +759,7 @@ function ProfilePage() {
     e.preventDefault();
     try {
       const res = await axios.put(
-        "https://momsbest-be-r1im.onrender.com/api/auth/me",
+        "https://momsbest-be.onrender.com/api/auth/me",
         {
           name: editData.name,
           email: editData.email,

@@ -19,8 +19,8 @@ export default function UserList() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
-  const [openModalCreateUser, setOpenModalCreateUser] = useState(false)
-  const [form] = Form.useForm()
+  const [openModalCreateUser, setOpenModalCreateUser] = useState(false);
+  const [form] = Form.useForm();
 
   useEffect(() => {
     fetchUsers();
@@ -30,12 +30,15 @@ export default function UserList() {
   async function fetchUsers() {
     setLoading(true);
     try {
-      const res = await axios.get("https://momsbest-be-r1im.onrender.com/api/admin/users", {
-        params: { page, limit, search },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+      const res = await axios.get(
+        "https://momsbest-be.onrender.com/api/admin/users",
+        {
+          params: { page, limit, search },
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
       setUsers(res.data.users);
       setTotal(res.data.total);
     } catch (err) {
@@ -48,7 +51,7 @@ export default function UserList() {
   const handleToggleActive = async (id) => {
     try {
       await axios.patch(
-        `https://momsbest-be-r1im.onrender.com/api/admin/users/${id}/toggle-active`,
+        `https://momsbest-be.onrender.com/api/admin/users/${id}/toggle-active`,
         {},
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -56,14 +59,14 @@ export default function UserList() {
       );
       fetchUsers();
     } catch (error) {
-      message.error(error.toString())
+      message.error(error.toString());
     }
   };
 
   const handleChangeRole = async (id, role) => {
     try {
       await axios.patch(
-        `https://momsbest-be-r1im.onrender.com/api/admin/users/${id}/change-role`,
+        `https://momsbest-be.onrender.com/api/admin/users/${id}/change-role`,
         { role },
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -71,29 +74,29 @@ export default function UserList() {
       );
       fetchUsers();
     } catch (error) {
-      message.error(error.toString())
+      message.error(error.toString());
     }
   };
 
   const handleCreateUser = async () => {
     try {
-      const values = await form.validateFields()
+      const values = await form.validateFields();
       await axios.post(
-        `https://momsbest-be-r1im.onrender.com/api/admin/users`,
+        `https://momsbest-be.onrender.com/api/admin/users`,
         {
           ...values,
-          role: 'user'
+          role: "user",
         },
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
-      )
+      );
       fetchUsers();
-      setOpenModalCreateUser(false)
+      setOpenModalCreateUser(false);
     } catch (error) {
-      message.error(error.toString())
+      message.error(error.toString());
     }
-  }
+  };
 
   if (loading)
     return (
@@ -188,8 +191,9 @@ export default function UserList() {
                   </td>
                   <td className="px-4 py-3">
                     <span
-                      className={`flex items-center gap-1 font-semibold ${user.is_active ? "text-green-500" : "text-gray-400"
-                        }`}
+                      className={`flex items-center gap-1 font-semibold ${
+                        user.is_active ? "text-green-500" : "text-gray-400"
+                      }`}
                     >
                       {user.is_active ? (
                         <>
@@ -206,10 +210,11 @@ export default function UserList() {
                   <td className="px-4 py-3">
                     <button
                       onClick={() => handleToggleActive(user._id)}
-                      className={`px-4 py-2 rounded-2xl font-bold shadow-sm transition-all duration-200 flex items-center gap-2 text-white ${user.is_active
-                        ? "bg-pink-400 hover:bg-pink-500"
-                        : "bg-blue-300 hover:bg-blue-400"
-                        }`}
+                      className={`px-4 py-2 rounded-2xl font-bold shadow-sm transition-all duration-200 flex items-center gap-2 text-white ${
+                        user.is_active
+                          ? "bg-pink-400 hover:bg-pink-500"
+                          : "bg-blue-300 hover:bg-blue-400"
+                      }`}
                     >
                       {user.is_active ? <FaLock /> : <FaUnlock />}
                       {user.is_active ? "Khóa" : "Mở khóa"}
@@ -226,18 +231,18 @@ export default function UserList() {
           <button
             key={i}
             onClick={() => setPage(i + 1)}
-            className={`px-4 py-2 rounded-full font-bold shadow-sm transition-all duration-200 text-lg ${page === i + 1
-              ? "bg-pink-400 text-white scale-110"
-              : "bg-white/80 text-pink-400 hover:bg-pink-100"
-              }`}
+            className={`px-4 py-2 rounded-full font-bold shadow-sm transition-all duration-200 text-lg ${
+              page === i + 1
+                ? "bg-pink-400 text-white scale-110"
+                : "bg-white/80 text-pink-400 hover:bg-pink-100"
+            }`}
           >
             {i + 1}
           </button>
         ))}
       </div>
 
-      {
-        !!openModalCreateUser &&
+      {!!openModalCreateUser && (
         <Modal
           open={openModalCreateUser}
           title="Tạo tài khoản"
@@ -249,11 +254,17 @@ export default function UserList() {
             <Row>
               <Col span={24}>
                 <Form.Item
-                  name='email'
-                  label='Email'
+                  name="email"
+                  label="Email"
                   rules={[
-                    { required: true, message: "Thông tin không được để trống" },
-                    { pattern: getRegexEmail(), message: "Email sai định dạng" },
+                    {
+                      required: true,
+                      message: "Thông tin không được để trống",
+                    },
+                    {
+                      pattern: getRegexEmail(),
+                      message: "Email sai định dạng",
+                    },
                   ]}
                 >
                   <Input />
@@ -261,10 +272,13 @@ export default function UserList() {
               </Col>
               <Col span={24}>
                 <Form.Item
-                  name='password'
-                  label='Mật khẩu'
+                  name="password"
+                  label="Mật khẩu"
                   rules={[
-                    { required: true, message: "Thông tin không được để trống" }
+                    {
+                      required: true,
+                      message: "Thông tin không được để trống",
+                    },
                   ]}
                 >
                   <Input />
@@ -272,10 +286,13 @@ export default function UserList() {
               </Col>
               <Col span={24}>
                 <Form.Item
-                  name='name'
-                  label='Tên tài khoản'
+                  name="name"
+                  label="Tên tài khoản"
                   rules={[
-                    { required: true, message: "Thông tin không được để trống" }
+                    {
+                      required: true,
+                      message: "Thông tin không được để trống",
+                    },
                   ]}
                 >
                   <Input />
@@ -284,8 +301,7 @@ export default function UserList() {
             </Row>
           </Form>
         </Modal>
-      }
-
+      )}
     </div>
   );
 }

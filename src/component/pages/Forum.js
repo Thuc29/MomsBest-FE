@@ -101,10 +101,8 @@ const Forum = () => {
   const [sortOption, setSortOption] = useState("newest");
   const [showNewCategoryModal, setShowNewCategoryModal] = useState(false);
   const [showNewThreadModal, setShowNewThreadModal] = useState(false);
-  // State cho tab library
   const [librarySearchTerm, setLibrarySearchTerm] = useState("");
   const [librarySelectedCategory, setLibrarySelectedCategory] = useState("");
-  // Phân trang danh mục
   const [showAllLibraryCategories, setShowAllLibraryCategories] =
     useState(false);
   const [libraryArticlesToShow, setLibraryArticlesToShow] = useState(4);

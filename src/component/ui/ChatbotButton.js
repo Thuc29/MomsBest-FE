@@ -80,9 +80,12 @@ const ChatbotButton = () => {
     setInput("");
     setLoading(true);
     try {
-      const res = await axios.post("https://momsbest-be-r1im.onrender.com/api/chatbot/ask", {
-        message: userMsg.text,
-      });
+      const res = await axios.post(
+        "https://momsbest-be.onrender.com/api/chatbot/ask",
+        {
+          message: userMsg.text,
+        }
+      );
       setMessages((msgs) => [
         ...msgs,
         {

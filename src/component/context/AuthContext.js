@@ -34,9 +34,12 @@ export const AuthProvider = ({ children }) => {
   const fetchUser = async () => {
     if (!token) return;
     try {
-      const res = await axios.get("https://momsbest-be-r1im.onrender.com/api/auth/me", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.get(
+        "https://momsbest-be.onrender.com/api/auth/me",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setUser(res.data.user);
     } catch (err) {
       // Xử lý lỗi nếu cần

@@ -54,7 +54,7 @@ const EMOJIS = [
   },
 ];
 
-const BACKEND_URL = "https://momsbest-be-r1im.onrender.com";
+const BACKEND_URL = "https://momsbest-be.onrender.com";
 
 export default function ProductDetail() {
   const { productId } = useParams();
@@ -135,7 +135,7 @@ export default function ProductDetail() {
       if (reviewImage) data.append("image", reviewImage);
       try {
         await axios.post(
-          "https://momsbest-be-r1im.onrender.com/api/productReviews/createReview",
+          "https://momsbest-be.onrender.com/api/productReviews/createReview",
           data,
           {
             headers: {
@@ -159,7 +159,7 @@ export default function ProductDetail() {
   const handleReact = async (reviewId, emojiKey) => {
     try {
       await axios.post(
-        `https://momsbest-be-r1im.onrender.com/api/productReviews/${reviewId}/like`,
+        `https://momsbest-be.onrender.com/api/productReviews/${reviewId}/like`,
         { reaction_type: emojiKey },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -174,7 +174,7 @@ export default function ProductDetail() {
     if (!replyText.trim()) return;
     try {
       await axios.post(
-        `https://momsbest-be-r1im.onrender.com/api/productReviews/${reviewId}/replies`,
+        `https://momsbest-be.onrender.com/api/productReviews/${reviewId}/replies`,
         { comment: replyText },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -191,7 +191,7 @@ export default function ProductDetail() {
     setLoadingFeatured(true);
     try {
       const res = await axios.get(
-        `https://momsbest-be-r1im.onrender.com/api/products?is_featured=true&sort=-createdAt`
+        `https://momsbest-be.onrender.com/api/products?is_featured=true&sort=-createdAt`
       );
       setFeaturedProducts(res?.data || []);
     } catch (error) {
@@ -205,7 +205,7 @@ export default function ProductDetail() {
     setLoadingRelated(true);
     try {
       let res = await axios.get(
-        `https://momsbest-be-r1im.onrender.com/api/products?category_id=${encodeURIComponent(
+        `https://momsbest-be.onrender.com/api/products?category_id=${encodeURIComponent(
           categoryId
         )}`
       );
@@ -214,7 +214,7 @@ export default function ProductDetail() {
       // Nếu ít hơn 4, lấy thêm cùng brand
       if (related.length < 4 && brand) {
         const resBrand = await axios.get(
-          `https://momsbest-be-r1im.onrender.com/api/products?brand=${encodeURIComponent(
+          `https://momsbest-be.onrender.com/api/products?brand=${encodeURIComponent(
             brand
           )}`
         );
@@ -228,7 +228,7 @@ export default function ProductDetail() {
       // Nếu vẫn chưa đủ, lấy thêm sản phẩm bất kỳ
       if (related.length < 4) {
         const resAll = await axios.get(
-          `https://momsbest-be-r1im.onrender.com/api/products`
+          `https://momsbest-be.onrender.com/api/products`
         );
         const more = (resAll?.data || []).filter(
           (p) =>
@@ -247,7 +247,7 @@ export default function ProductDetail() {
   const getProduct = async () => {
     try {
       const res = await axios.get(
-        `https://momsbest-be-r1im.onrender.com/api/products/${productId}`
+        `https://momsbest-be.onrender.com/api/products/${productId}`
       );
       setProduct(res?.data);
     } catch (error) {
@@ -258,7 +258,7 @@ export default function ProductDetail() {
   const getListReview = async () => {
     try {
       const res = await axios.get(
-        `https://momsbest-be-r1im.onrender.com/api/productReviews/getListReviewByProduct/${productId}`
+        `https://momsbest-be.onrender.com/api/productReviews/getListReviewByProduct/${productId}`
       );
       setReviews(res?.data.reviews || []);
     } catch (error) {
@@ -329,7 +329,7 @@ export default function ProductDetail() {
       data.append("rating", editReview.rating);
       if (editReview.image) data.append("image", editReview.image);
       await axios.put(
-        `https://momsbest-be-r1im.onrender.com/api/productReviews/${reviewId}`,
+        `https://momsbest-be.onrender.com/api/productReviews/${reviewId}`,
         data,
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -350,7 +350,7 @@ export default function ProductDetail() {
   const handleDeleteReview = async (reviewId) => {
     try {
       await axios.delete(
-        `https://momsbest-be-r1im.onrender.com/api/productReviews/${reviewId}`,
+        `https://momsbest-be.onrender.com/api/productReviews/${reviewId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -407,7 +407,7 @@ export default function ProductDetail() {
   const handleEditReplySubmit = async () => {
     try {
       await axios.put(
-        `https://momsbest-be-r1im.onrender.com/api/productReviews/${editingReply.reviewId}/replies/${editingReply.replyId}`,
+        `https://momsbest-be.onrender.com/api/productReviews/${editingReply.reviewId}/replies/${editingReply.replyId}`,
         { comment: editingReply.comment },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -422,7 +422,7 @@ export default function ProductDetail() {
     if (!window.confirm("Bạn chắc chắn muốn xóa trả lời này?")) return;
     try {
       await axios.delete(
-        `https://momsbest-be-r1im.onrender.com/api/productReviews/${reviewId}/replies/${replyId}`,
+        `https://momsbest-be.onrender.com/api/productReviews/${reviewId}/replies/${replyId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       getListReview();
@@ -1065,7 +1065,7 @@ export default function ProductDetail() {
                           <a
                             href={
                               rv.image.startsWith("/uploads")
-                                ? `https://momsbest-be-r1im.onrender.com${rv.image}`
+                                ? `https://momsbest-be.onrender.com${rv.image}`
                                 : rv.image
                             }
                             target="_blank"
@@ -1074,7 +1074,7 @@ export default function ProductDetail() {
                             <img
                               src={
                                 rv.image.startsWith("/uploads")
-                                  ? `https://momsbest-be-r1im.onrender.com${rv.image}`
+                                  ? `https://momsbest-be.onrender.com${rv.image}`
                                   : rv.image
                               }
                               alt="review-img"

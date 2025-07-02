@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://momsbest-be-r1im.onrender.com/api",
+  baseURL: "https://momsbest-be.onrender.com/api",
 });
 
 api.interceptors.request.use(

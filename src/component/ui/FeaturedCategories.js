@@ -16,7 +16,7 @@ const FeaturedCategories = () => {
     const fetchCategories = async () => {
       try {
         const res = await axios.get(
-          "https://momsbest-be-r1im.onrender.com/api/categories"
+          "https://momsbest-be.onrender.com/api/categories"
         );
         setCategories(res.data);
       } catch (error) {

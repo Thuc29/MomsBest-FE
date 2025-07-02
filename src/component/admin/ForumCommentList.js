@@ -25,7 +25,7 @@ export default function ForumCommentList() {
   async function fetchThreads() {
     try {
       const res = await axios.get(
-        "https://momsbest-be-r1im.onrender.com/api/admin/forumthreads",
+        "https://momsbest-be.onrender.com/api/admin/forumthreads",
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
@@ -38,7 +38,7 @@ export default function ForumCommentList() {
     setLoading(true);
     try {
       const res = await axios.get(
-        "https://momsbest-be-r1im.onrender.com/api/admin/forumcomments",
+        "https://momsbest-be.onrender.com/api/admin/forumcomments",
         {
           params: { page, limit, search, thread_id: thread },
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -55,9 +55,12 @@ export default function ForumCommentList() {
 
   const handleDelete = async (id) => {
     if (!window.confirm("Bạn chắc chắn muốn xóa bình luận này?")) return;
-    await axios.delete(`https://momsbest-be-r1im.onrender.com/api/admin/forumcomments/${id}`, {
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    });
+    await axios.delete(
+      `https://momsbest-be.onrender.com/api/admin/forumcomments/${id}`,
+      {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      }
+    );
     fetchComments();
   };
 

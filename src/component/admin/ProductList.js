@@ -33,7 +33,7 @@ export default function ProductList() {
   async function fetchCategories() {
     try {
       const res = await axios.get(
-        "https://momsbest-be-r1im.onrender.com/api/admin/categories",
+        "https://momsbest-be.onrender.com/api/admin/categories",
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
@@ -45,10 +45,13 @@ export default function ProductList() {
   async function fetchProducts() {
     setLoading(true);
     try {
-      const res = await axios.get("https://momsbest-be-r1im.onrender.com/api/admin/products", {
-        params: { page, limit, search, category },
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
+      const res = await axios.get(
+        "https://momsbest-be.onrender.com/api/admin/products",
+        {
+          params: { page, limit, search, category },
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
       setProducts(res.data.products);
       setTotal(res.data.total);
     } catch (err) {
@@ -60,7 +63,7 @@ export default function ProductList() {
 
   const handleToggleActive = async (id) => {
     await axios.patch(
-      `https://momsbest-be-r1im.onrender.com/api/admin/products/${id}/toggle-active`,
+      `https://momsbest-be.onrender.com/api/admin/products/${id}/toggle-active`,
       {},
       {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },

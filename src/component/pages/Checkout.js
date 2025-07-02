@@ -98,7 +98,7 @@ export default function Checkout() {
   const handleCompleteOrder = async () => {
     const body = JSON.parse(localStorage.getItem("bodyOrder"));
     const res = await axios.post(
-      "https://momsbest-be-r1im.onrender.com/api/orders/createOrder",
+      "https://momsbest-be.onrender.com/api/orders/createOrder",
       body,
       {
         headers: {
