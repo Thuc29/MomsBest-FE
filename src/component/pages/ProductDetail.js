@@ -124,23 +124,52 @@ export default function ProductDetail() {
     }
   };
 
+  const uploadToCloudinary = async (file) => {
+    const data = new FormData();
+    data.append("file", file);
+    data.append(
+      "upload_preset",
+      process.env.CLOUDINARY_UPLOAD_PRESET
+    );
+    const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+    const res = await fetch(
+      `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+      {
+        method: "POST",
+        body: data,
+      }
+    );
+    const result = await res.json();
+    if (result.secure_url) return result.secure_url;
+    throw new Error("Upload ảnh lên Cloudinary thất bại");
+  };
+
   const handleReview = async (e) => {
     e.preventDefault();
     if (!user) return message.error("Hãy đăng nhập");
     if (review.rating && review.comment) {
-      const data = new FormData();
-      data.append("rating", review.rating);
-      data.append("comment", review.comment);
-      data.append("product_id", productId);
-      if (reviewImage) data.append("image", reviewImage);
+      let imageUrl = null;
+      if (reviewImage) {
+        try {
+          imageUrl = await uploadToCloudinary(reviewImage);
+        } catch (err) {
+          message.error("Upload ảnh thất bại!");
+          return;
+        }
+      }
       try {
         await axios.post(
           "https://momsbest-be.onrender.com/api/productReviews/createReview",
-          data,
+          {
+            rating: review.rating,
+            comment: review.comment,
+            product_id: productId,
+            image: imageUrl,
+          },
           {
             headers: {
               Authorization: `Bearer ${token}`,
-              "Content-Type": "multipart/form-data",
+              "Content-Type": "application/json",
             },
           }
         );
@@ -323,14 +352,23 @@ export default function ProductDetail() {
       message.error("Vui lòng nhập nội dung và chọn số sao!");
       return;
     }
+    let imageUrl = editReview.oldImage;
+    if (editReview.image) {
+      try {
+        imageUrl = await uploadToCloudinary(editReview.image);
+      } catch (err) {
+        message.error("Upload ảnh thất bại!");
+        return;
+      }
+    }
     try {
-      const data = new FormData();
-      data.append("comment", editReview.comment);
-      data.append("rating", editReview.rating);
-      if (editReview.image) data.append("image", editReview.image);
       await axios.put(
         `https://momsbest-be.onrender.com/api/productReviews/${reviewId}`,
-        data,
+        {
+          comment: editReview.comment,
+          rating: editReview.rating,
+          image: imageUrl,
+        },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -762,9 +800,9 @@ export default function ProductDetail() {
           <div className="mb-2">
             <textarea
               className="w-full p-3 rounded-xl bg-gray-200 text-gray-700 focus:ring-2 focus:ring-pink-300 transition-all duration-200 shadow-sm focus:border-pink-400 resize-none min-h-[60px] text-base"
-              placeholder="Viết đánh giá của bạn... (ít nhất 5 ký tự)"
+              placeholder="Viết đánh giá của bạn... (ít nhất 10 ký tự)"
               value={review.comment}
-              minLength={5}
+              minLength={10}
               onChange={(e) =>
                 setReview((r) => ({ ...r, comment: e.target.value }))
               }
