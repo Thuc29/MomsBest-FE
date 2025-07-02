@@ -752,16 +752,10 @@ function getPromotionByLevel(level) {
 
 // Hàm upload ảnh lên Cloudinary sử dụng biến môi trường
 async function uploadToCloudinary(file) {
-  const cloudName =
-    process.env.CLOUDINARY_CLOUD_NAME ||
-    import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-  const uploadPreset =
-    process.env.CLOUDINARY_UPLOAD_PRESET ||
-    import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
-  const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+  const url = `https://api.cloudinary.com/v1_1/dak6p5n8s/image/upload`;
   const formData = new FormData();
   formData.append("file", file);
-  formData.append("upload_preset", uploadPreset);
+  formData.append("upload_preset", "momsbest_unsigned");
 
   const res = await fetch(url, {
     method: "POST",
