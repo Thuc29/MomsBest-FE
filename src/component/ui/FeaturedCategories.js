@@ -35,7 +35,9 @@ const FeaturedCategories = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await axios.get("http://localhost:9999/api/categories");
+        const res = await axios.get(
+          "https://momsbest-be-r1im.onrender.com/api/categories"
+        );
         setCategories(res.data);
       } catch (error) {
         setCategories([]); // fallback nếu lỗi

@@ -66,7 +66,9 @@ const FeaturedProducts = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get("http://localhost:9999/api/products");
+        const res = await axios.get(
+          "https://momsbest-be-r1im.onrender.com/api/products"
+        );
         // Lọc sản phẩm nổi bật và đang hoạt động
         const featured = res.data.filter(
           (p) => p.is_featured === true && p.is_active === true

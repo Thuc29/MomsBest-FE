@@ -234,7 +234,7 @@ export default function ProductDetail() {
     setLoadingFeatured(true);
     try {
       const res = await axios.get(
-        `http://localhost:9999/api/products?is_featured=true&sort=-createdAt`
+        `https://momsbest-be-r1im.onrender.com/api/products?is_featured=true&sort=-createdAt`
       );
       setFeaturedProducts(res?.data || []);
     } catch (error) {
@@ -248,7 +248,7 @@ export default function ProductDetail() {
     setLoadingRelated(true);
     try {
       let res = await axios.get(
-        `http://localhost:9999/api/products?category_id=${encodeURIComponent(
+        `https://momsbest-be-r1im.onrender.com/api/products?category_id=${encodeURIComponent(
           categoryId
         )}`
       );
@@ -257,7 +257,7 @@ export default function ProductDetail() {
       // Nếu ít hơn 4, lấy thêm cùng brand
       if (related.length < 4 && brand) {
         const resBrand = await axios.get(
-          `http://localhost:9999/api/products?brand=${encodeURIComponent(
+          `https://momsbest-be-r1im.onrender.com/api/products?brand=${encodeURIComponent(
             brand
           )}`
         );
@@ -270,7 +270,9 @@ export default function ProductDetail() {
 
       // Nếu vẫn chưa đủ, lấy thêm sản phẩm bất kỳ
       if (related.length < 4) {
-        const resAll = await axios.get(`http://localhost:9999/api/products`);
+        const resAll = await axios.get(
+          `https://momsbest-be-r1im.onrender.com/api/products`
+        );
         const more = (resAll?.data || []).filter(
           (p) =>
             p._id !== currentProductId && !related.some((r) => r._id === p._id)
@@ -365,7 +367,7 @@ export default function ProductDetail() {
       data.append("rating", editReview.rating);
       if (editReview.image) data.append("image", editReview.image);
       await axios.put(
-        `http://localhost:9999/api/productReviews/${reviewId}`,
+        `https://momsbest-be-r1im.onrender.com/api/productReviews/${reviewId}`,
         data,
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -382,7 +384,7 @@ export default function ProductDetail() {
   const handleDeleteReview = async (reviewId) => {
     try {
       await axios.delete(
-        `http://localhost:9999/api/productReviews/${reviewId}`,
+        `https://momsbest-be-r1im.onrender.com/api/productReviews/${reviewId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
