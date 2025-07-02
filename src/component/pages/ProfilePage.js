@@ -3,24 +3,15 @@ import { Input } from "../ui/input";
 import { message } from "antd";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
-import { UserCheck2 } from "lucide-react";
 
-const mockUser = {
-  name: "Nguyễn Văn A",
-  email: "nguyenvana@email.com",
-  avatar: "https://i.pravatar.cc/100?img=3",
-};
+const PAGE_SIZE = 4;
 
 const tabs = [
   { key: "posts", label: "Chuyên mục của tôi" },
   { key: "questions", label: "Câu hỏi của tôi" },
   { key: "orders", label: "Đơn hàng của tôi" },
   { key: "reviews", label: "Đánh giá của tôi" },
-];
-
-const mockOrders = [
-  { id: 1, product: "Nồi cơm điện", status: "Đã giao", date: "2024-04-15" },
-  { id: 2, product: "Bột mì hữu cơ", status: "Đang xử lý", date: "2024-05-03" },
+  { key: "favorites", label: "Sản phẩm yêu thích" },
 ];
 
 const mockNotificationSettings = {
@@ -111,10 +102,26 @@ const NotiIcon = () => (
     />
   </svg>
 );
+const FavoriteIcon = () => (
+  <svg
+    className="w-5 h-5 text-red-400 mr-2"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 21.364l-7.682-7.682a4.5 4.5 0 010-6.364z"
+    />
+  </svg>
+);
 
 // Component con cho từng tab
-function MyPostsTab() {
+function MyPostsTab({ setTabCount }) {
   const [posts, setPosts] = useState([]);
+  const [page, setPage] = useState(1);
   const { token } = useAuth();
 
   const getListPost = async () => {
@@ -128,6 +135,7 @@ function MyPostsTab() {
         }
       );
       setPosts(res?.data);
+      setTabCount && setTabCount("posts", res?.data?.length || 0);
     } catch (error) {
       message.error(error.toString());
     }
@@ -135,45 +143,73 @@ function MyPostsTab() {
 
   useEffect(() => {
     getListPost();
+    // eslint-disable-next-line
   }, []);
+
+  const total = posts.length;
+  const pagedPosts = posts.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const totalPages = Math.ceil(total / PAGE_SIZE);
 
   return (
     <div className="">
       <h4 className="font-semibold mb-4 flex items-center text-lg">
         <PostIcon />
-        Bài viết của tôi
+        Bài viết của tôi ({total})
       </h4>
-      {posts?.length === 0 ? (
+      {total === 0 ? (
         <div className="flex flex-col items-center py-10 text-gray-400">
           <PostIcon />
           <span>Chưa có bài viết nào.</span>
         </div>
       ) : (
-        <ul className="grid sm:grid-cols-2 gap-4">
-          {posts.map((post) => (
-            <li
-              key={post?.id}
-              className="bg-blue-50 border border-blue-100 rounded-xl shadow-sm p-4 flex flex-col gap-2 hover:shadow-lg transition"
-            >
-              <div className="flex items-center gap-2">
-                <PostIcon />
-                <span className="font-semibold text-blue-700">
-                  {post?.name}
+        <>
+          <ul className="grid sm:grid-cols-2 gap-4">
+            {pagedPosts.map((post) => (
+              <li
+                key={post?.id}
+                className="bg-blue-50 border border-blue-100 rounded-xl shadow-sm p-4 flex flex-col gap-2 hover:shadow-lg transition"
+              >
+                <div className="flex items-center gap-2">
+                  <PostIcon />
+                  <span className="font-semibold text-blue-700">
+                    {post?.name}
+                  </span>
+                </div>
+                <span className="text-xs text-gray-500 mt-1">
+                  {formatDate(post?.created_at)}
                 </span>
-              </div>
-              <span className="text-xs text-gray-500 mt-1">
-                {formatDate(post?.created_at)}
+              </li>
+            ))}
+          </ul>
+          {totalPages > 1 && (
+            <div className="flex justify-center mt-4 gap-2">
+              <button
+                onClick={() => setPage(page - 1)}
+                disabled={page === 1}
+                className="px-3 py-1 rounded bg-blue-100 text-blue-700 disabled:opacity-50"
+              >
+                Trước
+              </button>
+              <span className="px-2">
+                {page}/{totalPages}
               </span>
-            </li>
-          ))}
-        </ul>
+              <button
+                onClick={() => setPage(page + 1)}
+                disabled={page === totalPages}
+                className="px-3 py-1 rounded bg-blue-100 text-blue-700 disabled:opacity-50"
+              >
+                Sau
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
 }
-function MyQuestionsTab() {
+function MyQuestionsTab({ setTabCount }) {
   const [threads, setThreads] = useState([]);
-
+  const [page, setPage] = useState(1);
   const { token } = useAuth();
 
   const getListThread = async () => {
@@ -187,6 +223,7 @@ function MyQuestionsTab() {
         }
       );
       setThreads(res?.data);
+      setTabCount && setTabCount("questions", res?.data?.length || 0);
     } catch (error) {
       message.error(error.toString());
     }
@@ -194,43 +231,73 @@ function MyQuestionsTab() {
 
   useEffect(() => {
     getListThread();
+    // eslint-disable-next-line
   }, []);
+
+  const total = threads.length;
+  const pagedThreads = threads.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const totalPages = Math.ceil(total / PAGE_SIZE);
 
   return (
     <div>
       <h4 className="font-semibold mb-4 flex items-center text-lg">
         <QuestionIcon />
-        Câu hỏi của tôi
+        Câu hỏi của tôi ({total})
       </h4>
-      {threads?.length === 0 ? (
+      {total === 0 ? (
         <div className="flex flex-col items-center py-10 text-gray-400">
           <QuestionIcon />
           <span>Bạn chưa đặt câu hỏi nào.</span>
         </div>
       ) : (
-        <ul className="grid sm:grid-cols-2 gap-4">
-          {threads.map((q) => (
-            <li
-              key={q._id}
-              className="bg-purple-50 border border-purple-100 rounded-xl shadow-sm p-4 flex flex-col gap-2 hover:shadow-lg transition"
-            >
-              <div className="flex items-center gap-2">
-                <QuestionIcon />
-                <span className="font-semibold text-purple-700">{q.title}</span>
-              </div>
-              <span className="text-xs text-gray-500 mt-1">
-                {formatDate(q.created_at)}
+        <>
+          <ul className="grid sm:grid-cols-2 gap-4">
+            {pagedThreads.map((q) => (
+              <li
+                key={q._id}
+                className="bg-purple-50 border border-purple-100 rounded-xl shadow-sm p-4 flex flex-col gap-2 hover:shadow-lg transition"
+              >
+                <div className="flex items-center gap-2">
+                  <QuestionIcon />
+                  <span className="font-semibold text-purple-700">
+                    {q.title}
+                  </span>
+                </div>
+                <span className="text-xs text-gray-500 mt-1">
+                  {formatDate(q.created_at)}
+                </span>
+              </li>
+            ))}
+          </ul>
+          {totalPages > 1 && (
+            <div className="flex justify-center mt-4 gap-2">
+              <button
+                onClick={() => setPage(page - 1)}
+                disabled={page === 1}
+                className="px-3 py-1 rounded bg-purple-100 text-purple-700 disabled:opacity-50"
+              >
+                Trước
+              </button>
+              <span className="px-2">
+                {page}/{totalPages}
               </span>
-            </li>
-          ))}
-        </ul>
+              <button
+                onClick={() => setPage(page + 1)}
+                disabled={page === totalPages}
+                className="px-3 py-1 rounded bg-purple-100 text-purple-700 disabled:opacity-50"
+              >
+                Sau
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
 }
-function MyOrdersTab() {
+function MyOrdersTab({ setTabCount }) {
   const [orders, setOrders] = useState([]);
-
+  const [page, setPage] = useState(1);
   const { token } = useAuth();
 
   const getListOrder = async () => {
@@ -244,6 +311,7 @@ function MyOrdersTab() {
         }
       );
       setOrders(res?.data);
+      setTabCount && setTabCount("orders", res?.data?.length || 0);
     } catch (error) {
       message.error(error.toString());
     }
@@ -251,57 +319,86 @@ function MyOrdersTab() {
 
   useEffect(() => {
     getListOrder();
+    // eslint-disable-next-line
   }, []);
+
+  const total = orders.length;
+  const pagedOrders = orders.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const totalPages = Math.ceil(total / PAGE_SIZE);
 
   return (
     <div>
       <h4 className="font-semibold mb-4 flex items-center text-lg">
         <OrderIcon />
-        Đơn hàng của tôi
+        Đơn hàng của tôi ({total})
       </h4>
-      {orders.length === 0 ? (
+      {total === 0 ? (
         <div className="flex flex-col items-center py-10 text-gray-400">
           <OrderIcon />
           <span>Bạn chưa có đơn hàng nào.</span>
         </div>
       ) : (
-        <ul className="grid sm:grid-cols-2 gap-4">
-          {orders.map((order) => (
-            <li
-              key={order._id}
-              className="bg-green-50 border border-green-100 rounded-xl shadow-sm p-4 flex items-center justify-between hover:shadow-lg transition"
-            >
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-2">
-                  <OrderIcon />
-                  <span className="font-semibold text-green-700">
-                    Mã đơn hàng: {order.order_number}
+        <>
+          <ul className="grid sm:grid-cols-2 gap-4">
+            {pagedOrders.map((order) => (
+              <li
+                key={order._id}
+                className="bg-green-50 border border-green-100 rounded-xl shadow-sm p-4 flex items-center justify-between hover:shadow-lg transition"
+              >
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2">
+                    <OrderIcon />
+                    <span className="font-semibold text-green-700">
+                      Mã đơn hàng: {order.order_number}
+                    </span>
+                  </div>
+                  <span className="text-xs text-gray-500">
+                    {formatDate(order.created_at)}
                   </span>
                 </div>
-                <span className="text-xs text-gray-500">
-                  {formatDate(order.created_at)}
+                <span
+                  className={`text-xs px-3 py-1 rounded-full font-semibold shadow-sm border
+                    ${
+                      order.status === "Đã giao"
+                        ? "bg-green-200 text-green-800 border-green-300"
+                        : "bg-yellow-100 text-yellow-700 border-yellow-200"
+                    }
+                  `}
+                >
+                  {order.status}
                 </span>
-              </div>
-              <span
-                className={`text-xs px-3 py-1 rounded-full font-semibold shadow-sm border
-                  ${
-                    order.status === "Đã giao"
-                      ? "bg-green-200 text-green-800 border-green-300"
-                      : "bg-yellow-100 text-yellow-700 border-yellow-200"
-                  }
-                `}
+              </li>
+            ))}
+          </ul>
+          {totalPages > 1 && (
+            <div className="flex justify-center mt-4 gap-2">
+              <button
+                onClick={() => setPage(page - 1)}
+                disabled={page === 1}
+                className="px-3 py-1 rounded bg-green-100 text-green-700 disabled:opacity-50"
               >
-                {order.status}
+                Trước
+              </button>
+              <span className="px-2">
+                {page}/{totalPages}
               </span>
-            </li>
-          ))}
-        </ul>
+              <button
+                onClick={() => setPage(page + 1)}
+                disabled={page === totalPages}
+                className="px-3 py-1 rounded bg-green-100 text-green-700 disabled:opacity-50"
+              >
+                Sau
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
 }
-function MyReviewsTab() {
+function MyReviewsTab({ setTabCount }) {
   const [reviews, setReviews] = useState([]);
+  const [page, setPage] = useState(1);
   const { token } = useAuth();
 
   const getListReview = async () => {
@@ -315,6 +412,7 @@ function MyReviewsTab() {
         }
       );
       setReviews(res?.data);
+      setTabCount && setTabCount("reviews", res?.data?.length || 0);
     } catch (error) {
       message.error(error.toString());
     }
@@ -322,41 +420,69 @@ function MyReviewsTab() {
 
   useEffect(() => {
     getListReview();
+    // eslint-disable-next-line
   }, []);
+
+  const total = reviews.length;
+  const pagedReviews = reviews.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const totalPages = Math.ceil(total / PAGE_SIZE);
 
   return (
     <div>
       <h4 className="font-semibold mb-4 flex items-center text-lg">
         <ReviewIcon />
-        Đánh giá của tôi
+        Đánh giá của tôi ({total})
       </h4>
-      {reviews.length === 0 ? (
+      {total === 0 ? (
         <div className="flex flex-col items-center py-10 text-gray-400">
           <ReviewIcon />
           <span>Bạn chưa có đánh giá nào.</span>
         </div>
       ) : (
-        <ul className="grid sm:grid-cols-2 gap-4">
-          {reviews.map((review) => (
-            <li
-              key={review._id}
-              className="bg-yellow-50 border border-yellow-100 rounded-xl shadow-sm p-4 flex flex-col gap-2 hover:shadow-lg transition"
-            >
-              <div className="flex items-center gap-2">
-                <ReviewIcon />
-                <span className="text-sm text-yellow-800">
-                  {review.comment}
-                </span>
-              </div>
-              <div className="flex items-center gap-2 text-xs text-gray-500">
-                <span className="bg-white border border-yellow-200 rounded px-2 py-0.5 text-yellow-700 font-medium">
-                  {review.rating}
-                </span>
-                <span>| {formatDate(review.created_at)}</span>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <>
+          <ul className="grid sm:grid-cols-2 gap-4">
+            {pagedReviews.map((review) => (
+              <li
+                key={review._id}
+                className="bg-yellow-50 border border-yellow-100 rounded-xl shadow-sm p-4 flex flex-col gap-2 hover:shadow-lg transition"
+              >
+                <div className="flex items-center gap-2">
+                  <ReviewIcon />
+                  <span className="text-sm text-yellow-800">
+                    {review.comment}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-gray-500">
+                  <span className="bg-white border border-yellow-200 rounded px-2 py-0.5 text-yellow-700 font-medium">
+                    {review.rating}
+                  </span>
+                  <span>| {formatDate(review.created_at)}</span>
+                </div>
+              </li>
+            ))}
+          </ul>
+          {totalPages > 1 && (
+            <div className="flex justify-center mt-4 gap-2">
+              <button
+                onClick={() => setPage(page - 1)}
+                disabled={page === 1}
+                className="px-3 py-1 rounded bg-yellow-100 text-yellow-700 disabled:opacity-50"
+              >
+                Trước
+              </button>
+              <span className="px-2">
+                {page}/{totalPages}
+              </span>
+              <button
+                onClick={() => setPage(page + 1)}
+                disabled={page === totalPages}
+                className="px-3 py-1 rounded bg-yellow-100 text-yellow-700 disabled:opacity-50"
+              >
+                Sau
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
@@ -420,6 +546,112 @@ function NotificationSettingsTab() {
     </div>
   );
 }
+function FavoritesTab({ setTabCount }) {
+  const [favorites, setFavorites] = useState([]);
+  const [page, setPage] = useState(1);
+  const { token } = useAuth();
+
+  // TODO: Thay thế API này bằng API thực tế nếu có
+  const getFavorites = async () => {
+    try {
+      const res = await axios.get(
+        `https://momsbest-be-r1im.onrender.com/api/favorite/getWishlistByUser`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setFavorites(res?.data);
+      setTabCount && setTabCount("favorites", res?.data?.length || 0);
+    } catch (error) {
+      message.error(error.toString());
+    }
+  };
+
+  useEffect(() => {
+    getFavorites();
+    // eslint-disable-next-line
+  }, []);
+
+  // Xóa sản phẩm yêu thích
+  const handleRemove = (id) => {
+    const newFavorites = favorites.filter((item) => item.id !== id);
+    setFavorites(newFavorites);
+    setTabCount && setTabCount("favorites", newFavorites.length);
+  };
+
+  const total = favorites.length;
+  const pagedFavorites = favorites.slice(
+    (page - 1) * PAGE_SIZE,
+    page * PAGE_SIZE
+  );
+  const totalPages = Math.ceil(total / PAGE_SIZE);
+
+  return (
+    <div>
+      <h4 className="font-semibold mb-4 flex items-center text-lg">
+        <FavoriteIcon />
+        Sản phẩm yêu thích ({total})
+      </h4>
+      {total === 0 ? (
+        <div className="flex flex-col items-center py-10 text-gray-400">
+          <FavoriteIcon />
+          <span>Bạn chưa có sản phẩm yêu thích nào.</span>
+        </div>
+      ) : (
+        <>
+          <ul className="grid sm:grid-cols-2 gap-4">
+            {pagedFavorites.map((item) => (
+              <li
+                key={item.id}
+                className="bg-red-50 border border-red-100 rounded-xl shadow-sm p-4 flex items-center gap-4 hover:shadow-lg transition relative"
+              >
+                <button
+                  className="absolute top-2 right-2 text-red-400 hover:text-red-700 text-lg font-bold bg-white rounded-full w-7 h-7 flex items-center justify-center shadow"
+                  title="Xóa khỏi yêu thích"
+                  onClick={() => handleRemove(item.id)}
+                >
+                  &times;
+                </button>
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="w-16 h-16 object-cover rounded-lg border border-red-200"
+                />
+                <div className="flex-1">
+                  <div className="font-semibold text-red-700">{item.name}</div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    {formatDate(item.created_at)}
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+          {totalPages > 1 && (
+            <div className="flex justify-center mt-4 gap-2">
+              <button
+                onClick={() => setPage(page - 1)}
+                disabled={page === 1}
+                className="px-3 py-1 rounded bg-red-100 text-red-700 disabled:opacity-50"
+              >
+                Trước
+              </button>
+              <span className="px-2">
+                {page}/{totalPages}
+              </span>
+              <button
+                onClick={() => setPage(page + 1)}
+                disabled={page === totalPages}
+                className="px-3 py-1 rounded bg-red-100 text-red-700 disabled:opacity-50"
+              >
+                Sau
+              </button>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
 
 function getLevelColor(level) {
   switch (level) {
@@ -466,24 +698,101 @@ function getPromotionByLevel(level) {
   }
 }
 
+// Hàm upload ảnh lên Cloudinary sử dụng biến môi trường
+async function uploadToCloudinary(file) {
+  const cloudName =
+    process.env.REACT_APP_CLOUDINARY_CLOUD_NAME ||
+    import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+  const uploadPreset =
+    process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET ||
+    import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+  const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", uploadPreset);
+
+  const res = await fetch(url, {
+    method: "POST",
+    body: formData,
+  });
+  const data = await res.json();
+  if (!data.secure_url) throw new Error("Upload thất bại");
+  return data.secure_url;
+}
+
 function ProfilePage() {
   const [activeTab, setActiveTab] = useState("posts");
   const [showEditModal, setShowEditModal] = useState(false);
   const { user, fetchUser } = useAuth();
+  const [tabCounts, setTabCounts] = useState({});
+  const [editData, setEditData] = useState({ name: "", email: "", avatar: "" });
+  const [avatarPreview, setAvatarPreview] = useState("");
+
+  const setTabCount = (key, count) => {
+    setTabCounts((prev) => ({ ...prev, [key]: count }));
+  };
 
   useEffect(() => {
     fetchUser && fetchUser();
     // eslint-disable-next-line
   }, []);
 
+  useEffect(() => {
+    if (showEditModal && user) {
+      setEditData({
+        name: user.name || "",
+        email: user.email || "",
+        avatar: user.avatar || "",
+      });
+      setAvatarPreview(user.avatar || "");
+    }
+  }, [showEditModal, user]);
+
   const handleEditChange = (e) => {
-    // setEditData({ ...editData, [e.target.name]: e.target.value });
+    setEditData({ ...editData, [e.target.name]: e.target.value });
+    if (e.target.name === "avatar") {
+      setAvatarPreview(e.target.value);
+    }
   };
 
-  const handleEditSubmit = (e) => {
+  const handleEditSubmit = async (e) => {
     e.preventDefault();
-    // setUser(editData);
-    setShowEditModal(false);
+    try {
+      const res = await axios.put(
+        "https://momsbest-be-r1im.onrender.com/api/auth/me",
+        {
+          name: editData.name,
+          email: editData.email,
+          avatar: editData.avatar,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${
+              user.token || localStorage.getItem("token")
+            }`,
+          },
+        }
+      );
+      message.success("Cập nhật thông tin thành công!");
+      setShowEditModal(false);
+      fetchUser && fetchUser();
+    } catch (err) {
+      message.error("Cập nhật thất bại!");
+    }
+  };
+
+  const handleAvatarFile = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setAvatarPreview(URL.createObjectURL(file));
+      try {
+        const url = await uploadToCloudinary(file);
+        setEditData((prev) => ({ ...prev, avatar: url }));
+        setAvatarPreview(url);
+      } catch (err) {
+        message.error("Upload ảnh thất bại!");
+      }
+    }
   };
 
   return (
@@ -552,16 +861,28 @@ function ProfilePage() {
               onClick={() => setActiveTab(tab.key)}
             >
               {tab.label}
+              {typeof tabCounts[tab.key] === "number" && (
+                <span className="ml-1 text-xs text-blue-500 font-bold">
+                  ({tabCounts[tab.key]})
+                </span>
+              )}
             </button>
           ))}
         </div>
 
         {/* Nội dung từng tab */}
         <div className="bg-white rounded-xl shadow p-6 min-h-[220px]">
-          {activeTab === "posts" && <MyPostsTab />}
-          {activeTab === "questions" && <MyQuestionsTab />}
-          {activeTab === "orders" && <MyOrdersTab />}
-          {activeTab === "reviews" && <MyReviewsTab />}
+          {activeTab === "posts" && <MyPostsTab setTabCount={setTabCount} />}
+          {activeTab === "questions" && (
+            <MyQuestionsTab setTabCount={setTabCount} />
+          )}
+          {activeTab === "orders" && <MyOrdersTab setTabCount={setTabCount} />}
+          {activeTab === "reviews" && (
+            <MyReviewsTab setTabCount={setTabCount} />
+          )}
+          {activeTab === "favorites" && (
+            <FavoritesTab setTabCount={setTabCount} />
+          )}
           {activeTab === "notifications" && <NotificationSettingsTab />}
         </div>
 
@@ -582,19 +903,25 @@ function ProfilePage() {
               <form onSubmit={handleEditSubmit} className="space-y-5">
                 <div className="flex flex-col items-center gap-2 mb-4">
                   <img
-                    src={user.avatar}
+                    src={avatarPreview || editData.avatar || user.avatar}
                     alt="avatar preview"
                     className="w-20 h-20 rounded-full object-cover border-2 border-blue-200 shadow"
                   />
                   <span className="text-xs text-gray-400">
                     Xem trước ảnh đại diện
                   </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="mt-2 text-xs"
+                    onChange={handleAvatarFile}
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Tên</label>
                   <Input
                     name="name"
-                    value={UserCheck2.name}
+                    value={editData.name}
                     onChange={handleEditChange}
                     placeholder="Nhập tên của bạn"
                     className="bg-blue-50"
@@ -606,7 +933,7 @@ function ProfilePage() {
                   </label>
                   <Input
                     name="email"
-                    value={UserCheck2.email}
+                    value={editData.email}
                     onChange={handleEditChange}
                     placeholder="Nhập email"
                     className="bg-blue-50"
@@ -618,7 +945,7 @@ function ProfilePage() {
                   </label>
                   <Input
                     name="avatar"
-                    value={UserCheck2.avatar}
+                    value={editData.avatar}
                     onChange={handleEditChange}
                     placeholder="Dán link ảnh đại diện"
                     className="bg-blue-50"

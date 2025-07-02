@@ -70,25 +70,25 @@ function About() {
               <li>
                 Email:{" "}
                 <a
-                  href="mailto:contact@momsbest.vn"
+                  href="mailto:mombest1.work@gmail.com"
                   className="text-blue-600 underline"
                 >
-                  contact@momsbest.vn
+                  mombest1.work@gmail.com
                 </a>
               </li>
               <li>
                 Facebook:{" "}
                 <a
-                  href="https://facebook.com/momsbest.vn"
+                  href="https://www.facebook.com/profile.php?id=61576885034973"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-600 underline"
                 >
-                  facebook.com/momsbest.vn
+                  https://www.facebook.com/profile.php?id=61576885034973
                 </a>
               </li>
               <li>
-                Zalo: <span className="text-blue-600">0123 456 789</span>
+                Zalo: <span className="text-blue-600">098 276 17 97</span>
               </li>
             </ul>
           </div>

@@ -72,7 +72,7 @@ const Header = () => {
             className="flex p-2 items-center gap-2"
           >
             <img
-              src="./assets/logo.png"
+              src="../assets/logo.png"
               alt="logo"
               className="w-14 h-14 rounded-full "
             />

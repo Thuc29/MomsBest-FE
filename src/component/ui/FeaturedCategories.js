@@ -1,26 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import {
-  FaBaby,
-  FaAppleAlt,
-  FaHeartbeat,
-  FaShoppingCart,
-  FaBook,
-  FaStethoscope,
-  FaSmile,
-  FaLeaf,
-} from "react-icons/fa";
-const iconMap = {
-  FaBaby,
-  FaAppleAlt,
-  FaHeartbeat,
-  FaShoppingCart,
-  FaBook,
-  FaStethoscope,
-  FaSmile,
-  FaLeaf,
-};
 
 const FeaturedCategories = () => {
   const [categories, setCategories] = useState([]);

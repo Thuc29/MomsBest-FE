@@ -1,13 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import {
-  FaCcVisa,
-  FaCcMastercard,
-  FaCcPaypal,
-  FaMoneyCheckAlt,
-  FaUniversity,
-  FaWallet,
-} from "react-icons/fa";
+
 import { useCart } from "../context/CartContext";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
@@ -159,27 +152,31 @@ export default function Checkout() {
   }, [location.search]);
 
   return (
-    <div className="min-h-screen pt-24 bg-gradient-to-br from-pink-50 to-blue-50 text-black py-8 font-space-grotesk">
+    <div className="min-h-screen pt-28 bg-gradient-to-br from-pink-50 to-blue-50 text-black py-8 font-space-grotesk">
       <div className="container mx-auto px-4 md:w-2/3 lg:w-1/2">
-        <h1 className="text-2xl font-bold text-pink-600 mb-6">Thanh toán</h1>
+        <h1 className="text-2xl font-bold text-pink-600 mb-6 flex items-center gap-2 animate-fadeIn">
+          <span className="text-3xl">🧾</span>
+          Thanh toán
+        </h1>
         {success ? (
-          <div className="bg-white/80 p-8 rounded-xl shadow text-center text-green-600 text-xl font-bold">
+          <div className="bg-white/80 p-8 rounded-xl shadow text-center text-green-600 text-xl font-bold animate-fadeIn">
+            <span className="text-4xl block mb-2 animate-bounce">🎉</span>
             Đặt hàng thành công! Cảm ơn bạn đã mua sắm tại Mẹ & Bé.
           </div>
         ) : (
           <form
             onSubmit={handleSubmit}
-            className="bg-white/80 p-6 rounded-xl shadow space-y-6"
+            className="bg-white/80 p-6 rounded-xl shadow space-y-6 animate-fadeIn"
           >
             <div>
-              <h2 className="text-lg font-bold mb-2 text-pink-500">
-                Thông tin giao hàng
+              <h2 className="text-lg font-bold mb-2 text-pink-500 flex items-center gap-2">
+                <span className="text-xl">🚚</span> Thông tin giao hàng
               </h2>
               <input
                 type="text"
                 name="shipping_name"
                 placeholder="Họ và tên"
-                className="w-full p-3 border rounded mb-2"
+                className="w-full p-3 rounded-xl bg-pink-50 border mb-2"
                 value={info.name}
                 onChange={handleChange}
                 required
@@ -188,7 +185,7 @@ export default function Checkout() {
                 type="text"
                 name="shipping_address"
                 placeholder="Địa chỉ giao hàng"
-                className="w-full p-3 border rounded mb-2"
+                className="w-full p-3 rounded-xl bg-pink-50 border mb-2"
                 value={info.address}
                 onChange={handleChange}
                 required
@@ -197,22 +194,19 @@ export default function Checkout() {
                 type="tel"
                 name="shipping_phone"
                 placeholder="Số điện thoại"
-                className="w-full p-3 border rounded mb-2"
+                className="w-full p-3 rounded-xl bg-pink-50 border mb-2"
                 value={info.phone}
                 onChange={handleChange}
                 required
               />
             </div>
-            <div>
-              <h2 className="text-lg font-bold mb-2 text-pink-500">
-                Tóm tắt đơn hàng
+            <div className="bg-white rounded-xl shadow p-6 mb-6 animate-scaleIn">
+              <h2 className="text-lg font-bold mb-2 text-pink-500 flex items-center gap-2">
+                <span className="text-xl">📦</span> Đơn hàng của bạn
               </h2>
-              <ul className="mb-2">
+              <ul className="mb-4">
                 {cart.map((item) => (
-                  <li
-                    key={item._id}
-                    className="flex justify-between text-gray-700"
-                  >
+                  <li key={item._id} className="flex justify-between py-1">
                     <span>
                       {item.name} x {item.quantity}
                     </span>
@@ -222,29 +216,47 @@ export default function Checkout() {
                   </li>
                 ))}
               </ul>
-              <div className="flex justify-between font-bold text-pink-600 text-lg">
-                <span>Tổng cộng:</span>
-                <span>{totalAmount?.toLocaleString()}đ</span>
+              <div className="flex justify-between font-semibold text-base mb-1">
+                <span className="flex items-center gap-1">🧾 Tạm tính:</span>
+                <span>{totalAmount.toLocaleString()}đ</span>
               </div>
-              {discountPercent > 0 && (
-                <div className="flex justify-between text-green-600 font-semibold text-base mt-1">
-                  <span>
-                    Khuyến mại ({Math.round(discountPercent * 100)}%):
-                  </span>
-                  <span>-{discountAmount.toLocaleString()}đ</span>
-                </div>
-              )}
-              <div className="flex justify-between font-bold text-blue-700 text-lg mt-1">
-                <span>Thành tiền:</span>
+              <div className="flex justify-between text-base mb-1 text-blue-600 font-semibold">
+                <span className="flex items-center gap-1">
+                  {user?.current_level === "Thành viên vàng" && (
+                    <span className="text-xl">🥇</span>
+                  )}
+                  {user?.current_level === "Thành viên bạc" && (
+                    <span className="text-xl">🥈</span>
+                  )}
+                  {user?.current_level === "Thành viên đồng" && (
+                    <span className="text-xl">🥉</span>
+                  )}
+                  {user?.current_level === "Thành viên mới" && (
+                    <span className="text-xl">🆕</span>
+                  )}
+                  Khuyến mại ({user?.current_level || "Không có"}):
+                </span>
+                <span>-{discountAmount.toLocaleString()}đ</span>
+              </div>
+              <div className="flex justify-between font-bold text-lg text-pink-600 border-t pt-2 mt-2 animate-fadeIn">
+                <span className="flex items-center gap-1">
+                  💰 Tổng thanh toán:
+                </span>
                 <span>{totalAfterDiscount.toLocaleString()}đ</span>
               </div>
             </div>
-            {error && <div className="text-red-500 text-sm mb-2">{error}</div>}
+            {error && (
+              <div className="text-red-500 text-sm mb-2 animate-fadeIn">
+                {error}
+              </div>
+            )}
             <button
               type="submit"
-              className="w-full bg-pink-500 text-white py-3 rounded-full font-bold text-lg hover:bg-pink-600 transition"
+              className="w-full bg-gradient-to-r from-pink-500 to-fuchsia-500 text-white py-3 rounded-full font-bold text-lg hover:from-pink-600 hover:to-fuchsia-600 transition shadow-lg shadow-rose-400/30 animate-scaleIn flex items-center justify-center gap-2"
               disabled={submitting}
+              style={{ transition: "all 0.2s" }}
             >
+              <span className="text-2xl">🛒</span>
               {submitting ? "Đang xử lý..." : "Xác nhận Đặt hàng"}
             </button>
           </form>
