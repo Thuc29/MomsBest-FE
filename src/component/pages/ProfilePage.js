@@ -124,7 +124,6 @@ const FavoriteIcon = () => (
 function MyPostsTab({ setTabCount, user }) {
   const [posts, setPosts] = useState([]);
   const [page, setPage] = useState(1);
-  const { token } = useAuth();
 
   const getListPost = async () => {
     try {
@@ -238,7 +237,6 @@ function MyPostsTab({ setTabCount, user }) {
 function MyQuestionsTab({ setTabCount, user }) {
   const [threads, setThreads] = useState([]);
   const [page, setPage] = useState(1);
-  const { token } = useAuth();
 
   const getListThread = async () => {
     try {
@@ -755,10 +753,10 @@ function getPromotionByLevel(level) {
 // Hàm upload ảnh lên Cloudinary sử dụng biến môi trường
 async function uploadToCloudinary(file) {
   const cloudName =
-    process.env.REACT_APP_CLOUDINARY_CLOUD_NAME ||
+    process.env.CLOUDINARY_CLOUD_NAME ||
     import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
   const uploadPreset =
-    process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET ||
+    process.env.CLOUDINARY_UPLOAD_PRESET ||
     import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
   const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
   const formData = new FormData();
@@ -782,6 +780,7 @@ function ProfilePage() {
   const [editData, setEditData] = useState({ name: "", email: "", avatar: "" });
   const [avatarPreview, setAvatarPreview] = useState("");
   const contentRef = useRef(null);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
   const setTabCount = (key, count) => {
     setTabCounts((prev) => ({ ...prev, [key]: count }));
@@ -839,6 +838,7 @@ function ProfilePage() {
   const handleAvatarFile = async (e) => {
     const file = e.target.files[0];
     if (file) {
+      setIsUploadingAvatar(true);
       setAvatarPreview(URL.createObjectURL(file));
       try {
         const url = await uploadToCloudinary(file);
@@ -846,6 +846,8 @@ function ProfilePage() {
         setAvatarPreview(url);
       } catch (err) {
         message.error("Upload ảnh thất bại!");
+      } finally {
+        setIsUploadingAvatar(false);
       }
     }
   };
@@ -987,7 +989,13 @@ function ProfilePage() {
                     accept="image/*"
                     className="mt-2 text-xs"
                     onChange={handleAvatarFile}
+                    disabled={isUploadingAvatar}
                   />
+                  {isUploadingAvatar && (
+                    <span className="text-xs text-blue-500 mt-1">
+                      Đang tải ảnh...
+                    </span>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Tên</label>
@@ -1026,8 +1034,9 @@ function ProfilePage() {
                 <button
                   type="submit"
                   className="w-full py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition"
+                  disabled={isUploadingAvatar}
                 >
-                  Lưu thay đổi
+                  {isUploadingAvatar ? "Đang tải ảnh..." : "Lưu thay đổi"}
                 </button>
               </form>
             </div>
