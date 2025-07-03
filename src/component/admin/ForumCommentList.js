@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { FaRegCommentDots, FaSmile, FaSearch, FaTrash } from "react-icons/fa";
+import api from "../../api/axiosConfig";
 
 export default function ForumCommentList() {
   const [comments, setComments] = useState([]);
@@ -24,12 +24,9 @@ export default function ForumCommentList() {
 
   async function fetchThreads() {
     try {
-      const res = await axios.get(
-        "https://momsbest-be.onrender.com/api/admin/forumthreads",
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
-      );
+      const res = await api.get("/api/admin/forumthreads", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
       setThreads(res.data.threads);
     } catch {}
   }
@@ -37,13 +34,10 @@ export default function ForumCommentList() {
   async function fetchComments() {
     setLoading(true);
     try {
-      const res = await axios.get(
-        "https://momsbest-be.onrender.com/api/admin/forumcomments",
-        {
-          params: { page, limit, search, thread_id: thread },
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
-      );
+      const res = await api.get("/api/admin/forumcomments", {
+        params: { page, limit, search, thread_id: thread },
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
       setComments(res.data.comments);
       setTotal(res.data.total);
     } catch (err) {
@@ -55,12 +49,9 @@ export default function ForumCommentList() {
 
   const handleDelete = async (id) => {
     if (!window.confirm("Bạn chắc chắn muốn xóa bình luận này?")) return;
-    await axios.delete(
-      `https://momsbest-be.onrender.com/api/admin/forumcomments/${id}`,
-      {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      }
-    );
+    await api.delete(`/api/admin/forumcomments/${id}`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    });
     fetchComments();
   };
 

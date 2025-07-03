@@ -34,6 +34,9 @@ export default function UserList() {
     try {
       const res = await api.get("/api/admin/users", {
         params: { page, limit, search, role: roleTab },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       });
       setUsers(res.data.users);
       setTotal(res.data.total);
@@ -84,7 +87,9 @@ export default function UserList() {
           role: "user",
         },
         {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }
       );
       fetchUsers();
