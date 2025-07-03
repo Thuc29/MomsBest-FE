@@ -893,436 +893,432 @@ export default function ProductDetail() {
         {/* Danh sách đánh giá */}
         <div className="space-y-6">
           {filteredReviews.length === 0 && <div>Chưa có đánh giá nào.</div>}
-          {filteredReviews
-            .filter((rv) => rv.user_id.name !== "Bạn")
-            .slice(0, visibleReviews)
-            .map((rv) => (
-              <motion.div
-                key={rv._id}
-                className="bg-white/95 p-6 rounded-2xl shadow-xl flex items-start gap-4 mb-2 hover:shadow-pink-200 border border-pink-100 transition-all duration-200"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-              >
-                <img
-                  src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(
-                    rv.avatar
-                  )}`}
-                  alt="avatar"
-                  className="w-12 h-12 rounded-full object-cover border-2 border-pink-200 shadow-lg"
-                />
-                <div className="flex flex-col justify-start min-w-0 w-full">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between w-full gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold text-pink-600 text-lg  items-center gap-1">
-                        {rv.user_id.name}
-                        {rv.purchased && (
-                          <Tooltip title="Đã mua hàng">
-                            <CheckCircleFilled className="text-green-500 ml-1" />
-                          </Tooltip>
-                        )}
-                      </span>
-                      <span className="text-xs text-gray-400 whitespace-nowrap mt-1 md:mt-0">
-                        {rv.time}
-                      </span>
-                      {/* Dropdown menu cho Sửa/Xóa */}
-                    </div>
+          {filteredReviews.slice(0, visibleReviews).map((rv) => (
+            <motion.div
+              key={rv._id}
+              className="bg-white/95 p-6 rounded-2xl shadow-xl flex items-start gap-4 mb-2 hover:shadow-pink-200 border border-pink-100 transition-all duration-200"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <img
+                src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(
+                  rv.avatar
+                )}`}
+                alt="avatar"
+                className="w-12 h-12 rounded-full object-cover border-2 border-pink-200 shadow-lg"
+              />
+              <div className="flex flex-col justify-start min-w-0 w-full">
+                <div className="flex flex-col md:flex-row md:items-center justify-between w-full gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-pink-600 text-lg  items-center gap-1">
+                      {user && rv.user_id && rv.user_id._id === user._id
+                        ? "Bạn"
+                        : rv.user_id.name}
+                      {rv.purchased && (
+                        <Tooltip title="Đã mua hàng">
+                          <CheckCircleFilled className="text-green-500 ml-1" />
+                        </Tooltip>
+                      )}
+                    </span>
+                    <span className="text-xs text-gray-400 whitespace-nowrap mt-1 md:mt-0">
+                      {rv.time}
+                    </span>
+                    {/* Dropdown menu cho Sửa/Xóa */}
                   </div>
-                  <div className="mb-1">
-                    {editingReviewId === rv._id ? (
-                      <form
-                        onSubmit={(e) => {
-                          e.preventDefault();
-                          handleEditSubmit(rv._id);
-                        }}
-                        className="mb-2 flex flex-col gap-2"
-                      >
-                        <textarea
-                          className="w-full p-2 border rounded text-black"
-                          value={editReview.comment}
-                          onChange={(e) =>
-                            setEditReview((prev) => ({
-                              ...prev,
-                              comment: e.target.value,
-                            }))
-                          }
-                          required
-                          minLength={5}
-                        />
+                </div>
+                <div className="mb-1">
+                  {editingReviewId === rv._id ? (
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        handleEditSubmit(rv._id);
+                      }}
+                      className="mb-2 flex flex-col gap-2"
+                    >
+                      <textarea
+                        className="w-full p-2 border rounded text-black"
+                        value={editReview.comment}
+                        onChange={(e) =>
+                          setEditReview((prev) => ({
+                            ...prev,
+                            comment: e.target.value,
+                          }))
+                        }
+                        required
+                        minLength={5}
+                      />
 
-                        <div className="flex items-center gap-2">
-                          <label className="flex items-center gap-1 cursor-pointer text-pink-600 hover:text-pink-800">
-                            <UploadOutlined />
-                            <input
-                              type="file"
-                              accept="image/*"
-                              onChange={handleEditImageChange}
-                              className="hidden"
+                      <div className="flex items-center gap-2">
+                        <label className="flex items-center gap-1 cursor-pointer text-pink-600 hover:text-pink-800">
+                          <UploadOutlined />
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleEditImageChange}
+                            className="hidden"
+                          />
+                        </label>
+                        {editReview.imageUrl && (
+                          <div className="relative">
+                            <img
+                              src={editReview.imageUrl}
+                              alt="preview"
+                              className="w-16 h-16 object-cover rounded-lg border-2 border-pink-200 shadow"
                             />
-                          </label>
-                          {editReview.imageUrl && (
-                            <div className="relative">
-                              <img
-                                src={editReview.imageUrl}
-                                alt="preview"
-                                className="w-16 h-16 object-cover rounded-lg border-2 border-pink-200 shadow"
-                              />
-                              <button
-                                type="button"
-                                className="absolute -top-2 -right-2 w-5 h-5 bg-white border border-pink-300 rounded-full flex items-center justify-center text-pink-500 hover:bg-pink-100 hover:text-pink-700 transition p-0 z-20 shadow"
-                                onClick={() =>
-                                  setEditReview((prev) => ({
-                                    ...prev,
-                                    image: null,
-                                    imageUrl: "",
-                                  }))
-                                }
-                                aria-label="Xóa ảnh"
-                              >
-                                <AiOutlineClose size={12} />
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2 mb-1">
-                          {[1, 2, 3, 4, 5].map((star) => (
                             <button
                               type="button"
-                              key={star}
+                              className="absolute -top-2 -right-2 w-5 h-5 bg-white border border-pink-300 rounded-full flex items-center justify-center text-pink-500 hover:bg-pink-100 hover:text-pink-700 transition p-0 z-20 shadow"
                               onClick={() =>
                                 setEditReview((prev) => ({
                                   ...prev,
-                                  rating: star,
+                                  image: null,
+                                  imageUrl: "",
                                 }))
                               }
-                              className={`focus:outline-none transition ${
-                                star <= editReview.rating
-                                  ? "text-yellow-400 scale-110"
-                                  : "text-gray-300"
-                              }`}
-                              style={{ fontSize: 26 }}
+                              aria-label="Xóa ảnh"
                             >
-                              <Star
-                                size={26}
-                                color={
-                                  star <= editReview.rating
-                                    ? "#fbbf24"
-                                    : "#e5e7eb"
-                                }
-                                fill={
-                                  star <= editReview.rating ? "#fbbf24" : "none"
-                                }
-                              />
+                              <AiOutlineClose size={12} />
                             </button>
-                          ))}
-                          <span className="ml-2 text-base text-gray-500">
-                            {editReview.rating
-                              ? `${editReview.rating} sao`
-                              : "Chọn số sao"}
-                          </span>
-                        </div>
-                        <div className="flex gap-2 mt-2">
-                          <button
-                            type="submit"
-                            className="bg-pink-500 text-white px-3 py-1 rounded font-semibold"
-                          >
-                            Lưu
-                          </button>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 mb-1">
+                        {[1, 2, 3, 4, 5].map((star) => (
                           <button
                             type="button"
-                            className="bg-gray-200 text-gray-700 px-3 py-1 rounded font-semibold"
-                            onClick={() => setEditingReviewId(null)}
+                            key={star}
+                            onClick={() =>
+                              setEditReview((prev) => ({
+                                ...prev,
+                                rating: star,
+                              }))
+                            }
+                            className={`focus:outline-none transition ${
+                              star <= editReview.rating
+                                ? "text-yellow-400 scale-110"
+                                : "text-gray-300"
+                            }`}
+                            style={{ fontSize: 26 }}
                           >
-                            Hủy
+                            <Star
+                              size={26}
+                              color={
+                                star <= editReview.rating
+                                  ? "#fbbf24"
+                                  : "#e5e7eb"
+                              }
+                              fill={
+                                star <= editReview.rating ? "#fbbf24" : "none"
+                              }
+                            />
                           </button>
-                        </div>
-                      </form>
-                    ) : (
-                      <>
-                        <span className="text-gray-700 flex items-center justify-between mb-1 text-base">
-                          <p className="text-base border w-full text-start p-3 rounded-xl">
-                            {rv.comment}
-                          </p>
-                          <p>
-                            {user &&
-                              rv.user_id.name === user._id &&
-                              editingReviewId !== rv._id && (
-                                <div className="relative review-menu-dropdown">
+                        ))}
+                        <span className="ml-2 text-base text-gray-500">
+                          {editReview.rating
+                            ? `${editReview.rating} sao`
+                            : "Chọn số sao"}
+                        </span>
+                      </div>
+                      <div className="flex gap-2 mt-2">
+                        <button
+                          type="submit"
+                          className="bg-pink-500 text-white px-3 py-1 rounded font-semibold"
+                        >
+                          Lưu
+                        </button>
+                        <button
+                          type="button"
+                          className="bg-gray-200 text-gray-700 px-3 py-1 rounded font-semibold"
+                          onClick={() => setEditingReviewId(null)}
+                        >
+                          Hủy
+                        </button>
+                      </div>
+                    </form>
+                  ) : (
+                    <>
+                      <span className="text-gray-700 flex items-center justify-between mb-1 text-base">
+                        <p className="text-base border w-full text-start p-3 rounded-xl">
+                          {rv.comment}
+                        </p>
+                        {user &&
+                          rv.user_id &&
+                          rv.user_id._id === user._id &&
+                          editingReviewId !== rv._id && (
+                            <div className="relative review-menu-dropdown">
+                              <button
+                                className="ml-2 text-gray-500 hover:text-pink-500 p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-pink-300"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setOpenMenuId(
+                                    openMenuId === rv._id ? null : rv._id
+                                  );
+                                }}
+                                aria-label="Mở menu"
+                                type="button"
+                              >
+                                <FiMoreHorizontal size={22} />
+                              </button>
+                              {openMenuId === rv._id && (
+                                <div className="absolute right-0 z-20 mt-2 w-32 bg-white border border-gray-200 rounded-xl shadow-lg py-1 animate-fadeIn review-menu-dropdown">
                                   <button
-                                    className="ml-2 text-gray-500 hover:text-pink-500 p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-pink-300"
+                                    className="w-full text-left px-4 py-2 text-yellow-600 hover:bg-yellow-50 hover:text-yellow-800 font-semibold rounded-t-xl transition"
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      setOpenMenuId(
-                                        openMenuId === rv._id ? null : rv._id
-                                      );
+                                      setOpenMenuId(null);
+                                      handleEditClick(rv);
                                     }}
-                                    aria-label="Mở menu"
                                     type="button"
                                   >
-                                    <FiMoreHorizontal size={22} />
+                                    Sửa
                                   </button>
-                                  {openMenuId === rv._id && (
-                                    <div className="absolute right-0 z-20 mt-2 w-32 bg-white border border-gray-200 rounded-xl shadow-lg py-1 animate-fadeIn review-menu-dropdown">
-                                      <button
-                                        className="w-full text-left px-4 py-2 text-yellow-600 hover:bg-yellow-50 hover:text-yellow-800 font-semibold rounded-t-xl transition"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setOpenMenuId(null);
-                                          handleEditClick(rv);
-                                        }}
-                                        type="button"
-                                      >
-                                        Sửa
-                                      </button>
-                                      <button
-                                        className="w-full text-left px-4 py-2 text-red-500 hover:bg-red-50 hover:text-red-700 font-semibold rounded-b-xl transition"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setOpenMenuId(null);
-                                          if (
-                                            window.confirm(
-                                              "Bạn chắc chắn muốn xóa đánh giá này?"
-                                            )
-                                          ) {
-                                            handleDeleteReview(rv._id);
-                                          }
-                                        }}
-                                        type="button"
-                                      >
-                                        Xóa
-                                      </button>
-                                    </div>
-                                  )}
+                                  <button
+                                    className="w-full text-left px-4 py-2 text-red-500 hover:bg-red-50 hover:text-red-700 font-semibold rounded-b-xl transition"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setOpenMenuId(null);
+                                      if (
+                                        window.confirm(
+                                          "Bạn chắc chắn muốn xóa đánh giá này?"
+                                        )
+                                      ) {
+                                        handleDeleteReview(rv._id);
+                                      }
+                                    }}
+                                    type="button"
+                                  >
+                                    Xóa
+                                  </button>
                                 </div>
                               )}
-                          </p>
-                        </span>
-                        {rv.image && (
-                          <a
-                            href={
+                            </div>
+                          )}
+                      </span>
+                      {rv.image && (
+                        <a
+                          href={
+                            rv.image.startsWith("/uploads")
+                              ? `https://momsbest-be.onrender.com${rv.image}`
+                              : rv.image
+                          }
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <img
+                            src={
                               rv.image.startsWith("/uploads")
                                 ? `https://momsbest-be.onrender.com${rv.image}`
                                 : rv.image
                             }
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <img
-                              src={
-                                rv.image.startsWith("/uploads")
-                                  ? `https://momsbest-be.onrender.com${rv.image}`
-                                  : rv.image
-                              }
-                              alt="review-img"
-                              className="w-32 h-32 object-cover rounded-xl border-2 border-pink-200 mb-2 shadow-lg hover:scale-105 transition-transform bg-white"
-                              onError={(e) => {
-                                e.target.onerror = null;
-                                e.target.src =
-                                  "https://via.placeholder.com/120x120?text=No+Image";
-                              }}
-                            />
-                          </a>
-                        )}
-                        <div className="flex items-center gap-1 mb-2">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <Star
-                              key={star}
-                              size={18}
-                              color={star <= rv.rating ? "#fbbf24" : "#e5e7eb"}
-                              fill={star <= rv.rating ? "#fbbf24" : "none"}
-                            />
-                          ))}
-                        </div>
-                      </>
-                    )}
-                  </div>
+                            alt="review-img"
+                            className="w-32 h-32 object-cover rounded-xl border-2 border-pink-200 mb-2 shadow-lg hover:scale-105 transition-transform bg-white"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src =
+                                "https://via.placeholder.com/120x120?text=No+Image";
+                            }}
+                          />
+                        </a>
+                      )}
+                      <div className="flex items-center gap-1 mb-2">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Star
+                            key={star}
+                            size={18}
+                            color={star <= rv.rating ? "#fbbf24" : "#e5e7eb"}
+                            fill={star <= rv.rating ? "#fbbf24" : "none"}
+                          />
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
 
-                  {/* Cảm xúc tổng hợp */}
-                  <div className="flex items-center gap-2 mt-2 flex-wrap">
-                    {EMOJIS.map((em) => (
-                      <Tooltip title={em.label} key={em.key} placement="top">
-                        <motion.button
-                          type="button"
-                          className={`flex items-center gap-1 px-2 py-1 rounded-full text-base transition-all duration-200 border shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-200 ${
-                            rv.userReaction === em.key
-                              ? "bg-pink-200 scale-105 shadow-pink-200 border-pink-400"
-                              : "bg-gray-100 hover:bg-pink-100 hover:scale-105 border-gray-200"
-                          }`}
-                          onClick={() => handleReact(rv._id, em.key)}
-                          disabled={rv.userReaction === em.key}
-                          whileTap={{ scale: 0.9 }}
-                          aria-label={em.label}
-                        >
-                          {em.icon}
-                          <span className="text-xs font-semibold">
-                            {rv.reactions?.[em.key] > 0
-                              ? rv.reactions[em.key]
-                              : ""}
-                          </span>
-                        </motion.button>
-                      </Tooltip>
-                    ))}
-                    <Tooltip title="Trả lời">
+                {/* Cảm xúc tổng hợp */}
+                <div className="flex items-center gap-2 mt-2 flex-wrap">
+                  {EMOJIS.map((em) => (
+                    <Tooltip title={em.label} key={em.key} placement="top">
                       <motion.button
                         type="button"
-                        className="ml-2 text-blue-500 text-xs font-semibold hover:underline focus:outline-none"
-                        onClick={() =>
-                          setReplyingId(replyingId === rv._id ? null : rv._id)
-                        }
+                        className={`flex items-center gap-1 px-2 py-1 rounded-full text-base transition-all duration-200 border shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-200 ${
+                          rv.userReaction === em.key
+                            ? "bg-pink-200 scale-105 shadow-pink-200 border-pink-400"
+                            : "bg-gray-100 hover:bg-pink-100 hover:scale-105 border-gray-200"
+                        }`}
+                        onClick={() => handleReact(rv._id, em.key)}
+                        disabled={rv.userReaction === em.key}
                         whileTap={{ scale: 0.9 }}
+                        aria-label={em.label}
                       >
-                        Trả lời
+                        {em.icon}
+                        <span className="text-xs font-semibold">
+                          {rv.reactions?.[em.key] > 0
+                            ? rv.reactions[em.key]
+                            : ""}
+                        </span>
                       </motion.button>
                     </Tooltip>
-                  </div>
-                  {/* Form trả lời và danh sách reply giữ nguyên */}
-                  {replyingId === rv._id && (
-                    <motion.div
-                      className="mt-2 flex gap-2 items-center"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
+                  ))}
+                  <Tooltip title="Trả lời">
+                    <motion.button
+                      type="button"
+                      className="ml-2 text-blue-500 text-xs font-semibold hover:underline focus:outline-none"
+                      onClick={() =>
+                        setReplyingId(replyingId === rv._id ? null : rv._id)
+                      }
+                      whileTap={{ scale: 0.9 }}
                     >
-                      <input
-                        type="text"
-                        className="flex-1 bg-gray-100 border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-pink-300 transition-all duration-200 shadow-sm"
-                        placeholder="Nhập trả lời..."
-                        value={replyText}
-                        onChange={(e) => setReplyText(e.target.value)}
-                        autoFocus
-                        minLength={2}
-                      />
-                      <motion.button
-                        type="button"
-                        className="bg-pink-500 text-white px-3 py-1 rounded hover:bg-pink-600 text-sm font-semibold shadow disabled:opacity-60 disabled:cursor-not-allowed"
-                        onClick={() => handleReply(rv._id)}
-                        whileTap={{ scale: 0.9 }}
-                        disabled={replyText.trim().length < 2}
+                      Trả lời
+                    </motion.button>
+                  </Tooltip>
+                </div>
+                {/* Form trả lời và danh sách reply giữ nguyên */}
+                {replyingId === rv._id && (
+                  <motion.div
+                    className="mt-2 flex gap-2 items-center"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                  >
+                    <input
+                      type="text"
+                      className="flex-1 bg-gray-100 border rounded px-2 py-1 text-sm focus:ring-2 focus:ring-pink-300 transition-all duration-200 shadow-sm"
+                      placeholder="Nhập trả lời..."
+                      value={replyText}
+                      onChange={(e) => setReplyText(e.target.value)}
+                      autoFocus
+                      minLength={2}
+                    />
+                    <motion.button
+                      type="button"
+                      className="bg-pink-500 text-white px-3 py-1 rounded hover:bg-pink-600 text-sm font-semibold shadow disabled:opacity-60 disabled:cursor-not-allowed"
+                      onClick={() => handleReply(rv._id)}
+                      whileTap={{ scale: 0.9 }}
+                      disabled={replyText.trim().length < 2}
+                    >
+                      Gửi
+                    </motion.button>
+                  </motion.div>
+                )}
+                {/* Danh sách reply giữ nguyên */}
+                {rv.replies && rv.replies.length > 0 && (
+                  <div className="mt-3 space-y-2 pl-4 border-l-2 border-pink-100">
+                    {rv.replies.map((rep) => (
+                      <motion.div
+                        key={rep._id}
+                        className="flex items-start gap-2"
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
                       >
-                        Gửi
-                      </motion.button>
-                    </motion.div>
-                  )}
-                  {/* Danh sách reply giữ nguyên */}
-                  {rv.replies && rv.replies.length > 0 && (
-                    <div className="mt-3 space-y-2 pl-4 border-l-2 border-pink-100">
-                      {rv.replies.map((rep) => (
-                        <motion.div
-                          key={rep._id}
-                          className="flex items-start gap-2"
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                        >
-                          {/* Avatar bên trái */}
-                          <img
-                            src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(
-                              rep.user || "user"
-                            )}`}
-                            alt="avatar"
-                            className="w-8 h-8 rounded-full object-cover border border-pink-200 shadow"
-                          />
-                          {/* Nội dung bên phải avatar */}
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between">
-                              <span className="font-semibold text-pink-500 text-xs">
-                                {rep.user || "Bạn"}
-                              </span>
-                              {user && rep.user_id === user._id && (
-                                <div className="relative inline-block">
-                                  <button
-                                    className="text-gray-500 hover:text-pink-500 p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-pink-300"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setOpenReplyMenu(
-                                        openReplyMenu === rep._id
-                                          ? null
-                                          : rep._id
-                                      );
-                                    }}
-                                  >
-                                    <FiMoreHorizontal />
-                                  </button>
-                                  {openReplyMenu === rep._id && (
-                                    <div className="absolute right-0 z-20 mt-2 w-28 bg-white border border-gray-200 rounded-xl shadow-lg py-1 animate-fadeIn">
-                                      <button
-                                        className="w-full text-left px-4 py-2 text-yellow-600 hover:bg-yellow-50 hover:text-yellow-800 font-semibold rounded-t-xl transition"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setOpenReplyMenu(null);
-                                          handleEditReply(rv._id, rep);
-                                        }}
-                                      >
-                                        Sửa
-                                      </button>
-                                      <button
-                                        className="w-full text-left px-4 py-2 text-red-500 hover:bg-red-50 hover:text-red-700 font-semibold rounded-b-xl transition"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setOpenReplyMenu(null);
-                                          handleDeleteReply(rv._id, rep._id);
-                                        }}
-                                      >
-                                        Xóa
-                                      </button>
-                                    </div>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                            {editingReply.replyId === rep._id ? (
-                              <form
-                                onSubmit={(e) => {
-                                  e.preventDefault();
-                                  handleEditReplySubmit();
-                                }}
-                                className="flex flex-col gap-2 mt-1"
-                              >
-                                <textarea
-                                  className="w-full p-2 border rounded-xl text-black bg-gray-100"
-                                  value={editingReply.comment}
-                                  onChange={(e) =>
-                                    setEditingReply((prev) => ({
-                                      ...prev,
-                                      comment: e.target.value,
-                                    }))
-                                  }
-                                  required
-                                  minLength={2}
-                                  rows={2}
-                                />
-                                <div className="flex gap-2 mt-1">
-                                  <button
-                                    type="submit"
-                                    className="bg-pink-500 text-white px-3 py-1 rounded font-semibold text-sm"
-                                  >
-                                    Lưu
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className="bg-gray-200 text-gray-700 px-3 py-1 rounded font-semibold text-sm"
-                                    onClick={() =>
-                                      setEditingReply({
-                                        reviewId: null,
-                                        replyId: null,
-                                        comment: "",
-                                      })
-                                    }
-                                  >
-                                    Hủy
-                                  </button>
-                                </div>
-                              </form>
-                            ) : (
-                              <div className="bg-gray-50 rounded-xl px-3 py-2 text-sm text-gray-800 mt-1 whitespace-pre-line">
-                                {rep.comment}
+                        {/* Avatar bên trái */}
+                        <img
+                          src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(
+                            rep.user || "user"
+                          )}`}
+                          alt="avatar"
+                          className="w-8 h-8 rounded-full object-cover border border-pink-200 shadow"
+                        />
+                        {/* Nội dung bên phải avatar */}
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between">
+                            <span className="font-semibold text-pink-500 text-xs">
+                              {rep.user || "Bạn"}
+                            </span>
+                            {user && rep.user_id === user._id && (
+                              <div className="relative inline-block">
+                                <button
+                                  className="text-gray-500 hover:text-pink-500 p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-pink-300"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setOpenReplyMenu(
+                                      openReplyMenu === rep._id ? null : rep._id
+                                    );
+                                  }}
+                                >
+                                  <FiMoreHorizontal />
+                                </button>
+                                {openReplyMenu === rep._id && (
+                                  <div className="absolute right-0 z-20 mt-2 w-28 bg-white border border-gray-200 rounded-xl shadow-lg py-1 animate-fadeIn">
+                                    <button
+                                      className="w-full text-left px-4 py-2 text-yellow-600 hover:bg-yellow-50 hover:text-yellow-800 font-semibold rounded-t-xl transition"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setOpenReplyMenu(null);
+                                        handleEditReply(rv._id, rep);
+                                      }}
+                                    >
+                                      Sửa
+                                    </button>
+                                    <button
+                                      className="w-full text-left px-4 py-2 text-red-500 hover:bg-red-50 hover:text-red-700 font-semibold rounded-b-xl transition"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setOpenReplyMenu(null);
+                                        handleDeleteReply(rv._id, rep._id);
+                                      }}
+                                    >
+                                      Xóa
+                                    </button>
+                                  </div>
+                                )}
                               </div>
                             )}
                           </div>
-                        </motion.div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            ))}
+                          {editingReply.replyId === rep._id ? (
+                            <form
+                              onSubmit={(e) => {
+                                e.preventDefault();
+                                handleEditReplySubmit();
+                              }}
+                              className="flex flex-col gap-2 mt-1"
+                            >
+                              <textarea
+                                className="w-full p-2 border rounded-xl text-black bg-gray-100"
+                                value={editingReply.comment}
+                                onChange={(e) =>
+                                  setEditingReply((prev) => ({
+                                    ...prev,
+                                    comment: e.target.value,
+                                  }))
+                                }
+                                required
+                                minLength={2}
+                                rows={2}
+                              />
+                              <div className="flex gap-2 mt-1">
+                                <button
+                                  type="submit"
+                                  className="bg-pink-500 text-white px-3 py-1 rounded font-semibold text-sm"
+                                >
+                                  Lưu
+                                </button>
+                                <button
+                                  type="button"
+                                  className="bg-gray-200 text-gray-700 px-3 py-1 rounded font-semibold text-sm"
+                                  onClick={() =>
+                                    setEditingReply({
+                                      reviewId: null,
+                                      replyId: null,
+                                      comment: "",
+                                    })
+                                  }
+                                >
+                                  Hủy
+                                </button>
+                              </div>
+                            </form>
+                          ) : (
+                            <div className="bg-gray-50 rounded-xl px-3 py-2 text-sm text-gray-800 mt-1 whitespace-pre-line">
+                              {rep.comment}
+                            </div>
+                          )}
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          ))}
           {filteredReviews.length > visibleReviews && (
             <div className="flex justify-center mt-4">
               <motion.button

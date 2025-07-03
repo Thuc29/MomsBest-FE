@@ -40,7 +40,20 @@ const LoginPage = () => {
         navigate("/");
       }
     } catch (err) {
-      message.error(err.toString());
+      if (
+        err.response &&
+        err.response.status === 403 &&
+        err.response.data &&
+        err.response.data.message === "Tài khoản của bạn đã bị vô hiệu hóa"
+      ) {
+        Swal.fire({
+          icon: "error",
+          title: "Tài khoản bị vô hiệu hóa",
+          text: "Tài khoản của bạn đã bị vô hiệu hóa. Vui lòng liên hệ quản trị viên để biết thêm chi tiết.",
+        });
+      } else {
+        message.error(err.toString());
+      }
     }
   };
 
