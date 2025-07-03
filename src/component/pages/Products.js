@@ -39,7 +39,6 @@ const Product = () => {
 
   const parsePrice = (value) => {
     if (!value) return NaN;
-    // Loại bỏ dấu chấm, dấu phẩy, khoảng trắng
     return parseFloat(value.toString().replace(/[.,\s]/g, ""));
   };
 
@@ -180,36 +179,35 @@ const Product = () => {
                 <h3 className="text-lg font-semibold text-gray-700 mb-2">
                   Danh Mục Sản Phẩm
                 </h3>
-                <div className="space-y-2">
-                  <label className="flex items-center">
-                    <input
-                      type="radio"
-                      name="category"
-                      value="Tất Cả"
-                      checked={filters.category === "Tất Cả"}
-                      onChange={() =>
-                        setFilters({ ...filters, category: "Tất Cả" })
-                      }
-                      className="mr-2"
-                    />
-                    <span className="capitalize text-gray-700">Tất Cả</span>
-                  </label>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    className={`px-4 py-2 rounded-full border transition font-semibold text-sm ${
+                      filters.category === "Tất Cả"
+                        ? "bg-pink-500 text-white border-pink-500 shadow"
+                        : "bg-white text-pink-600 border-pink-200 hover:bg-pink-100"
+                    }`}
+                    onClick={() =>
+                      setFilters({ ...filters, category: "Tất Cả" })
+                    }
+                  >
+                    Tất Cả
+                  </button>
                   {categories.map((cat) => (
-                    <label key={cat._id} className="flex items-center">
-                      <input
-                        type="radio"
-                        name="category"
-                        value={cat._id}
-                        checked={filters.category === cat._id}
-                        onChange={() =>
-                          setFilters({ ...filters, category: cat._id })
-                        }
-                        className="mr-2"
-                      />
-                      <span className="capitalize text-gray-700">
-                        {cat.name}
-                      </span>
-                    </label>
+                    <button
+                      key={cat._id}
+                      type="button"
+                      className={`px-4 py-2 rounded-full border transition font-semibold text-sm ${
+                        filters.category === cat._id
+                          ? "bg-pink-500 text-white border-pink-500 shadow"
+                          : "bg-white text-pink-600 border-pink-200 hover:bg-pink-100"
+                      }`}
+                      onClick={() =>
+                        setFilters({ ...filters, category: cat._id })
+                      }
+                    >
+                      {cat.name}
+                    </button>
                   ))}
                 </div>
               </div>
