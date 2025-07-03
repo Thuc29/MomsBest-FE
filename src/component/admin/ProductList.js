@@ -17,6 +17,7 @@ import {
   FaTimes,
   FaCloudUploadAlt,
 } from "react-icons/fa";
+import Swal from "sweetalert2";
 
 export default function ProductList() {
   const [products, setProducts] = useState([]);
@@ -34,6 +35,22 @@ export default function ProductList() {
   const [editLoading, setEditLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [newProduct, setNewProduct] = useState({
+    name: "",
+    price: "",
+    original_price: "",
+    category_ids: [],
+    brand: "",
+    images: [],
+    stock_quantity: 0,
+    description: "",
+    detail_description: "",
+    is_featured: false,
+    is_active: true,
+  });
+  const [addLoading, setAddLoading] = useState(false);
+  const [addUploadError, setAddUploadError] = useState("");
 
   useEffect(() => {
     fetchCategories();
@@ -64,7 +81,7 @@ export default function ProductList() {
   async function fetchCategories() {
     try {
       const res = await axios.get(
-        "https://momsbest-be.onrender.com/api/admin/categoryproducts",
+        "http://localhost:9999/api/admin/categoryproducts",
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
@@ -77,13 +94,10 @@ export default function ProductList() {
   async function fetchProducts() {
     setLoading(true);
     try {
-      const res = await axios.get(
-        "https://momsbest-be.onrender.com/api/admin/products",
-        {
-          params: { page, limit, search, category },
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
-      );
+      const res = await axios.get("http://localhost:9999/api/admin/products", {
+        params: { page, limit, search, category },
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
       setProducts(res.data.products);
       setTotal(res.data.total);
     } catch (err) {
@@ -95,35 +109,32 @@ export default function ProductList() {
 
   const handleToggleActive = async (id) => {
     await axios.patch(
-      `https://momsbest-be.onrender.com/api/admin/products/${id}/toggle-active`,
+      `http://localhost:9999/api/admin/products/${id}/toggle-active`,
       {},
       {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       }
     );
-    fetchProducts();
+    await fetchProducts();
   };
 
   const handleToggleFeatured = async (id) => {
     await axios.patch(
-      `https://momsbest-be.onrender.com/api/admin/products/${id}/toggle-featured`,
+      `http://localhost:9999/api/admin/products/${id}/toggle-featured`,
       {},
       {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       }
     );
-    fetchProducts();
+    await fetchProducts();
   };
 
   const handleDelete = async (id) => {
     if (window.confirm("Bạn có chắc muốn xóa sản phẩm này?")) {
-      await axios.delete(
-        `https://momsbest-be.onrender.com/api/admin/products/${id}`,
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
-      );
-      fetchProducts();
+      await axios.delete(`http://localhost:9999/api/admin/products/${id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      await fetchProducts();
     }
   };
 
@@ -131,12 +142,19 @@ export default function ProductList() {
     setEditLoading(true);
     try {
       const res = await axios.get(
-        `https://momsbest-be.onrender.com/api/admin/products/${id}`,
+        `http://localhost:9999/api/admin/products/${id}`,
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
       );
-      setEditProduct(res.data);
+      setEditProduct({
+        ...res.data,
+        category_ids: Array.isArray(res.data.category_ids)
+          ? res.data.category_ids.map((cat) =>
+              typeof cat === "string" ? cat : cat._id
+            )
+          : [],
+      });
       setEditModalOpen(true);
     } catch (err) {
       alert("Không thể tải thông tin sản phẩm");
@@ -146,18 +164,41 @@ export default function ProductList() {
   };
 
   const handleEditChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setEditProduct((prev) => ({
-      ...prev,
-      [name]:
-        type === "checkbox"
-          ? checked
-          : type === "number"
-          ? value === ""
-            ? ""
-            : Number(value)
-          : value,
-    }));
+    const { name, value, type, checked, multiple, options } = e.target;
+    if (type === "checkbox" && name === "category_ids") {
+      setEditProduct((prev) => {
+        const arr = Array.isArray(prev.category_ids)
+          ? [...prev.category_ids]
+          : [];
+        if (checked) {
+          if (!arr.includes(value)) arr.push(value);
+        } else {
+          const idx = arr.indexOf(value);
+          if (idx > -1) arr.splice(idx, 1);
+        }
+        return { ...prev, category_ids: arr };
+      });
+    } else if (multiple) {
+      const values = Array.from(options)
+        .filter((o) => o.selected)
+        .map((o) => o.value);
+      setEditProduct((prev) => ({
+        ...prev,
+        [name]: values,
+      }));
+    } else {
+      setEditProduct((prev) => ({
+        ...prev,
+        [name]:
+          type === "checkbox"
+            ? checked
+            : type === "number"
+            ? value === ""
+              ? ""
+              : Number(value)
+            : value,
+      }));
+    }
   };
 
   async function uploadToCloudinary(file) {
@@ -176,19 +217,19 @@ export default function ProductList() {
   }
 
   const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
     setUploading(true);
     setUploadError("");
     try {
-      const url = await uploadToCloudinary(file);
+      const urls = [];
+      for (const file of files) {
+        const url = await uploadToCloudinary(file);
+        urls.push(url);
+      }
       setEditProduct((prev) => ({
         ...prev,
-        images: Array.isArray(prev.images)
-          ? [url, ...prev.images]
-          : prev.images
-          ? [url, prev.images]
-          : [url],
+        images: Array.isArray(prev.images) ? [...prev.images, ...urls] : urls,
       }));
     } catch (err) {
       setUploadError("Lỗi upload ảnh");
@@ -209,7 +250,7 @@ export default function ProductList() {
     setEditLoading(true);
     try {
       await axios.put(
-        `https://momsbest-be.onrender.com/api/admin/products/${editProduct._id}`,
+        `http://localhost:9999/api/admin/products/${editProduct._id}`,
         editProduct,
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -217,9 +258,20 @@ export default function ProductList() {
       );
       setEditModalOpen(false);
       setEditProduct(null);
-      fetchProducts();
+      await fetchProducts();
+      Swal.fire({
+        icon: "success",
+        title: "Thành công!",
+        text: "Đã cập nhật sản phẩm.",
+        timer: 1500,
+        showConfirmButton: false,
+      });
     } catch (err) {
-      alert("Cập nhật sản phẩm thất bại");
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi!",
+        text: "Cập nhật sản phẩm thất bại.",
+      });
     } finally {
       setEditLoading(false);
     }
@@ -236,6 +288,101 @@ export default function ProductList() {
         : null,
     ]);
   }
+
+  // Hàm xử lý thay đổi input cho thêm sản phẩm
+  const handleAddChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    if (type === "checkbox" && name === "category_ids") {
+      setNewProduct((prev) => {
+        const arr = Array.isArray(prev.category_ids)
+          ? [...prev.category_ids]
+          : [];
+        if (checked) {
+          if (!arr.includes(value)) arr.push(value);
+        } else {
+          const idx = arr.indexOf(value);
+          if (idx > -1) arr.splice(idx, 1);
+        }
+        return { ...prev, category_ids: arr };
+      });
+    } else {
+      setNewProduct((prev) => ({
+        ...prev,
+        [name]:
+          type === "checkbox"
+            ? checked
+            : type === "number"
+            ? value === ""
+              ? ""
+              : Number(value)
+            : value,
+      }));
+    }
+  };
+
+  // Hàm upload ảnh cho thêm sản phẩm
+  const handleAddImageUpload = async (e) => {
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+    setUploading(true);
+    setAddUploadError("");
+    try {
+      const urls = [];
+      for (const file of files) {
+        const url = await uploadToCloudinary(file);
+        urls.push(url);
+      }
+      setNewProduct((prev) => ({
+        ...prev,
+        images: Array.isArray(prev.images) ? [...prev.images, ...urls] : urls,
+      }));
+    } catch (err) {
+      setAddUploadError("Lỗi upload ảnh");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // Hàm submit thêm sản phẩm
+  const handleAddSubmit = async (e) => {
+    e.preventDefault();
+    setAddLoading(true);
+    try {
+      await axios.post("http://localhost:9999/api/admin/products", newProduct, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      setAddModalOpen(false);
+      setNewProduct({
+        name: "",
+        price: "",
+        original_price: "",
+        category_ids: [],
+        brand: "",
+        images: [],
+        stock_quantity: 0,
+        description: "",
+        detail_description: "",
+        is_featured: false,
+        is_active: true,
+      });
+      await fetchProducts();
+      Swal.fire({
+        icon: "success",
+        title: "Thành công!",
+        text: "Đã thêm sản phẩm mới.",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi!",
+        text: "Thêm sản phẩm thất bại.",
+      });
+    } finally {
+      setAddLoading(false);
+    }
+  };
 
   if (loading)
     return (
@@ -256,35 +403,62 @@ export default function ProductList() {
       <h1 className="text-2xl font-extrabold mb-6 flex items-center gap-2 text-green-400">
         <FaBoxOpen className="text-green-300 text-3xl" /> Quản lý sản phẩm
       </h1>
-      <div className="mb-6 flex items-center gap-3 flex-wrap">
-        <div className="relative">
-          <input
-            type="text"
-            placeholder="Tìm kiếm tên sản phẩm..."
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
-            className="border-2 border-green-200 rounded-2xl px-4 py-2 w-64 focus:outline-none focus:ring-2 focus:ring-green-300 bg-white/80 text-gray-700 shadow-sm"
-          />
-          <FaSearch className="absolute right-3 top-3 text-green-300" />
+      <div className="mb-6 flex items-center gap-3 justify-between">
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Tìm kiếm tên sản phẩm..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+              className="border-2 border-green-200 rounded-2xl px-4 py-2 w-64 focus:outline-none focus:ring-2 focus:ring-green-300 bg-white/80 text-gray-700 shadow-sm"
+            />
+            <FaSearch className="absolute right-3 top-3 text-green-300" />
+          </div>
+          <div className="relative">
+            <select
+              value={category}
+              onChange={(e) => {
+                setCategory(e.target.value);
+                setPage(1);
+              }}
+              className="border-2 border-yellow-200 rounded-2xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-200 bg-white/80 text-gray-700 shadow-sm"
+            >
+              <option value="">
+                <FaListUl className="inline mr-1" /> Tất cả danh mục
+              </option>
+              {/* Render option phân cấp */}
+              {categoriesTree.length > 0 &&
+                renderCategoryOptions(categoriesTree)}
+            </select>
+          </div>
         </div>
-        <div className="relative">
-          <select
-            value={category}
-            onChange={(e) => {
-              setCategory(e.target.value);
-              setPage(1);
+        <div className="flex items-center gap-3">
+          <button
+            className="px-4 py-2 rounded-2xl font-bold bg-green-500 text-white hover:bg-green-600 mb-4"
+            onClick={() => {
+              setAddModalOpen(true);
+              setNewProduct({
+                name: "",
+                price: "",
+                original_price: "",
+                category_ids: [],
+                brand: "",
+                images: [],
+                stock_quantity: 0,
+                description: "",
+                detail_description: "",
+                is_featured: false,
+                is_active: true,
+              });
+              setAddUploadError("");
             }}
-            className="border-2 border-yellow-200 rounded-2xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-200 bg-white/80 text-gray-700 shadow-sm"
           >
-            <option value="">
-              <FaListUl className="inline mr-1" /> Tất cả danh mục
-            </option>
-            {/* Render option phân cấp */}
-            {categoriesTree.length > 0 && renderCategoryOptions(categoriesTree)}
-          </select>
+            + Thêm sản phẩm
+          </button>
         </div>
       </div>
       <div className="overflow-x-auto">
@@ -397,28 +571,54 @@ export default function ProductList() {
                     </span>
                   </td>
                   <td
-                    className="px-4 py-3 truncate max-w-[140px] border border-gray-200"
+                    className="px-2 py-3 truncate max-w-[140px] border border-gray-200"
                     title={
-                      categories.find((cat) => cat._id === product.category_id)
-                        ?.name ||
-                      product.category_id ||
-                      ""
+                      Array.isArray(product.category_ids)
+                        ? product.category_ids
+                            .map((cat) => cat?.name)
+                            .filter(Boolean)
+                            .join(", ")
+                        : ""
                     }
                   >
-                    <span className="flex items-center gap-2">
-                      <FaListUl className="text-blue-400" />
-                      {categories.find((cat) => cat._id === product.category_id)
-                        ?.name ||
-                        product.category_id ||
-                        ""}
+                    <span
+                      className="flex items-center gap-2 h-20 overflow-y-auto overflow-x-hidden custom-scrollbar flex-wrap w-full"
+                      style={{ maxHeight: "5rem" }}
+                    >
+                      {Array.isArray(product.category_ids)
+                        ? product.category_ids.map((cat) =>
+                            cat?.name ? (
+                              <span
+                                key={cat._id}
+                                className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-xs font-semibold mr-1 mb-1 inline-block"
+                              >
+                                {cat.name}
+                              </span>
+                            ) : null
+                          )
+                        : ""}
                     </span>
+                    <style>{`
+                      .custom-scrollbar::-webkit-scrollbar {
+                        width: 6px;
+                        background: #e0f2fe;
+                        border-radius: 8px;
+                      }
+                      .custom-scrollbar::-webkit-scrollbar-thumb {
+                        background: #38bdf8;
+                        border-radius: 8px;
+                      }
+                      .custom-scrollbar {
+                        scrollbar-width: thin;
+                        scrollbar-color: #38bdf8 #e0f2fe;
+                      }
+                    `}</style>
                   </td>
                   <td
                     className="px-4 py-3 truncate max-w-[100px] border border-gray-200"
                     title={product.brand}
                   >
                     <span className="flex items-center gap-2">
-                      <FaBoxOpen className="text-gray-400" />
                       {product.brand || "-"}
                     </span>
                   </td>
@@ -512,7 +712,22 @@ export default function ProductList() {
       {/* Modal Sửa Sản Phẩm */}
       {editModalOpen && editProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-h-[90vh] overflow-y-auto scrollbar-thin scrollbar-thumb-green-200 scrollbar-track-white/50 h-full max-w-2xl relative">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-h-[90vh] overflow-y-auto custom-scrollbar h-full max-w-2xl relative">
+            <style>{`
+                      .custom-scrollbar::-webkit-scrollbar {
+                        width: 6px;
+                        background: #e0f2fe;
+                        border-radius: 8px;
+                      }
+                      .custom-scrollbar::-webkit-scrollbar-thumb {
+                        background: #38bdf8;
+                        border-radius: 8px;
+                      }
+                      .custom-scrollbar {
+                        scrollbar-width: thin;
+                        scrollbar-color: #38bdf8 #e0f2fe;
+                      }
+                    `}</style>
             <button
               className="absolute top-4 right-4 text-gray-400 hover:text-red-400 text-2xl"
               onClick={() => setEditModalOpen(false)}
@@ -558,20 +773,25 @@ export default function ProductList() {
                 </div>
                 <div>
                   <label className="font-semibold">Danh mục</label>
-                  <select
-                    name="category_id"
-                    value={editProduct.category_id || ""}
-                    onChange={handleEditChange}
-                    className="w-full bg-gray-100 border rounded-xl px-3 py-2 mt-1"
-                    required
+                  <div
+                    className="flex flex-wrap gap-2 mt-1 overflow-y-auto overflow-x-hidden custom-scrollbar"
+                    style={{ maxHeight: "7rem", minHeight: "2.5rem" }}
                   >
-                    <option value="">-- Chọn danh mục --</option>
                     {categoriesTree.map((cat) => (
-                      <option key={cat._id} value={cat._id}>
+                      <label key={cat._id} className="flex items-center gap-1">
+                        <input
+                          type="checkbox"
+                          name="category_ids"
+                          value={cat._id}
+                          checked={
+                            editProduct.category_ids?.includes(cat._id) || false
+                          }
+                          onChange={handleEditChange}
+                        />
                         {cat.name}
-                      </option>
+                      </label>
                     ))}
-                  </select>
+                  </div>
                 </div>
                 <div>
                   <label className="font-semibold">Thương hiệu</label>
@@ -667,6 +887,7 @@ export default function ProductList() {
                       className="hidden"
                       onChange={handleImageUpload}
                       disabled={uploading}
+                      multiple
                     />
                   </label>
                 </div>
@@ -689,6 +910,202 @@ export default function ProductList() {
                   disabled={editLoading}
                 >
                   {editLoading ? "Đang lưu..." : "Lưu thay đổi"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Thêm Sản Phẩm */}
+      {addModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-h-[90vh] overflow-y-auto scrollbar-thin scrollbar-thumb-green-200 scrollbar-track-white/50 h-full max-w-2xl relative">
+            <button
+              className="absolute top-4 right-4 text-gray-400 hover:text-red-400 text-2xl"
+              onClick={() => setAddModalOpen(false)}
+            >
+              <FaTimes />
+            </button>
+            <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-green-700">
+              <FaBoxOpen /> Thêm sản phẩm mới
+            </h2>
+            <form onSubmit={handleAddSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="font-semibold">Tên sản phẩm</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={newProduct.name}
+                    onChange={handleAddChange}
+                    className="w-full bg-gray-100 border rounded-xl px-3 py-2 mt-1"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="font-semibold">Giá</label>
+                  <input
+                    type="number"
+                    name="price"
+                    value={newProduct.price}
+                    onChange={handleAddChange}
+                    className="w-full bg-gray-100 border rounded-xl px-3 py-2 mt-1"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="font-semibold">Giá gốc</label>
+                  <input
+                    type="number"
+                    name="original_price"
+                    value={newProduct.original_price}
+                    onChange={handleAddChange}
+                    className="w-full bg-gray-100 border rounded-xl px-3 py-2 mt-1"
+                  />
+                </div>
+                <div>
+                  <label className="font-semibold">Danh mục</label>
+                  <div
+                    className="flex flex-wrap gap-2 mt-1 overflow-y-auto overflow-x-hidden custom-scrollbar"
+                    style={{ maxHeight: "7rem", minHeight: "2.5rem" }}
+                  >
+                    {categoriesTree.map((cat) => (
+                      <label key={cat._id} className="flex items-center gap-1">
+                        <input
+                          type="checkbox"
+                          name="category_ids"
+                          value={cat._id}
+                          checked={newProduct.category_ids.includes(cat._id)}
+                          onChange={handleAddChange}
+                        />
+                        {cat.name}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="font-semibold">Thương hiệu</label>
+                  <input
+                    type="text"
+                    name="brand"
+                    value={newProduct.brand}
+                    onChange={handleAddChange}
+                    className="w-full bg-gray-100 border rounded-xl px-3 py-2 mt-1"
+                  />
+                </div>
+                <div>
+                  <label className="font-semibold">Kho</label>
+                  <input
+                    type="number"
+                    name="stock_quantity"
+                    value={newProduct.stock_quantity}
+                    onChange={handleAddChange}
+                    className="w-full bg-gray-100 border rounded-xl px-3 py-2 mt-1"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="font-semibold">Mô tả</label>
+                <textarea
+                  name="description"
+                  value={newProduct.description}
+                  onChange={handleAddChange}
+                  className="w-full bg-gray-100 border rounded-xl px-3 py-2 mt-1"
+                  rows={2}
+                />
+              </div>
+              <div>
+                <label className="font-semibold">Mô tả chi tiết</label>
+                <textarea
+                  name="detail_description"
+                  value={newProduct.detail_description}
+                  onChange={handleAddChange}
+                  className="w-full bg-gray-100 border rounded-xl px-3 py-2 mt-1"
+                  rows={3}
+                />
+              </div>
+              <div className="flex gap-4 items-center">
+                <label className="font-semibold">Nổi bật</label>
+                <input
+                  type="checkbox"
+                  name="is_featured"
+                  checked={!!newProduct.is_featured}
+                  onChange={handleAddChange}
+                />
+                <label className="font-semibold ml-6">Đang bán</label>
+                <input
+                  type="checkbox"
+                  name="is_active"
+                  checked={!!newProduct.is_active}
+                  onChange={handleAddChange}
+                />
+              </div>
+              <div>
+                <label className="font-semibold">Ảnh sản phẩm</label>
+                <div className="flex gap-2 flex-wrap mt-2">
+                  {(Array.isArray(newProduct.images)
+                    ? newProduct.images
+                    : []
+                  ).map((img, idx) => (
+                    <div key={idx} className="relative group">
+                      <img
+                        src={img}
+                        alt="preview"
+                        className="w-20 h-20 object-cover rounded border"
+                      />
+                      <button
+                        type="button"
+                        className="absolute top-0 right-0 bg-white/80 rounded-full p-1 text-red-500 opacity-0 group-hover:opacity-100 transition"
+                        onClick={() =>
+                          setNewProduct((prev) => ({
+                            ...prev,
+                            images: prev.images.filter((i) => i !== img),
+                          }))
+                        }
+                        title="Xóa ảnh"
+                      >
+                        <FaTimes />
+                      </button>
+                    </div>
+                  ))}
+                  <label className="w-20 h-20 flex items-center justify-center border-2 border-dashed border-gray-300 rounded cursor-pointer hover:bg-gray-100">
+                    {uploading ? (
+                      <FaCloudUploadAlt className="text-2xl animate-bounce text-blue-400" />
+                    ) : (
+                      <FaCloudUploadAlt className="text-2xl text-gray-400" />
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleAddImageUpload}
+                      disabled={uploading}
+                      multiple
+                    />
+                  </label>
+                </div>
+                {addUploadError && (
+                  <div className="text-red-500 text-sm mt-1">
+                    {addUploadError}
+                  </div>
+                )}
+              </div>
+              <div className="flex justify-end gap-2 mt-4">
+                <button
+                  type="button"
+                  className="px-4 py-2 rounded bg-gray-200 text-gray-700 font-bold"
+                  onClick={() => setAddModalOpen(false)}
+                  disabled={addLoading}
+                >
+                  Hủy
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded bg-green-500 text-white font-bold hover:bg-green-600"
+                  disabled={addLoading}
+                >
+                  {addLoading ? "Đang lưu..." : "Thêm sản phẩm"}
                 </button>
               </div>
             </form>

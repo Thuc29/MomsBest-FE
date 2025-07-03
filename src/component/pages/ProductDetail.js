@@ -127,13 +127,9 @@ export default function ProductDetail() {
   const uploadToCloudinary = async (file) => {
     const data = new FormData();
     data.append("file", file);
-    data.append(
-      "upload_preset",
-      process.env.CLOUDINARY_UPLOAD_PRESET
-    );
-    const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+    data.append("upload_preset", "momsbest_unsigned");
     const res = await fetch(
-      `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+      `https://api.cloudinary.com/v1_1/dak6p5n8s/image/upload`,
       {
         method: "POST",
         body: data,
