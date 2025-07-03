@@ -8,6 +8,7 @@ import {
   FaCloudUploadAlt,
   FaBoxOpen,
 } from "react-icons/fa";
+import Swal from "sweetalert2";
 
 const CLOUDINARY_UPLOAD_URL =
   "https://api.cloudinary.com/v1_1/dak6p5n8s/image/upload";
@@ -74,25 +75,44 @@ export default function CategoryProductList() {
       setForm((prev) => ({ ...prev, image: res.data.secure_url }));
     } catch (err) {
       setUploadError("Lỗi upload ảnh");
+      Swal.fire("Lỗi!", "Lỗi upload ảnh", "error");
     } finally {
       setUploading(false);
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Bạn có chắc muốn xóa danh mục này?")) return;
-    await axios.delete(
-      `https://momsbest-be.onrender.com/api/admin/categoryproducts/${id}`,
-      {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      }
-    );
-    fetchCategories();
+    const result = await Swal.fire({
+      title: "Bạn có chắc muốn xóa danh mục này?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Xóa",
+      cancelButtonText: "Hủy",
+    });
+    if (!result.isConfirmed) return;
+    try {
+      await axios.delete(
+        `https://momsbest-be.onrender.com/api/admin/categoryproducts/${id}`,
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
+      await fetchCategories();
+      Swal.fire("Đã xóa!", "Danh mục đã được xóa.", "success");
+    } catch (err) {
+      Swal.fire("Lỗi!", "Xóa danh mục thất bại.", "error");
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.name) return setError("Tên danh mục không được để trống");
+    if (!form.name) {
+      setError("Tên danh mục không được để trống");
+      Swal.fire("Lỗi!", "Tên danh mục không được để trống", "error");
+      return;
+    }
     setError("");
     try {
       if (editCategory) {
@@ -105,6 +125,7 @@ export default function CategoryProductList() {
             },
           }
         );
+        Swal.fire("Thành công!", "Đã lưu thay đổi danh mục.", "success");
       } else {
         await axios.post(
           "https://momsbest-be.onrender.com/api/admin/categoryproducts",
@@ -115,11 +136,13 @@ export default function CategoryProductList() {
             },
           }
         );
+        Swal.fire("Thành công!", "Đã thêm danh mục mới.", "success");
       }
       setModalOpen(false);
       fetchCategories();
     } catch (err) {
       setError("Lưu thất bại");
+      Swal.fire("Lỗi!", "Lưu thất bại", "error");
     }
   };
 

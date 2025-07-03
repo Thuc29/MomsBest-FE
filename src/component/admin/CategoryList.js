@@ -1,11 +1,20 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { FaListUl, FaSmile, FaCheckCircle, FaBan } from "react-icons/fa";
+import {
+  FaListUl,
+  FaSmile,
+  FaCheckCircle,
+  FaBan,
+  FaEye,
+  FaEyeSlash,
+  FaSyncAlt,
+} from "react-icons/fa";
 
 export default function CategoryList() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [toggleLoadingId, setToggleLoadingId] = useState(null);
 
   useEffect(() => {
     fetchCategories();
@@ -29,45 +38,84 @@ export default function CategoryList() {
   }
 
   const handleToggleActive = async (id) => {
-    await axios.patch(
-      `https://momsbest-be.onrender.com/api/admin/categories/${id}/toggle-active`,
-      {},
-      {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      }
-    );
-    fetchCategories();
+    setToggleLoadingId(id);
+    try {
+      await axios.patch(
+        `https://momsbest-be.onrender.com/api/admin/categories/${id}/toggle-active`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
+      fetchCategories();
+    } catch (err) {
+      setError("Không thể thay đổi trạng thái danh mục");
+    } finally {
+      setToggleLoadingId(null);
+    }
   };
 
   if (loading)
     return (
       <div className="flex flex-col items-center justify-center h-80">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-yellow-300 mb-4"></div>
-        <span className="text-yellow-400 font-semibold text-lg">
+        <div className="w-full max-w-3xl">
+          <div className="animate-pulse">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="flex items-center space-x-4 mb-4">
+                <div className="rounded-full bg-yellow-200 h-10 w-10"></div>
+                <div className="flex-1 h-6 bg-yellow-100 rounded"></div>
+                <div className="w-24 h-6 bg-yellow-100 rounded"></div>
+                <div className="w-24 h-6 bg-yellow-100 rounded"></div>
+                <div className="w-24 h-8 bg-yellow-200 rounded"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <span className="text-yellow-400 font-semibold text-lg mt-6">
           Đang tải danh mục...
         </span>
       </div>
     );
   if (error)
     return (
-      <div className="text-red-500 text-center font-semibold mt-8">{error}</div>
+      <div className="flex flex-col items-center mt-16">
+        <div className="bg-red-100 border border-red-300 text-red-600 px-6 py-4 rounded-2xl shadow-md flex items-center gap-3">
+          <FaBan className="text-2xl" />
+          <span className="font-semibold">{error}</span>
+        </div>
+        <button
+          onClick={fetchCategories}
+          className="mt-4 px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-white font-bold rounded-xl flex items-center gap-2 shadow"
+        >
+          <FaSyncAlt /> Thử lại
+        </button>
+      </div>
     );
 
   return (
     <div className="p-6 min-h-screen text-blue-700 font-space-grotesk bg-[url('https://images.pexels.com/photos/3847874/pexels-photo-3847874.jpeg')] bg-cover bg-center">
-      <h1 className="text-2xl font-extrabold mb-6 flex items-center gap-2 text-yellow-400">
-        <FaListUl className="text-yellow-300 text-3xl" /> Quản lý chuyên mục
-      </h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-extrabold flex items-center gap-2 text-yellow-400">
+          <FaListUl className="text-yellow-300 text-3xl" /> Quản lý chuyên mục
+        </h1>
+        <span className="bg-yellow-100 text-yellow-700 px-4 py-2 rounded-xl font-semibold shadow">
+          Tổng số: {categories.length}
+        </span>
+      </div>
       <div className="overflow-x-auto">
-        <table className="min-w-full bg-white/80 rounded-2xl shadow-xl">
+        <table className="min-w-full bg-white/80 rounded-2xl shadow-xl border-b border-yellow-200">
           <thead>
             <tr className="bg-yellow-100 text-yellow-600">
-              <th className="px-4 py-3 rounded-tl-2xl font-bold text-left">
+              <th className="px-4 py-3 rounded-tl-2xl w-1/6 font-bold text-left border-b border-yellow-200">
                 Tên chuyên mục
               </th>
-              <th className="px-4 py-3 font-bold text-left">Mô tả</th>
-              <th className="px-4 py-3 font-bold text-left">Trạng thái</th>
-              <th className="px-4 py-3 rounded-tr-2xl font-bold text-left">
+              <th className="px-14 py-3 w-4/6 font-bold text-left border-b border-yellow-200">
+                Mô tả
+              </th>
+              <th className="px-4 py-3  font-bold text-left border-b border-yellow-200">
+                Trạng thái
+              </th>
+              <th className="px-4 py-3 rounded-tr-2xl font-bold text-left border-b border-yellow-200">
                 Hành động
               </th>
             </tr>
@@ -88,23 +136,30 @@ export default function CategoryList() {
               categories.map((cat) => (
                 <tr
                   key={cat._id}
-                  className="hover:bg-yellow-50 transition-colors duration-200"
+                  className="hover:bg-yellow-50 transition-colors duration-200 border border-yellow-200 last:border-b-0"
                 >
-                  <td className="px-4 py-3 flex items-center gap-2">
-                    <FaListUl className="text-yellow-200" />
-                    <span className="font-medium">{cat.name}</span>
+                  <td className="px-3 line-clamp-1  py-3 w-full flex text-start items-center">
+                    <span className="font-semibold text-lg text-pink-500">
+                      {cat.name}
+                    </span>
                   </td>
-                  <td className="px-4 py-3">{cat.description}</td>
-                  <td className="px-4 py-3">
+                  <td className="px-10 py-3  text-start">
+                    <span className="text-base line-clamp-4 overflow-hidden">
+                      {cat.description}
+                    </span>
+                  </td>
+                  <td className="px-1 w-5/12 py-3 text-center">
                     <span
                       className={`flex items-center gap-1 font-semibold ${
-                        cat.is_active ? "text-green-500" : "text-gray-400"
+                        cat.is_active
+                          ? "text-green-500 bg-green-100 w-fit px-2 py-1 rounded-xl"
+                          : "text-gray-400 bg-gray-100 w-fit px-2 py-1 rounded-xl"
                       }`}
                     >
                       {cat.is_active ? (
                         <>
                           <FaCheckCircle className="inline text-green-400" />{" "}
-                          Đang sử dụng
+                          <p className="text-green-500">Đang hiện</p>
                         </>
                       ) : (
                         <>
@@ -113,16 +168,39 @@ export default function CategoryList() {
                       )}
                     </span>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 w-5/12">
                     <button
                       onClick={() => handleToggleActive(cat._id)}
-                      className={`px-4 py-2 rounded-2xl font-bold shadow-sm transition-all duration-200 flex items-center gap-2 text-white ${
+                      aria-label={
+                        cat.is_active ? "Ẩn chuyên mục" : "Hiện chuyên mục"
+                      }
+                      title={
+                        cat.is_active
+                          ? "Ẩn chuyên mục này"
+                          : "Hiện chuyên mục này"
+                      }
+                      disabled={toggleLoadingId === cat._id}
+                      className={`px-4 py-2 rounded-2xl font-bold shadow-sm transition-all duration-200 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 text-white ${
                         cat.is_active
                           ? "bg-yellow-400 hover:bg-yellow-500"
-                          : "bg-green-300 hover:bg-green-400 text-gray-700"
+                          : "bg-green-400 hover:bg-green-500 text-white"
+                      } ${
+                        toggleLoadingId === cat._id
+                          ? "opacity-60 cursor-not-allowed"
+                          : ""
                       }`}
                     >
-                      {cat.is_active ? "Ẩn" : "Hiện"}
+                      {toggleLoadingId === cat._id ? (
+                        <FaSyncAlt className="animate-spin" />
+                      ) : cat.is_active ? (
+                        <>
+                          <FaEyeSlash /> Ẩn
+                        </>
+                      ) : (
+                        <>
+                          <FaEye /> Hiện
+                        </>
+                      )}
                     </button>
                   </td>
                 </tr>

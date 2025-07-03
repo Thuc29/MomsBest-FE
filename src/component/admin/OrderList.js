@@ -7,7 +7,13 @@ import {
   FaShippingFast,
   FaMoneyCheckAlt,
   FaClipboardList,
+  FaEye,
+  FaPhone,
+  FaCalendarAlt,
 } from "react-icons/fa";
+import { Dialog, Transition } from "@headlessui/react";
+import { Fragment } from "react";
+import { X } from "lucide-react";
 
 const ORDER_STATUS = [
   "pending",
@@ -29,6 +35,10 @@ export default function OrderList() {
   const [paymentStatus, setPaymentStatus] = useState("");
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [orderItems, setOrderItems] = useState([]);
+  const [itemsLoading, setItemsLoading] = useState(false);
 
   useEffect(() => {
     fetchOrders();
@@ -67,6 +77,25 @@ export default function OrderList() {
       { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
     );
     fetchOrders();
+  };
+
+  const handleShowDetail = async (order) => {
+    setSelectedOrder(order);
+    setShowModal(true);
+    setItemsLoading(true);
+    try {
+      const res = await axios.get(
+        `https://momsbest-be.onrender.com/api/admin/orders/${order._id}/items`,
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
+      setOrderItems(res.data.items);
+    } catch (err) {
+      setOrderItems([]);
+    } finally {
+      setItemsLoading(false);
+    }
   };
 
   if (loading)
@@ -172,14 +201,18 @@ export default function OrderList() {
                   className="hover:bg-blue-50 transition-colors duration-200"
                 >
                   <td className="px-4 py-3 flex items-center gap-2">
-                    <FaClipboardList className="text-blue-200" />
-                    <span className="font-medium">{order.order_number}</span>
+                    <FaClipboardList className="text-blue-400" />
+                    <span className="font-medium text-lg text-blue-500 ">
+                      {order.order_number}
+                    </span>
                   </td>
-                  <td className="px-4 py-3">{order.shipping_name}</td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 text-start text-lg text-blue-500">
+                    {order.shipping_name}
+                  </td>
+                  <td className="px-4 py-3 text-lg text-start text-blue-500">
                     {order.total_amount.toLocaleString()} đ
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 text-start text-lg text-blue-500">
                     <select
                       value={order.order_status}
                       onChange={(e) =>
@@ -198,7 +231,7 @@ export default function OrderList() {
                       ))}
                     </select>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 text-start text-lg">
                     <select
                       value={order.payment_status}
                       onChange={(e) =>
@@ -218,7 +251,12 @@ export default function OrderList() {
                     </select>
                   </td>
                   <td className="px-4 py-3">
-                    {/* Có thể thêm nút xem chi tiết, xóa đơn hàng nếu cần */}
+                    <button
+                      className="px-4 py-2 rounded-2xl font-bold shadow-sm transition-all duration-200 flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 text-white bg-blue-400 hover:bg-blue-500"
+                      onClick={() => handleShowDetail(order)}
+                    >
+                      <FaEye /> Xem chi tiết
+                    </button>
                   </td>
                 </tr>
               ))
@@ -241,6 +279,195 @@ export default function OrderList() {
           </button>
         ))}
       </div>
+      {showModal && selectedOrder && (
+        <Transition appear show={showModal} as={Fragment}>
+          <Dialog
+            as="div"
+            className="relative z-50"
+            onClose={() => setShowModal(false)}
+          >
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <div className="fixed inset-0 bg-black bg-opacity-40" />
+            </Transition.Child>
+            <div className="fixed inset-0 overflow-y-auto">
+              <div className="flex min-h-full items-center justify-center p-4">
+                <Transition.Child
+                  as={Fragment}
+                  enter="ease-out duration-300"
+                  enterFrom="opacity-0 scale-95"
+                  enterTo="opacity-100 scale-100"
+                  leave="ease-in duration-200"
+                  leaveFrom="opacity-100 scale-100"
+                  leaveTo="opacity-0 scale-95"
+                >
+                  <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white p-8 text-left align-middle shadow-xl transition-all">
+                    <button
+                      className="absolute top-4 right-4 text-blue-400 hover:text-red-500"
+                      onClick={() => setShowModal(false)}
+                    >
+                      <X />
+                    </button>
+                    <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-blue-500">
+                      <FaClipboardList className="text-blue-400 text-3xl" /> Chi
+                      tiết đơn hàng
+                    </h2>
+                    <div className="space-y-3 text-black">
+                      <div className="flex items-center gap-2">
+                        <FaClipboardList className="text-blue-400" />
+                        <span>
+                          <b>Mã đơn:</b> {selectedOrder.order_number}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <FaSmile className="text-yellow-400" />
+                        <span>
+                          <b>Khách hàng:</b> {selectedOrder.shipping_name}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <FaShippingFast className="text-green-400" />
+                        <span>
+                          <b>Địa chỉ:</b> {selectedOrder.shipping_address}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <FaPhone className="text-pink-400" />
+                        <span>
+                          <b>Số điện thoại:</b> {selectedOrder.shipping_phone}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <FaMoneyCheckAlt className="text-purple-400" />
+                        <span>
+                          <b>Tổng tiền:</b>{" "}
+                          <span className="text-lg font-bold text-blue-600">
+                            {selectedOrder.total_amount.toLocaleString()} đ
+                          </span>
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <FaCalendarAlt className="text-gray-400" />
+                        <span>
+                          <b>Ngày đặt:</b>{" "}
+                          {new Date(selectedOrder.created_at).toLocaleString()}
+                        </span>
+                      </div>
+                      {selectedOrder.notes && (
+                        <div className="flex items-center gap-2">
+                          <FaSearch className="text-gray-400" />
+                          <span>
+                            <b>Ghi chú:</b> {selectedOrder.notes}
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-2">
+                        <FaShippingFast className="text-blue-400" />
+                        <span>
+                          <b>Trạng thái:</b>{" "}
+                          <span
+                            className={`px-3 py-1 rounded-full font-bold text-white ml-2 ${
+                              selectedOrder.order_status === "pending"
+                                ? "bg-gray-400"
+                                : selectedOrder.order_status === "confirmed"
+                                ? "bg-blue-500"
+                                : selectedOrder.order_status === "processing"
+                                ? "bg-purple-500"
+                                : selectedOrder.order_status === "shipped"
+                                ? "bg-yellow-500"
+                                : selectedOrder.order_status === "delivered"
+                                ? "bg-green-500"
+                                : selectedOrder.order_status === "cancelled"
+                                ? "bg-red-500"
+                                : "bg-gray-300"
+                            }`}
+                          >
+                            {selectedOrder.order_status}
+                          </span>
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <FaMoneyCheckAlt className="text-green-500" />
+                        <span>
+                          <b>Thanh toán:</b>{" "}
+                          <span
+                            className={`px-3 py-1 rounded-full font-bold ml-2 ${
+                              selectedOrder.payment_status === "pending"
+                                ? "bg-yellow-400 text-white"
+                                : selectedOrder.payment_status === "paid"
+                                ? "bg-green-500 text-white"
+                                : selectedOrder.payment_status === "failed"
+                                ? "bg-red-500 text-white"
+                                : selectedOrder.payment_status === "refunded"
+                                ? "bg-blue-400 text-white"
+                                : "bg-gray-300 text-gray-700"
+                            }`}
+                          >
+                            {selectedOrder.payment_status}
+                          </span>
+                        </span>
+                      </div>
+                    </div>
+                    <div className="mt-6">
+                      <b className="text-blue-500">Sản phẩm trong đơn:</b>
+                      {itemsLoading ? (
+                        <div className="mt-2 text-blue-400">Đang tải...</div>
+                      ) : orderItems.length === 0 ? (
+                        <div className="mt-2 text-gray-400">
+                          Không có sản phẩm.
+                        </div>
+                      ) : (
+                        <table className="min-w-full mt-2 text-sm border rounded-xl overflow-hidden">
+                          <thead className="bg-blue-50">
+                            <tr>
+                              <th className="text-left px-2 py-1">
+                                Tên sản phẩm
+                              </th>
+                              <th className="px-2 py-1">Số lượng</th>
+                              <th className="px-2 py-1">Đơn giá</th>
+                              <th className="px-2 py-1">Thành tiền</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {orderItems.map((item) => (
+                              <tr
+                                key={item._id}
+                                className="border-b last:border-b-0"
+                              >
+                                <td className="px-2 py-1">
+                                  {item.product_id?.name ||
+                                    item.product_name ||
+                                    "?"}
+                                </td>
+                                <td className="text-center px-2 py-1">
+                                  {item.quantity}
+                                </td>
+                                <td className="text-right px-2 py-1">
+                                  {item.unit_price.toLocaleString()} đ
+                                </td>
+                                <td className="text-right px-2 py-1 font-semibold text-blue-500">
+                                  {item.total_price.toLocaleString()} đ
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      )}
+                    </div>
+                  </Dialog.Panel>
+                </Transition.Child>
+              </div>
+            </div>
+          </Dialog>
+        </Transition>
+      )}
     </div>
   );
 }

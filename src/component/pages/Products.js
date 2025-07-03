@@ -16,17 +16,18 @@ const Product = () => {
     minRating: "",
   });
   const [productsDb, setProductsDb] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 8;
 
-  // Lấy danh sách category và brand duy nhất từ productsDb
-  const categories = useMemo(() => {
-    const set = new Set();
-    productsDb.forEach((p) => {
-      if (p.category_id) set.add(p.category_id);
-    });
-    return ["Tất Cả", ...Array.from(set)];
-  }, [productsDb]);
+  useEffect(() => {
+    axios
+      .get("https://momsbest-be.onrender.com/api/admin/categoryproducts", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      })
+      .then((res) => setCategories(res.data))
+      .catch(() => setCategories([]));
+  }, []);
 
   const brands = useMemo(() => {
     const set = new Set();
@@ -42,46 +43,51 @@ const Product = () => {
     return parseFloat(value.toString().replace(/[.,\s]/g, ""));
   };
 
-  const filteredProducts = productsDb.filter((product) => {
-    // Category (so sánh với category_id)
-    const categoryMatch =
-      filters.category === "Tất Cả" ||
-      (product.category_id &&
-        product.category_id === categories.find((c) => c === filters.category));
+  const filteredProducts = productsDb
+    .filter((product) => product.is_active)
+    .filter((product) => {
+      // Category (so sánh với từng phần tử trong category_ids)
+      const categoryMatch =
+        filters.category === "Tất Cả" ||
+        (Array.isArray(product.category_ids) &&
+          product.category_ids.some(
+            (cat) =>
+              cat && (cat._id === filters.category || cat === filters.category)
+          ));
 
-    // Brand
-    const brandMatch =
-      filters.brand === "Tất Cả" ||
-      (product.brand &&
-        product.brand.toLowerCase() === filters.brand.toLowerCase());
+      // Brand
+      const brandMatch =
+        filters.brand === "Tất Cả" ||
+        (product.brand &&
+          product.brand.toLowerCase() === filters.brand.toLowerCase());
 
-    // Search (tên, mô tả, brand)
-    const searchText = filters.search.trim().toLowerCase();
-    const searchMatch =
-      !searchText ||
-      (product.name && product.name.toLowerCase().includes(searchText)) ||
-      (product.description &&
-        product.description.toLowerCase().includes(searchText)) ||
-      (product.brand && product.brand.toLowerCase().includes(searchText));
+      // Search (tên, mô tả, brand)
+      const searchText = filters.search.trim().toLowerCase();
+      const searchMatch =
+        !searchText ||
+        (product.name && product.name.toLowerCase().includes(searchText)) ||
+        (product.description &&
+          product.description.toLowerCase().includes(searchText)) ||
+        (product.brand && product.brand.toLowerCase().includes(searchText));
 
-    // Price (ưu tiên original_price nếu có, fallback sang price)
-    const price = Number(product.price) || 0;
-    const min = parsePrice(filters.minPrice);
-    const max = parsePrice(filters.maxPrice);
-    const minOk = !filters.minPrice || isNaN(min) || price >= min;
-    const maxOk = !filters.maxPrice || isNaN(max) || price <= max;
-    const priceMatch = minOk && maxOk;
+      // Price (ưu tiên original_price nếu có, fallback sang price)
+      const price = Number(product.price) || 0;
+      const min = parsePrice(filters.minPrice);
+      const max = parsePrice(filters.maxPrice);
+      const minOk = !filters.minPrice || isNaN(min) || price >= min;
+      const maxOk = !filters.maxPrice || isNaN(max) || price <= max;
+      const priceMatch = minOk && maxOk;
 
-    // Rating
-    const rating = Number(product.rating) || 0;
-    const minRating = parseFloat(filters.minRating);
-    const ratingMatch =
-      !filters.minRating || isNaN(minRating) || rating >= minRating;
+      // Rating
+      const rating = Number(product.rating) || 0;
+      const minRating = parseFloat(filters.minRating);
+      const ratingMatch =
+        !filters.minRating || isNaN(minRating) || rating >= minRating;
 
-    return (
-      categoryMatch && brandMatch && searchMatch && priceMatch && ratingMatch
-    );
-  });
+      return (
+        categoryMatch && brandMatch && searchMatch && priceMatch && ratingMatch
+      );
+    });
 
   const addToCart = (product) => {
     setCart([...cart, product]);
@@ -175,19 +181,34 @@ const Product = () => {
                   Danh Mục Sản Phẩm
                 </h3>
                 <div className="space-y-2">
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="category"
+                      value="Tất Cả"
+                      checked={filters.category === "Tất Cả"}
+                      onChange={() =>
+                        setFilters({ ...filters, category: "Tất Cả" })
+                      }
+                      className="mr-2"
+                    />
+                    <span className="capitalize text-gray-700">Tất Cả</span>
+                  </label>
                   {categories.map((cat) => (
-                    <label key={cat} className="flex items-center">
+                    <label key={cat._id} className="flex items-center">
                       <input
                         type="radio"
                         name="category"
-                        value={cat}
-                        checked={filters.category === cat}
+                        value={cat._id}
+                        checked={filters.category === cat._id}
                         onChange={() =>
-                          setFilters({ ...filters, category: cat })
+                          setFilters({ ...filters, category: cat._id })
                         }
                         className="mr-2"
                       />
-                      <span className="capitalize text-gray-700">{cat}</span>
+                      <span className="capitalize text-gray-700">
+                        {cat.name}
+                      </span>
                     </label>
                   ))}
                 </div>
@@ -362,6 +383,21 @@ const Product = () => {
                             <h3 className="text-lg font-bold text-gray-800 line-clamp-1 group-hover:underline group-hover:text-pink-600 transition">
                               {product.name}
                             </h3>
+                            {Array.isArray(product.category_ids) &&
+                              product.category_ids.length > 0 && (
+                                <div className="flex flex-wrap gap-1 mb-1">
+                                  {product.category_ids.map((cat) =>
+                                    cat && cat.name ? (
+                                      <span
+                                        key={cat._id || cat}
+                                        className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-xs font-semibold mr-1 mb-1 inline-block"
+                                      >
+                                        {cat.name}
+                                      </span>
+                                    ) : null
+                                  )}
+                                </div>
+                              )}
                             <p className="text-gray-400 text-xs mb-1 line-clamp-1 flex items-center gap-1">
                               {product.description}
                             </p>

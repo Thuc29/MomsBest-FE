@@ -44,11 +44,6 @@ const menu = [
     icon: <FaShoppingBag className="text-purple-400" />,
   },
   {
-    path: "/admin/articles",
-    label: "Quản lý bài viết",
-    icon: <FaRegNewspaper className="text-pink-300" />,
-  },
-  {
     path: "/admin/forumthreads",
     label: "Quản lý chủ đề forum",
     icon: <FaComments className="text-blue-300" />,

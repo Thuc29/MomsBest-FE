@@ -30,7 +30,6 @@ import UserList from "./component/admin/UserList";
 import ProductList from "./component/admin/ProductList";
 import CategoryList from "./component/admin/CategoryList";
 import OrderList from "./component/admin/OrderList";
-import ArticleList from "./component/admin/ArticleList";
 import ForumThreadList from "./component/admin/ForumThreadList";
 import ForumCommentList from "./component/admin/ForumCommentList";
 import AdminRoute from "./component/admin/AdminRoute";
@@ -77,7 +76,6 @@ function App() {
           <Route path="categoryproducts" element={<CategoryProductList />} />
           <Route path="categories" element={<CategoryList />} />
           <Route path="orders" element={<OrderList />} />
-          <Route path="articles" element={<ArticleList />} />
           <Route path="forumthreads" element={<ForumThreadList />} />
           <Route path="forumcomments" element={<ForumCommentList />} />
         </Route>
