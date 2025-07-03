@@ -22,9 +22,7 @@ const Product = () => {
 
   useEffect(() => {
     axios
-      .get("https://momsbest-be.onrender.com/api/admin/categoryproducts", {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      })
+      .get("https://momsbest-be.onrender.com/api/products/categories")
       .then((res) => setCategories(res.data))
       .catch(() => setCategories([]));
   }, []);
