@@ -24,6 +24,14 @@ const LoginPage = () => {
         values
       );
       if (!res.data.success) return message.error(res?.data?.message);
+      if (res.data.user.is_active === false) {
+        Swal.fire({
+          icon: "error",
+          title: "Tài khoản bị vô hiệu hóa",
+          text: "Tài khoản của bạn đã bị vô hiệu hóa. Vui lòng liên hệ quản trị viên để biết thêm chi tiết.",
+        });
+        return;
+      }
       loginContext(res.data.user, res.data.token);
       message.success("Đăng nhập thành công!");
       if (res.data.user.role === "admin") {
@@ -57,11 +65,6 @@ const LoginPage = () => {
       <p className="font-extrabold text-[26px] text-white mb-6">
         How are you today?
       </p>
-      {/* Thông báo */}
-      {/* {message && (
-        <div className="text-green-600 font-semibold mb-2">{message}</div>
-      )}
-      {error && <div className="text-red-600 font-semibold mb-2">{error}</div>} */}
       <div className="relative mx-auto w-full max-w-[768px] h-[500px] bg-white rounded-xl shadow-2xl overflow-hidden">
         {/* Form Sign In */}
         <div
