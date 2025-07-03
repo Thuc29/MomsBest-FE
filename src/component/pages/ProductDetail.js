@@ -190,6 +190,7 @@ export default function ProductDetail() {
       );
       getListReview();
     } catch (err) {
+      console.error("Like review error:", err);
       message.error("Bày tỏ cảm xúc thất bại!");
     }
   };
@@ -893,7 +894,7 @@ export default function ProductDetail() {
         <div className="space-y-6">
           {filteredReviews.length === 0 && <div>Chưa có đánh giá nào.</div>}
           {filteredReviews
-            .filter((rv) => rv.user !== "Bạn")
+            .filter((rv) => rv.user_id.name !== "Bạn")
             .slice(0, visibleReviews)
             .map((rv) => (
               <motion.div
@@ -904,7 +905,7 @@ export default function ProductDetail() {
               >
                 <img
                   src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(
-                    rv.user
+                    rv.avatar
                   )}`}
                   alt="avatar"
                   className="w-12 h-12 rounded-full object-cover border-2 border-pink-200 shadow-lg"
@@ -913,7 +914,7 @@ export default function ProductDetail() {
                   <div className="flex flex-col md:flex-row md:items-center justify-between w-full gap-2">
                     <div className="flex items-center gap-2">
                       <span className="font-semibold text-pink-600 text-lg  items-center gap-1">
-                        {rv.user}
+                        {rv.user_id.name}
                         {rv.purchased && (
                           <Tooltip title="Đã mua hàng">
                             <CheckCircleFilled className="text-green-500 ml-1" />
@@ -1043,7 +1044,7 @@ export default function ProductDetail() {
                           </p>
                           <p>
                             {user &&
-                              rv.user_id === user._id &&
+                              rv.user_id.name === user._id &&
                               editingReviewId !== rv._id && (
                                 <div className="relative review-menu-dropdown">
                                   <button
