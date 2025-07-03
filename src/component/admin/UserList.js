@@ -36,6 +36,7 @@ export default function UserList() {
         "https://momsbest-be.onrender.com/api/admin/users",
         {
           params: { page, limit, search, role: roleTab },
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
       );
       setUsers(res.data.users);
