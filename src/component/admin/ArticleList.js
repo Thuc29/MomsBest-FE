@@ -8,7 +8,6 @@ import {
   FaRegEdit,
   FaBook,
 } from "react-icons/fa";
-import api from "../../api/axiosConfig";
 
 export default function ArticleList() {
   const [articles, setArticles] = useState([]);
@@ -27,14 +26,16 @@ export default function ArticleList() {
 
   useEffect(() => {
     fetchArticles();
-    // eslint-disable-next-line
   }, [page, search, category]);
 
   async function fetchCategories() {
     try {
-      const res = await api.get("/api/admin/categories", {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
+      const res = await axios.get(
+        "https://momsbest-be.onrender.com/api/admin/categories",
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
       setCategories(res.data);
     } catch {}
   }
@@ -42,10 +43,13 @@ export default function ArticleList() {
   async function fetchArticles() {
     setLoading(true);
     try {
-      const res = await api.get("/api/admin/articles", {
-        params: { page, limit, search, category },
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
+      const res = await axios.get(
+        "https://momsbest-be.onrender.com/api/admin/articles",
+        {
+          params: { page, limit, search, category },
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
       setArticles(res.data.articles);
       setTotal(res.data.total);
     } catch (err) {
@@ -56,8 +60,8 @@ export default function ArticleList() {
   }
 
   const handleTogglePublished = async (id) => {
-    await api.patch(
-      `/api/admin/articles/${id}/toggle-published`,
+    await axios.patch(
+      `https://momsbest-be.onrender.com/api/admin/articles/${id}/toggle-published`,
       {},
       {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },

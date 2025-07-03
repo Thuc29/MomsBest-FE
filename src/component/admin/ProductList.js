@@ -17,7 +17,6 @@ import {
   FaTimes,
   FaCloudUploadAlt,
 } from "react-icons/fa";
-import api from "../../api/axiosConfig";
 
 export default function ProductList() {
   const [products, setProducts] = useState([]);
@@ -64,9 +63,12 @@ export default function ProductList() {
 
   async function fetchCategories() {
     try {
-      const res = await api.get("/api/admin/categoryproducts", {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
+      const res = await axios.get(
+        "https://momsbest-be.onrender.com/api/admin/categoryproducts",
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
       setCategories(res.data);
       setCategoriesTree(buildCategoryTree(res.data));
     } catch {}
@@ -75,10 +77,13 @@ export default function ProductList() {
   async function fetchProducts() {
     setLoading(true);
     try {
-      const res = await api.get("/api/admin/products", {
-        params: { page, limit, search, category },
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
+      const res = await axios.get(
+        "https://momsbest-be.onrender.com/api/admin/products",
+        {
+          params: { page, limit, search, category },
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
       setProducts(res.data.products);
       setTotal(res.data.total);
     } catch (err) {
@@ -89,8 +94,8 @@ export default function ProductList() {
   }
 
   const handleToggleActive = async (id) => {
-    await api.patch(
-      `/api/admin/products/${id}/toggle-active`,
+    await axios.patch(
+      `https://momsbest-be.onrender.com/api/admin/products/${id}/toggle-active`,
       {},
       {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -100,8 +105,8 @@ export default function ProductList() {
   };
 
   const handleToggleFeatured = async (id) => {
-    await api.patch(
-      `/api/admin/products/${id}/toggle-featured`,
+    await axios.patch(
+      `https://momsbest-be.onrender.com/api/admin/products/${id}/toggle-featured`,
       {},
       {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -112,9 +117,12 @@ export default function ProductList() {
 
   const handleDelete = async (id) => {
     if (window.confirm("Bạn có chắc muốn xóa sản phẩm này?")) {
-      await api.delete(`/api/admin/products/${id}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
+      await axios.delete(
+        `https://momsbest-be.onrender.com/api/admin/products/${id}`,
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
       fetchProducts();
     }
   };
@@ -122,9 +130,12 @@ export default function ProductList() {
   const handleEdit = async (id) => {
     setEditLoading(true);
     try {
-      const res = await api.get(`/api/admin/products/${id}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
+      const res = await axios.get(
+        `https://momsbest-be.onrender.com/api/admin/products/${id}`,
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
       setEditProduct(res.data);
       setEditModalOpen(true);
     } catch (err) {
@@ -198,7 +209,7 @@ export default function ProductList() {
     setEditLoading(true);
     try {
       await axios.put(
-        `https://momsbest-fe.onrender.com/api/admin/products/${editProduct._id}`,
+        `https://momsbest-be.onrender.com/api/admin/products/${editProduct._id}`,
         editProduct,
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },

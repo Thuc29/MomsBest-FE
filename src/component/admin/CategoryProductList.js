@@ -8,7 +8,6 @@ import {
   FaCloudUploadAlt,
   FaBoxOpen,
 } from "react-icons/fa";
-import api from "../../api/axiosConfig";
 
 const CLOUDINARY_UPLOAD_URL =
   "https://api.cloudinary.com/v1_1/dak6p5n8s/image/upload";
@@ -31,9 +30,12 @@ export default function CategoryProductList() {
   async function fetchCategories() {
     setLoading(true);
     try {
-      const res = await api.get("/api/admin/categoryproducts", {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
+      const res = await axios.get(
+        "https://momsbest-be.onrender.com/api/admin/categoryproducts",
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
       setCategories(res.data);
     } catch (err) {
       setError("Không thể tải danh sách danh mục sản phẩm");
@@ -79,9 +81,12 @@ export default function CategoryProductList() {
 
   const handleDelete = async (id) => {
     if (!window.confirm("Bạn có chắc muốn xóa danh mục này?")) return;
-    await api.delete(`/api/admin/categoryproducts/${id}`, {
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    });
+    await axios.delete(
+      `https://momsbest-be.onrender.com/api/admin/categoryproducts/${id}`,
+      {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      }
+    );
     fetchCategories();
   };
 
@@ -91,17 +96,25 @@ export default function CategoryProductList() {
     setError("");
     try {
       if (editCategory) {
-        await api.put(`/api/admin/categoryproducts/${editCategory._id}`, form, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
+        await axios.put(
+          `https://momsbest-be.onrender.com/api/admin/categoryproducts/${editCategory._id}`,
+          form,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
       } else {
-        await api.post("/api/admin/categoryproducts", form, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
+        await axios.post(
+          "https://momsbest-be.onrender.com/api/admin/categoryproducts",
+          form,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
       }
       setModalOpen(false);
       fetchCategories();

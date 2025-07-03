@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 import {
   FaShoppingBag,
   FaSmile,
   FaSearch,
+  FaShippingFast,
+  FaMoneyCheckAlt,
   FaClipboardList,
 } from "react-icons/fa";
-import api from "../../api/axiosConfig";
 
 const ORDER_STATUS = [
   "pending",
@@ -36,16 +38,19 @@ export default function OrderList() {
   async function fetchOrders() {
     setLoading(true);
     try {
-      const res = await api.get("/api/admin/orders", {
-        params: {
-          page,
-          limit,
-          search,
-          status,
-          payment_status: paymentStatus,
-        },
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
+      const res = await axios.get(
+        "https://momsbest-be.onrender.com/api/admin/orders",
+        {
+          params: {
+            page,
+            limit,
+            search,
+            status,
+            payment_status: paymentStatus,
+          },
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
       setOrders(res.data.orders);
       setTotal(res.data.total);
     } catch (err) {
@@ -56,8 +61,8 @@ export default function OrderList() {
   }
 
   const handleUpdateStatus = async (id, order_status, payment_status) => {
-    await api.patch(
-      `/api/admin/orders/${id}`,
+    await axios.patch(
+      `https://momsbest-be.onrender.com/api/admin/orders/${id}`,
       { order_status, payment_status },
       { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
     );

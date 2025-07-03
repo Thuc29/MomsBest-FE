@@ -32,12 +32,12 @@ export default function UserList() {
   async function fetchUsers() {
     setLoading(true);
     try {
-      const res = await api.get("/api/admin/users", {
-        params: { page, limit, search, role: roleTab },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+      const res = await axios.get(
+        "https://momsbest-be.onrender.com/api/admin/users",
+        {
+          params: { page, limit, search, role: roleTab },
+        }
+      );
       setUsers(res.data.users);
       setTotal(res.data.total);
     } catch (err) {
@@ -87,9 +87,7 @@ export default function UserList() {
           role: "user",
         },
         {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
       );
       fetchUsers();

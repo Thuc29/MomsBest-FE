@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 import { FaListUl, FaSmile, FaCheckCircle, FaBan } from "react-icons/fa";
-import api from "../../api/axiosConfig";
 
 export default function CategoryList() {
   const [categories, setCategories] = useState([]);
@@ -14,9 +14,12 @@ export default function CategoryList() {
   async function fetchCategories() {
     setLoading(true);
     try {
-      const res = await api.get("/api/admin/categories", {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
+      const res = await axios.get(
+        "https://momsbest-be.onrender.com/api/admin/categories",
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
       setCategories(res.data);
     } catch (err) {
       setError("Không thể tải danh mục");
@@ -26,8 +29,8 @@ export default function CategoryList() {
   }
 
   const handleToggleActive = async (id) => {
-    await api.patch(
-      `/api/admin/categories/${id}/toggle-active`,
+    await axios.patch(
+      `https://momsbest-be.onrender.com/api/admin/categories/${id}/toggle-active`,
       {},
       {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },

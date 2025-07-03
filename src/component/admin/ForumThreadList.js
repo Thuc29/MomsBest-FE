@@ -2,9 +2,7 @@ import React, { useEffect, useState } from "react";
 import { FaComments, FaSmile, FaUser, FaSearch } from "react-icons/fa";
 
 // Nếu chưa có API, dùng dữ liệu mẫu
-const SAMPLE_THREADS = [
-  // { _id: '1', title: 'Chia sẻ kinh nghiệm nuôi con', author: 'Mẹ Bông', created_at: '2024-05-01' },
-];
+const SAMPLE_THREADS = [];
 
 export default function ForumThreadList() {
   const [threads, setThreads] = useState([]);

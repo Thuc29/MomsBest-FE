@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 import {
   FaUsers,
   FaBoxOpen,
@@ -16,7 +17,6 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import api from "../../api/axiosConfig";
 
 const ICONS = {
   "Tài khoản": (
@@ -72,11 +72,14 @@ export default function AdminDashboard() {
     async function fetchStats() {
       try {
         setLoading(true);
-        const res = await api.get("/api/admin/dashboard", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
+        const res = await axios.get(
+          "https://momsbest-be.onrender.com/api/admin/dashboard",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
         setStats(res.data);
       } catch (err) {
         setError("Không thể tải dữ liệu thống kê");
