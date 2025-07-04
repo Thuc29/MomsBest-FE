@@ -168,7 +168,7 @@ const ChatbotButton = () => {
       {/* Khung chat */}
       {open && (
         <div
-          className={`fixed z-50 bottom-20 right-24 w-[450px] max-w-[100vw] bg-white rounded-3xl shadow-2xl border border-pink-200 flex flex-col overflow-hidden transition-all duration-200 ${
+          className={`fixed z-50 bottom-20 right-24 w-[450px] max-w-[100vw] h-[600px] bg-white rounded-3xl shadow-2xl border border-pink-200 flex flex-col overflow-hidden transition-all duration-200 ${
             open
               ? "translate-y-0 opacity-100 pointer-events-auto"
               : "translate-y-10 opacity-0 pointer-events-none"

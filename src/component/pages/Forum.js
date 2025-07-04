@@ -759,6 +759,11 @@ const Forum = () => {
                               initial="hidden"
                               animate="visible"
                               exit="exit"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedCategory(category);
+                                setCurrentThreadPage(1);
+                              }}
                               transition={{ duration: 0.3 }}
                               className={`relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-2xl transition-shadow overflow-hidden cursor-pointer border-2 border-transparent hover:border-pink-400 group`}
                             >
@@ -790,14 +795,7 @@ const Forum = () => {
                                   <p className="text-gray-600 justify-start truncate text-sm flex-1 group-hover:text-gray-800 transition">
                                     {category.description}
                                   </p>
-                                  <button
-                                    className="text-pink-500 justify-end hover:text-pink-700 text-sm font-medium"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setSelectedCategory(category);
-                                      setCurrentThreadPage(1);
-                                    }}
-                                  >
+                                  <button className="text-pink-500 justify-end hover:text-pink-700 text-sm font-medium">
                                     Xem tất cả →
                                   </button>
                                 </div>
