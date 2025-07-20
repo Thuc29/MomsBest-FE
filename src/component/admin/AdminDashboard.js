@@ -142,7 +142,7 @@ const generateRecentActivity = () => [
   {
     id: 5,
     type: "revenue",
-    message: "Doanh thu tăng 15%",
+    message: "Doanh thu tăng 1%",
     time: "1 giờ trước",
     icon: FaMoneyBillWave,
     color: "text-indigo-500",
@@ -188,9 +188,21 @@ export default function AdminDashboard() {
           },
         }
       );
-      setRecentOrders(res.data);
+
+      // Validate that res.data is an array and contains valid order objects
+      if (Array.isArray(res.data)) {
+        const validatedOrders = res.data.filter(
+          (order) =>
+            order && typeof order === "object" && order.id && order.order_number
+        );
+        setRecentOrders(validatedOrders);
+      } else {
+        console.warn("Recent orders API returned non-array data:", res.data);
+        setRecentOrders([]);
+      }
     } catch (err) {
       console.error("Error fetching recent orders:", err);
+      setRecentOrders([]);
     }
   };
 
@@ -387,14 +399,10 @@ export default function AdminDashboard() {
           />
           <StatCard
             label="Doanh thu"
-            value={`${(
-              stats.orderStats?.totalRevenue ||
-              stats.totalRevenue ||
-              0
-            ).toLocaleString()}đ`}
+            value={`${(0).toLocaleString()}đ`}
             subtitle={SUBTITLES["Doanh thu"]}
             trend="up"
-            trendValue="+8%"
+            trendValue="+0%"
           />
         </div>
 
@@ -733,13 +741,17 @@ export default function AdminDashboard() {
                     {recentOrders.map((order) => (
                       <tr key={order.id}>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          #{order.order_number}
+                          #{order.order_number || "N/A"}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {new Date(order.created_at).toLocaleDateString()}
+                          {order.created_at
+                            ? new Date(order.created_at).toLocaleDateString()
+                            : "N/A"}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {order.total_amount.toLocaleString()}đ
+                          {order.total_amount
+                            ? order.total_amount.toLocaleString() + "đ"
+                            : "N/A"}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm">
                           <span
@@ -757,8 +769,10 @@ export default function AdminDashboard() {
                                 : "bg-red-100 text-red-800"
                             }`}
                           >
-                            {order.status.charAt(0).toUpperCase() +
-                              order.status.slice(1)}
+                            {order.status
+                              ? order.status.charAt(0).toUpperCase() +
+                                order.status.slice(1)
+                              : "Unknown"}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
