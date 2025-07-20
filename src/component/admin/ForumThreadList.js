@@ -5,6 +5,8 @@ import {
   FaUser,
   FaSearch,
   FaThumbtack,
+  FaChevronLeft,
+  FaChevronRight,
 } from "react-icons/fa";
 import axios from "axios";
 
@@ -13,30 +15,40 @@ export default function ForumThreadList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
+  const [totalItems, setTotalItems] = useState(0);
 
   useEffect(() => {
     fetchThreads();
     // eslint-disable-next-line
-  }, [search]);
+  }, [search, currentPage]);
 
   async function fetchThreads() {
     setLoading(true);
     try {
+      const params = {
+        page: currentPage,
+        limit: itemsPerPage,
+      };
+
+      if (search) {
+        params.search = search;
+      }
+
       const res = await axios.get(
         "https://momsbest-be.onrender.com/api/admin/forumthreads",
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
+          params: params,
         }
       );
-      let data = res.data.threads || res.data; // API trả về {threads, total}
-      if (search) {
-        data = data.filter((t) =>
-          t.title.toLowerCase().includes(search.toLowerCase())
-        );
-      }
+
+      const { threads: data, total } = res.data;
       setThreads(data);
+      setTotalItems(total);
     } catch (err) {
       setError("Không thể tải danh sách chủ đề");
     } finally {
@@ -60,6 +72,22 @@ export default function ForumThreadList() {
       setError("Không thể cập nhật trạng thái ghim!");
     }
   }
+
+  // Tính toán phân trang
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const indexOfFirstItem = (currentPage - 1) * itemsPerPage + 1;
+  const indexOfLastItem = Math.min(currentPage * itemsPerPage, totalItems);
+
+  // Xử lý thay đổi trang
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  // Xử lý tìm kiếm
+  const handleSearchChange = (e) => {
+    setSearch(e.target.value);
+    setCurrentPage(1); // Reset về trang đầu khi tìm kiếm
+  };
 
   if (loading)
     return (
@@ -86,12 +114,21 @@ export default function ForumThreadList() {
             type="text"
             placeholder="Tìm kiếm tiêu đề..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={handleSearchChange}
             className="border-2 border-purple-300 rounded-2xl px-5 py-3 w-72 focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white text-gray-700 shadow-md text-lg"
           />
           <FaSearch className="absolute right-4 top-4 text-purple-400 text-lg" />
         </div>
       </div>
+
+      {/* Thông tin phân trang */}
+      <div className="mb-4 flex justify-between items-center">
+        <div className="text-purple-700 font-semibold">
+          Hiển thị {indexOfFirstItem}-{indexOfLastItem} trong tổng số{" "}
+          {totalItems} chủ đề
+        </div>
+      </div>
+
       <div className="overflow-x-auto">
         <table className="min-w-full rounded-3xl shadow-2xl border-b-2 border-purple-200 bg-white">
           <thead>
@@ -120,7 +157,9 @@ export default function ForumThreadList() {
                   <div className="flex flex-col items-center gap-2">
                     <FaSmile className="text-6xl mb-2 animate-bounce" />
                     <span className="font-semibold text-lg">
-                      Không có chủ đề nào!
+                      {search
+                        ? "Không tìm thấy chủ đề nào!"
+                        : "Không có chủ đề nào!"}
                     </span>
                   </div>
                 </td>
@@ -168,6 +207,84 @@ export default function ForumThreadList() {
           </tbody>
         </table>
       </div>
+
+      {/* Phân trang */}
+      {totalPages > 1 && (
+        <div className="mt-8 flex justify-center">
+          <div className="flex items-center gap-2 bg-white rounded-2xl shadow-lg px-6 py-4">
+            {/* Nút Previous */}
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold transition-all duration-200 ${
+                currentPage === 1
+                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  : "bg-purple-200 text-purple-700 hover:bg-purple-400 hover:text-white"
+              }`}
+            >
+              <FaChevronLeft className="text-sm" />
+              Trước
+            </button>
+
+            {/* Các nút số trang */}
+            <div className="flex items-center gap-1">
+              {Array.from({ length: totalPages }, (_, index) => {
+                const pageNumber = index + 1;
+                const isCurrentPage = pageNumber === currentPage;
+
+                // Hiển thị tối đa 5 trang, với logic thông minh
+                if (
+                  pageNumber === 1 ||
+                  pageNumber === totalPages ||
+                  (pageNumber >= currentPage - 1 &&
+                    pageNumber <= currentPage + 1)
+                ) {
+                  return (
+                    <button
+                      key={pageNumber}
+                      onClick={() => handlePageChange(pageNumber)}
+                      className={`w-10 h-10 rounded-full font-bold transition-all duration-200 ${
+                        isCurrentPage
+                          ? "bg-purple-600 text-white shadow-lg"
+                          : "bg-purple-100 text-purple-700 hover:bg-purple-300"
+                      }`}
+                    >
+                      {pageNumber}
+                    </button>
+                  );
+                } else if (
+                  pageNumber === currentPage - 2 ||
+                  pageNumber === currentPage + 2
+                ) {
+                  return (
+                    <span
+                      key={pageNumber}
+                      className="text-purple-400 font-bold"
+                    >
+                      ...
+                    </span>
+                  );
+                }
+                return null;
+              })}
+            </div>
+
+            {/* Nút Next */}
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold transition-all duration-200 ${
+                currentPage === totalPages
+                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  : "bg-purple-200 text-purple-700 hover:bg-purple-400 hover:text-white"
+              }`}
+            >
+              Tiếp
+              <FaChevronRight className="text-sm" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

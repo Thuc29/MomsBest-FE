@@ -11,13 +11,13 @@ import {
 import { Button, Col, Form, Input, message, Modal, Row } from "antd";
 import { getRegexEmail } from "../lib/utils";
 import api from "../../api/axiosConfig";
-
 export default function UserList() {
   const [users, setUsers] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState("");
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [openModalCreateUser, setOpenModalCreateUser] = useState(false);
@@ -98,6 +98,17 @@ export default function UserList() {
     }
   };
 
+  const handleSearch = () => {
+    setSearch(searchInput);
+    setPage(1);
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
+
   if (loading)
     return (
       <div className="flex flex-col items-center  justify-center h-80">
@@ -146,18 +157,29 @@ export default function UserList() {
         </button>
       </div>
       <div className="mb-6 flex justify-between items-center">
-        <div className="relative">
-          <input
-            type="text"
-            placeholder="Tìm kiếm tên, email..."
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
-            className="border-2 border-pink-200 rounded-2xl px-4 py-2 w-64 focus:outline-none focus:ring-2 focus:ring-pink-300 bg-white/80 text-gray-700 shadow-sm"
-          />
-          <FaSearch className="absolute right-3 top-3 text-pink-300" />
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Tìm kiếm tên, email..."
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                onKeyPress={handleKeyPress}
+                className="border-2 border-pink-200 rounded-2xl px-4 py-2 w-64 focus:outline-none focus:ring-2 focus:ring-pink-300 bg-white/80 text-gray-700 shadow-sm"
+              />
+              <FaSearch className="absolute right-3 top-3 text-pink-300" />
+            </div>
+            <button
+              onClick={handleSearch}
+              className="px-4 py-2 bg-pink-400 text-white rounded-2xl font-bold shadow-sm transition-all duration-200 hover:bg-pink-500 hover:scale-105"
+            >
+              Tìm kiếm
+            </button>
+          </div>
+          <div className="text-pink-600 font-semibold bg-white/80 px-4 py-2 rounded-2xl shadow-sm">
+            Tổng: {total} tài khoản
+          </div>
         </div>
         <Button
           color="pink"
@@ -260,20 +282,69 @@ export default function UserList() {
           </tbody>
         </table>
       </div>
-      <div className="mt-6 flex gap-2 justify-center">
-        {Array.from({ length: Math.ceil(total / limit) }, (_, i) => (
+      <div className="mt-6 flex items-center justify-between">
+        <div className="text-pink-600 font-semibold">
+          Hiển thị {(page - 1) * limit + 1} - {Math.min(page * limit, total)}{" "}
+          trong tổng số {total} tài khoản
+        </div>
+        <div className="flex items-center gap-2">
           <button
-            key={i}
-            onClick={() => setPage(i + 1)}
-            className={`px-4 py-2 rounded-full font-bold shadow-sm transition-all duration-200 text-lg ${
-              page === i + 1
-                ? "bg-pink-400 text-white scale-110"
-                : "bg-white/80 text-pink-400 hover:bg-pink-100"
+            onClick={() => setPage(Math.max(1, page - 1))}
+            disabled={page === 1}
+            className={`px-3 py-2 rounded-full font-bold shadow-sm transition-all duration-200 text-sm ${
+              page === 1
+                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                : "bg-white/80 text-pink-400 hover:bg-pink-100 hover:scale-105"
             }`}
           >
-            {i + 1}
+            ← Trước
           </button>
-        ))}
+
+          {Array.from({ length: Math.ceil(total / limit) }, (_, i) => {
+            const pageNumber = i + 1;
+            // Hiển thị tối đa 5 trang, với logic để hiển thị trang hiện tại ở giữa
+            if (
+              pageNumber === 1 ||
+              pageNumber === Math.ceil(total / limit) ||
+              (pageNumber >= page - 1 && pageNumber <= page + 1)
+            ) {
+              return (
+                <button
+                  key={i}
+                  onClick={() => setPage(pageNumber)}
+                  className={`px-3 py-2 rounded-full font-bold shadow-sm transition-all duration-200 text-sm ${
+                    page === pageNumber
+                      ? "bg-pink-400 text-white scale-110"
+                      : "bg-white/80 text-pink-400 hover:bg-pink-100 hover:scale-105"
+                  }`}
+                >
+                  {pageNumber}
+                </button>
+              );
+            } else if (pageNumber === page - 2 || pageNumber === page + 2) {
+              return (
+                <span key={i} className="px-2 text-pink-400">
+                  ...
+                </span>
+              );
+            }
+            return null;
+          })}
+
+          <button
+            onClick={() =>
+              setPage(Math.min(Math.ceil(total / limit), page + 1))
+            }
+            disabled={page === Math.ceil(total / limit)}
+            className={`px-3 py-2 rounded-full font-bold shadow-sm transition-all duration-200 text-sm ${
+              page === Math.ceil(total / limit)
+                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                : "bg-white/80 text-pink-400 hover:bg-pink-100 hover:scale-105"
+            }`}
+          >
+            Sau →
+          </button>
+        </div>
       </div>
 
       {!!openModalCreateUser && (

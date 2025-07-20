@@ -148,8 +148,10 @@ export default function ForumCommentList() {
                   className="hover:bg-green-50 transition-colors duration-200"
                 >
                   <td className="px-4 py-3 flex items-center gap-2">
-                    <FaRegCommentDots className="text-green-200" />
-                    <span className="font-medium">{comment.content}</span>
+                    <FaRegCommentDots className="text-green-600" />
+                    <span className="font-medium text-green-800">
+                      {comment.content}
+                    </span>
                   </td>
                   <td className="px-4 py-3">
                     {threads.find((thr) => thr._id === comment.thread_id)
@@ -169,20 +171,69 @@ export default function ForumCommentList() {
           </tbody>
         </table>
       </div>
-      <div className="mt-6 flex gap-2 justify-center">
-        {Array.from({ length: Math.ceil(total / limit) }, (_, i) => (
+      <div className="mt-6 flex items-center justify-between">
+        <div className="text-green-600 font-semibold">
+          Hiển thị {(page - 1) * limit + 1} - {Math.min(page * limit, total)}{" "}
+          trong tổng số {total} bình luận
+        </div>
+        <div className="flex items-center gap-2">
           <button
-            key={i}
-            onClick={() => setPage(i + 1)}
-            className={`px-4 py-2 rounded-full font-bold shadow-sm transition-all duration-200 text-lg ${
-              page === i + 1
-                ? "bg-green-400 text-white scale-110"
-                : "bg-white/80 text-green-400 hover:bg-green-100"
+            onClick={() => setPage(Math.max(1, page - 1))}
+            disabled={page === 1}
+            className={`px-3 py-2 rounded-full font-bold shadow-sm transition-all duration-200 text-sm ${
+              page === 1
+                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                : "bg-white/80 text-green-400 hover:bg-green-100 hover:scale-105"
             }`}
           >
-            {i + 1}
+            ← Trước
           </button>
-        ))}
+
+          {Array.from({ length: Math.ceil(total / limit) }, (_, i) => {
+            const pageNumber = i + 1;
+            // Hiển thị tối đa 5 trang, với logic để hiển thị trang hiện tại ở giữa
+            if (
+              pageNumber === 1 ||
+              pageNumber === Math.ceil(total / limit) ||
+              (pageNumber >= page - 1 && pageNumber <= page + 1)
+            ) {
+              return (
+                <button
+                  key={i}
+                  onClick={() => setPage(pageNumber)}
+                  className={`px-3 py-2 rounded-full font-bold shadow-sm transition-all duration-200 text-sm ${
+                    page === pageNumber
+                      ? "bg-green-400 text-white scale-110"
+                      : "bg-white/80 text-green-400 hover:bg-green-100 hover:scale-105"
+                  }`}
+                >
+                  {pageNumber}
+                </button>
+              );
+            } else if (pageNumber === page - 2 || pageNumber === page + 2) {
+              return (
+                <span key={i} className="px-2 text-green-400">
+                  ...
+                </span>
+              );
+            }
+            return null;
+          })}
+
+          <button
+            onClick={() =>
+              setPage(Math.min(Math.ceil(total / limit), page + 1))
+            }
+            disabled={page === Math.ceil(total / limit)}
+            className={`px-3 py-2 rounded-full font-bold shadow-sm transition-all duration-200 text-sm ${
+              page === Math.ceil(total / limit)
+                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                : "bg-white/80 text-green-400 hover:bg-green-100 hover:scale-105"
+            }`}
+          >
+            Sau →
+          </button>
+        </div>
       </div>
     </div>
   );

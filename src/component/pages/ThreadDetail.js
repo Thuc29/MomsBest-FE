@@ -708,72 +708,97 @@ const ThreadDetail = () => {
               </div>
 
               {/* Comments Section */}
-              <div className=" backdrop-blur-sm rounded-2xl shadow-lg p-6 mb-6">
+              <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 mb-6">
                 <h2 className="text-xl border-b border-gray-100 py-3 font-semibold text-gray-800 mb-6">
                   Bình luận ({thread.comments.length})
                 </h2>
 
                 {/* Comment Form - cải thiện giao diện */}
-                <div className="flex items-start gap-3 border border-gray-100 rounded-xl p-3 mb-8">
-                  <form
-                    onSubmit={handleSubmitComment}
-                    className="flex-1  items-center gap-4 "
-                  >
-                    <div className="flex items-center gap-2">
-                      {" "}
-                      <img
-                        src={currentUser?.avatar || "default.png"}
-                        alt={currentUser?.name || "Ẩn danh"}
-                        className="w-10 h-10 rounded-full object-cover border border-gray-300"
-                      />
-                      <div className="flex-1 mb-1 text-start gap-2">
-                        <p className="text-white font-semibold text-base">
-                          {currentUser?.name || "Ẩn danh"}
-                        </p>
-                        <div className="border p-2 rounded-xl">
-                          <div className="flex  rounded-xl p-2 items-center gap-2">
-                            {" "}
-                            <input
-                              type="text"
+                {currentUser ? (
+                  <div className="bg-gray-50 rounded-xl p-4 mb-8">
+                    <form onSubmit={handleSubmitComment} className="space-y-3">
+                      <div className="flex items-start gap-3">
+                        <img
+                          src={
+                            currentUser?.avatar ||
+                            "https://ui-avatars.com/api/?name=User&background=random"
+                          }
+                          alt={currentUser?.name || "Ẩn danh"}
+                          className="w-10 h-10 rounded-full object-cover border-2 border-pink-200"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="font-medium text-gray-800">
+                              {currentUser?.name || "Ẩn danh"}
+                            </span>
+                            <span className="text-xs bg-pink-100 text-pink-600 px-2 py-1 rounded-full">
+                              {currentUser?.current_level || "Thành viên"}
+                            </span>
+                          </div>
+                          <div className="relative">
+                            <textarea
                               value={commentText}
                               onChange={(e) => setCommentText(e.target.value)}
                               placeholder="Viết bình luận của bạn..."
-                              className="flex-1 bg-transparent text-white text-sm outline-none border-none placeholder-gray-600"
+                              className="w-full bg-white border border-gray-200 rounded-lg p-3 text-gray-800 text-sm resize-none focus:ring-2 focus:ring-pink-300 focus:border-pink-300 outline-none"
+                              rows="3"
                               autoComplete="off"
                             />
-                            <button
-                              type="submit"
-                              disabled={!commentText.trim()}
-                              className="text-blue-400   rounded-full  disabled:opacity-50"
-                            >
-                              <Send size={18} />
-                            </button>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              className="text-gray-500 hover:text-gray-200"
-                            >
-                              <Image size={18} />
-                            </button>
-                            <button
-                              type="button"
-                              className="text-gray-500 hover:text-gray-200"
-                            >
-                              <Smile size={18} />
-                            </button>
-                            <button
-                              type="button"
-                              className="text-gray-500 hover:text-gray-200"
-                            >
-                              <Paperclip size={18} />
-                            </button>
+                            <div className="flex items-center justify-between mt-2">
+                              <div className="flex items-center gap-2">
+                                <button
+                                  type="button"
+                                  className="text-gray-400 hover:text-pink-500 transition-colors p-1"
+                                  title="Thêm hình ảnh"
+                                >
+                                  <Image size={16} />
+                                </button>
+                                <button
+                                  type="button"
+                                  className="text-gray-400 hover:text-pink-500 transition-colors p-1"
+                                  title="Thêm emoji"
+                                >
+                                  <Smile size={16} />
+                                </button>
+                                <button
+                                  type="button"
+                                  className="text-gray-400 hover:text-pink-500 transition-colors p-1"
+                                  title="Đính kèm file"
+                                >
+                                  <Paperclip size={16} />
+                                </button>
+                              </div>
+                              <button
+                                type="submit"
+                                disabled={!commentText.trim()}
+                                className="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                              >
+                                <Send size={16} />
+                                Gửi bình luận
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>
+                    </form>
+                  </div>
+                ) : (
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-8">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                        <MessageCircle size={20} className="text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="text-blue-800 font-medium">
+                          Đăng nhập để bình luận
+                        </p>
+                        <p className="text-blue-600 text-sm">
+                          Vui lòng đăng nhập để tham gia thảo luận
+                        </p>
+                      </div>
                     </div>
-                  </form>
-                </div>
+                  </div>
+                )}
 
                 {/* Comments List - cải thiện giao diện từng bình luận */}
                 <div className="space-y-6">
@@ -782,28 +807,40 @@ const ThreadDetail = () => {
                     pagedComments.map((comment) => (
                       <div
                         key={comment._id}
-                        className=" rounded-xl border border-[#232323] shadow-sm p-4 text-white"
+                        className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 hover:shadow-md transition-shadow"
                       >
                         {/* Comment Header */}
-                        <div className="flex items-start gap-3 mb-2">
+                        <div className="flex items-start gap-3 mb-3">
                           <img
-                            src={comment.author_id?.avatar || "default.png"}
+                            src={
+                              comment.author_id?.avatar ||
+                              "https://ui-avatars.com/api/?name=User&background=random"
+                            }
                             alt={comment.author_id?.name || "Ẩn danh"}
-                            className="w-10 h-10 rounded-full object-cover border border-gray-300"
+                            className="w-10 h-10 rounded-full object-cover border-2 border-gray-200"
                           />
                           <div className="flex-1">
-                            <div className="flex items-center gap-3">
-                              <span className="font-semibold text-white">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-semibold text-gray-800">
                                 {comment.author_id?.name || "Ẩn danh"}
                               </span>
-                              <span className="text-xs text-gray-300">
-                                {formatDate(comment.created_at)}
+                              <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
+                                {comment.author_id?.current_level ||
+                                  "Thành viên"}
                               </span>
+                            </div>
+                            <div className="flex items-center gap-2 text-xs text-gray-500">
+                              <span>{formatDate(comment.created_at)}</span>
+                              {comment.isEdited && (
+                                <span className="text-gray-400">
+                                  (đã chỉnh sửa)
+                                </span>
+                              )}
                             </div>
                           </div>
                           <div className="relative">
                             <button
-                              className="p-1 text-gray-400 hover:text-gray-200"
+                              className="p-1 text-gray-400 hover:text-gray-600 transition-colors rounded-full hover:bg-gray-100"
                               onClick={() =>
                                 setDropdownCommentId(
                                   dropdownCommentId === comment._id
@@ -816,48 +853,47 @@ const ThreadDetail = () => {
                             </button>
                             {dropdownCommentId === comment._id && (
                               <div
-                                onClick={() => setDropdownCommentId(null)}
-                                tabIndex={0}
-                                onBlur={() => setDropdownCommentId(null)}
+                                ref={dropdownRef}
+                                className="absolute right-0 mt-1 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-10"
                               >
                                 {currentUser &&
                                 String(
                                   comment.author_id?._id || comment.author_id
                                 ) === String(currentUser._id) ? (
                                   <>
-                                    <div className="absolute right-0 mt-1 w-36  border border-[#333] rounded-lg shadow-lg z-10">
-                                      {" "}
-                                      <button
-                                        className=" w-full hover:bg-blue-500 hover:text-white transition-all duration-300 rounded-t-lg flex items-center gap-1 text-left px-4 py-2 text-sm text-blue-500 "
-                                        onClick={() => {
-                                          setModalEdit({
-                                            id: comment._id,
-                                            content: comment.content,
-                                            type: "comment",
-                                          });
-                                        }}
-                                      >
-                                        <Pencil size={16} />
-                                        <p>Sửa</p>
-                                      </button>
-                                      <button
-                                        className=" w-full  hover:bg-red-500 hover:text-white transition-all duration-300 rounded-b-lg flex items-center gap-1 text-left px-4 py-2 text-sm text-red-500 "
-                                        onClick={() => {
-                                          setModalDelete({
-                                            id: comment._id,
-                                            type: "comment",
-                                          });
-                                        }}
-                                      >
-                                        <Trash2 size={16} />
-                                        <p>Xóa</p>
-                                      </button>
-                                    </div>
+                                    <button
+                                      className="w-full hover:bg-blue-50 transition-colors flex items-center gap-2 text-left px-4 py-2 text-sm text-blue-600 rounded-t-lg"
+                                      onClick={() => {
+                                        setModalEdit({
+                                          id: comment._id,
+                                          content: comment.content,
+                                          type: "comment",
+                                        });
+                                        setDropdownCommentId(null);
+                                      }}
+                                    >
+                                      <Pencil size={16} />
+                                      Sửa bình luận
+                                    </button>
+                                    <button
+                                      className="w-full hover:bg-red-50 transition-colors flex items-center gap-2 text-left px-4 py-2 text-sm text-red-600 rounded-b-lg"
+                                      onClick={() => {
+                                        setModalDelete({
+                                          id: comment._id,
+                                          type: "comment",
+                                        });
+                                        setDropdownCommentId(null);
+                                      }}
+                                    >
+                                      <Trash2 size={16} />
+                                      Xóa bình luận
+                                    </button>
                                   </>
                                 ) : (
                                   <button
-                                    className="block w-full text-left px-4 py-2 text-sm text-gray-300 "
+                                    className="w-full hover:bg-gray-50 transition-colors flex items-center gap-2 text-left px-4 py-2 text-sm text-gray-600 rounded-lg"
                                     onClick={() => {
+                                      setDropdownCommentId(null);
                                       Swal.fire(
                                         "Cảm ơn bạn đã báo cáo!",
                                         "Chúng tôi sẽ xem xét bình luận này.",
@@ -865,6 +901,7 @@ const ThreadDetail = () => {
                                       );
                                     }}
                                   >
+                                    <Flag size={16} />
                                     Báo cáo bình luận
                                   </button>
                                 )}
@@ -872,10 +909,11 @@ const ThreadDetail = () => {
                             )}
                           </div>
                         </div>
+
                         {/* Comment Content or Edit Form */}
                         {editingComment && editingComment.id === comment._id ? (
                           <form
-                            className="mb-2 flex  flex-col gap-2"
+                            className="mb-3"
                             onSubmit={(e) => {
                               e.preventDefault();
                               handleEditComment(
@@ -885,8 +923,9 @@ const ThreadDetail = () => {
                               );
                             }}
                           >
-                            <input
-                              className="w-full  text-white rounded-lg px-3 py-2 border-none outline-none"
+                            <textarea
+                              className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-gray-800 resize-none focus:ring-2 focus:ring-pink-300 focus:border-pink-300 outline-none"
+                              rows="3"
                               value={editingComment.content}
                               onChange={(e) =>
                                 setEditingComment({
@@ -896,17 +935,17 @@ const ThreadDetail = () => {
                               }
                               autoFocus
                             />
-                            <div className="flex gap-2">
+                            <div className="flex gap-2 mt-2">
                               <button
                                 type="submit"
-                                className="bg-[#6C47FF] text-white px-4 py-1 rounded hover:bg-[#8f6bff]"
+                                className="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
                                 disabled={!editingComment.content.trim()}
                               >
-                                Lưu
+                                Lưu thay đổi
                               </button>
                               <button
                                 type="button"
-                                className="text-gray-400 px-4 py-1 rounded hover:"
+                                className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors"
                                 onClick={() => setEditingComment(null)}
                               >
                                 Hủy
@@ -914,35 +953,39 @@ const ThreadDetail = () => {
                             </div>
                           </form>
                         ) : (
-                          <div className="mb-2">
-                            <p className="text-gray-100 text-start  whitespace-pre-line">
+                          <div className="mb-3">
+                            <p className="text-gray-700 whitespace-pre-line leading-relaxed">
                               {comment.content}
                             </p>
                           </div>
                         )}
+
                         {/* Comment Actions */}
-                        <div className="flex items-center gap-4 text-sm mt-1">
+                        <div className="flex items-center gap-4 text-sm border-t border-gray-100 pt-3">
                           <button
-                            className={`flex items-center gap-1 rounded-full px-2 py-1  
-                              ${
-                                !currentUser
-                                  ? "cursor-not-allowed opacity-50"
-                                  : ""
-                              }
-                              ${
-                                comment.isLiked
-                                  ? " text-gray-200 bg-pink-500"
-                                  : " text-gray-400 "
-                              }
-                            `}
+                            className={`flex items-center gap-1 rounded-full px-3 py-1.5 transition-colors ${
+                              comment.isLiked
+                                ? "bg-pink-100 text-pink-600"
+                                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                            } ${
+                              !currentUser
+                                ? "cursor-not-allowed opacity-50"
+                                : ""
+                            }`}
                             onClick={() => handleLikeParentComment(comment._id)}
                             disabled={!currentUser}
+                            title={
+                              !currentUser ? "Vui lòng đăng nhập để thích" : ""
+                            }
                           >
-                            <Heart size={16} />
-                            <span>{comment.likes}</span>
+                            <Heart
+                              size={16}
+                              className={comment.isLiked ? "fill-current" : ""}
+                            />
+                            <span>{comment.likes || 0}</span>
                           </button>
                           <button
-                            className="text-gray-400 hover:text-blue-400"
+                            className="flex items-center gap-1 rounded-full px-3 py-1.5 bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
                             onClick={() => {
                               setReplyingTo({
                                 type: "comment",
@@ -950,19 +993,19 @@ const ThreadDetail = () => {
                               });
                               setReplyText("");
                             }}
+                            title="Trả lời bình luận"
                           >
-                            <div className="flex items-center gap-1">
-                              <MessageCircle size={16} />
-                              <span>{comment.replies.length}</span>
-                            </div>
+                            <MessageCircle size={16} />
+                            <span>{comment.replies?.length || 0}</span>
                           </button>
                         </div>
+
                         {/* Reply Input for Comment */}
                         {replyingTo &&
                           replyingTo.type === "comment" &&
                           replyingTo.id === comment._id && (
                             <form
-                              className="mt-2 ml-12 border-t pt-2 flex gap-2"
+                              className="mt-4 ml-12 bg-gray-50 rounded-lg p-3"
                               onSubmit={(e) => {
                                 e.preventDefault();
                                 handleReplyComment(
@@ -975,49 +1018,63 @@ const ThreadDetail = () => {
                                 );
                               }}
                             >
-                              <img
-                                src={comment.author_id?.avatar || "default.png"}
-                                alt={comment.author_id?.name || "Ẩn danh"}
-                                className="w-10 h-10 rounded-full object-cover border border-gray-300"
-                              />
-                              <div className="flex-1">
-                                <div className="flex items-center ">
-                                  <span className="font-semibold text-white">
-                                    {comment.author_id?.name || "Ẩn danh"}
-                                  </span>
-                                </div>
-
-                                <input
-                                  className="w-full  text-white bg-transparent rounded-lg px-2 pb-1 border-none outline-none"
-                                  placeholder="Nhập trả lời của bạn..."
-                                  value={replyText}
-                                  onChange={(e) => setReplyText(e.target.value)}
-                                  autoFocus
+                              <div className="flex items-start gap-3">
+                                <img
+                                  src={
+                                    currentUser?.avatar ||
+                                    "https://ui-avatars.com/api/?name=User&background=random"
+                                  }
+                                  alt={currentUser?.name || "Ẩn danh"}
+                                  className="w-8 h-8 rounded-full object-cover border border-gray-200"
                                 />
-                                <div className="flex gap-2">
-                                  <button
-                                    type="submit"
-                                    className=" text-gray-300 px-1 py-1 flex items-center gap-1 rounded hover:text-[#8f6bff]"
-                                    disabled={!replyText.trim()}
-                                  >
-                                    <Send size={16} />
-                                    <p>Gửi</p>
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className="text-gray-300 px-1 py-1  flex items-center  rounded hover:text-red-500"
-                                    onClick={() => setReplyingTo(null)}
-                                  >
-                                    <X size={16} />
-                                    <p>Hủy </p>
-                                  </button>
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <span className="font-medium text-gray-800 text-sm">
+                                      {currentUser?.name || "Ẩn danh"}
+                                    </span>
+                                    <span className="text-xs text-gray-500">
+                                      Trả lời{" "}
+                                      {comment.author_id?.name || "Ẩn danh"}
+                                    </span>
+                                  </div>
+                                  <div className="space-y-2">
+                                    <textarea
+                                      className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-gray-800 text-sm resize-none focus:ring-2 focus:ring-pink-300 focus:border-pink-300 outline-none"
+                                      placeholder="Nhập trả lời của bạn..."
+                                      value={replyText}
+                                      onChange={(e) =>
+                                        setReplyText(e.target.value)
+                                      }
+                                      rows="2"
+                                      autoFocus
+                                    />
+                                    <div className="flex gap-2">
+                                      <button
+                                        type="submit"
+                                        className="bg-pink-500 hover:bg-pink-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1"
+                                        disabled={!replyText.trim()}
+                                      >
+                                        <Send size={14} />
+                                        Gửi trả lời
+                                      </button>
+                                      <button
+                                        type="button"
+                                        className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1"
+                                        onClick={() => setReplyingTo(null)}
+                                      >
+                                        <X size={14} />
+                                        Hủy
+                                      </button>
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
                             </form>
                           )}
+
                         {/* Nested Replies */}
                         {comment.replies && comment.replies.length > 0 && (
-                          <div className="mt-4 pl-8 border-l-2 border-[#232323] space-y-4">
+                          <div className="mt-4 ml-12 border-l-2 border-pink-200 space-y-4 pl-4">
                             {comment.replies
                               .slice(
                                 0,
@@ -1028,24 +1085,36 @@ const ThreadDetail = () => {
                               .map((reply) => (
                                 <div
                                   key={reply._id}
-                                  className="rounded-lg  p-3 text-white"
+                                  className="bg-gray-50 rounded-lg p-3"
                                 >
                                   <div className="flex items-start gap-3 mb-2">
                                     <img
                                       src={
-                                        reply.author_id?.avatar || "default.png"
+                                        reply.author_id?.avatar ||
+                                        "https://ui-avatars.com/api/?name=User&background=random"
                                       }
                                       alt={reply.author_id?.name || "Ẩn danh"}
-                                      className="w-8 h-8 rounded-full object-cover border border-gray-300"
+                                      className="w-8 h-8 rounded-full object-cover border border-gray-200"
                                     />
                                     <div className="flex-1">
-                                      <div className="flex items-center gap-2">
-                                        <span className="font-semibold text-white">
+                                      <div className="flex items-center gap-2 mb-1">
+                                        <span className="font-medium text-gray-800 text-sm">
                                           {reply.author_id?.name || "Ẩn danh"}
                                         </span>
-                                        <span className="text-xs text-gray-400">
+                                        <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
+                                          {reply.author_id?.current_level ||
+                                            "Thành viên"}
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center gap-2 text-xs text-gray-500">
+                                        <span>
                                           {formatDate(reply.created_at)}
                                         </span>
+                                        {reply.isEdited && (
+                                          <span className="text-gray-400">
+                                            (đã chỉnh sửa)
+                                          </span>
+                                        )}
                                       </div>
                                     </div>
                                     <div className="flex gap-1">
@@ -1056,8 +1125,8 @@ const ThreadDetail = () => {
                                         ) === String(currentUser._id) && (
                                           <>
                                             <button
-                                              className="p-1 text-blue-400  rounded-full"
-                                              title="Sửa"
+                                              className="p-1 text-blue-500 hover:bg-blue-50 rounded-full transition-colors"
+                                              title="Sửa trả lời"
                                               onClick={() =>
                                                 setEditingReply({
                                                   commentId: comment._id,
@@ -1069,8 +1138,8 @@ const ThreadDetail = () => {
                                               <Pencil size={14} />
                                             </button>
                                             <button
-                                              className="p-1 text-red-400  rounded-full"
-                                              title="Xóa"
+                                              className="p-1 text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                                              title="Xóa trả lời"
                                               onClick={() =>
                                                 handleDeleteReply(
                                                   comment._id,
@@ -1084,12 +1153,13 @@ const ThreadDetail = () => {
                                         )}
                                     </div>
                                   </div>
+
                                   {/* Reply Content or Edit Form */}
                                   {editingReply &&
                                   editingReply.replyId === reply._id &&
                                   editingReply.commentId === comment._id ? (
                                     <form
-                                      className="mb-2 flex flex-col gap-2"
+                                      className="mb-2"
                                       onSubmit={(e) => {
                                         e.preventDefault();
                                         handleEditReply(
@@ -1100,8 +1170,9 @@ const ThreadDetail = () => {
                                         );
                                       }}
                                     >
-                                      <input
-                                        className="w-full  text-white rounded-lg px-3 py-2 border-none outline-none"
+                                      <textarea
+                                        className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-gray-800 text-sm resize-none focus:ring-2 focus:ring-pink-300 focus:border-pink-300 outline-none"
+                                        rows="2"
                                         value={editingReply.content}
                                         onChange={(e) =>
                                           setEditingReply({
@@ -1111,19 +1182,19 @@ const ThreadDetail = () => {
                                         }
                                         autoFocus
                                       />
-                                      <div className="flex gap-2">
+                                      <div className="flex gap-2 mt-2">
                                         <button
                                           type="submit"
-                                          className="bg-[#6C47FF] text-white px-4 py-1 rounded hover:bg-[#8f6bff]"
+                                          className="bg-pink-500 hover:bg-pink-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
                                           disabled={
                                             !editingReply.content.trim()
                                           }
                                         >
-                                          Lưu
+                                          Lưu thay đổi
                                         </button>
                                         <button
                                           type="button"
-                                          className="text-gray-400 px-4 py-1 rounded "
+                                          className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
                                           onClick={() => setEditingReply(null)}
                                         >
                                           Hủy
@@ -1132,93 +1203,126 @@ const ThreadDetail = () => {
                                     </form>
                                   ) : (
                                     <div className="mb-2">
-                                      <p className="text-gray-200 text-start whitespace-pre-line text-sm">
+                                      <p className="text-gray-700 whitespace-pre-line text-sm leading-relaxed">
                                         {reply.content}
                                       </p>
                                     </div>
                                   )}
+
                                   {/* Reply Actions */}
-                                  <div className="flex items-center gap-4 text-xs">
-                                    <div className="flex items-center gap-4 text-sm mt-1">
-                                      <button
-                                        className={`flex items-center gap-1 hover:text-red-500 rounded-full px-2 py-1 ${
-                                          reply.isLiked
-                                            ? "text-pink-500"
-                                            : "text-gray-400"
-                                        }`}
-                                        onClick={() =>
-                                          handleLikeReplyComment(
-                                            comment._id,
-                                            reply._id
-                                          )
+                                  <div className="flex items-center gap-3 text-xs">
+                                    <button
+                                      className={`flex items-center gap-1 rounded-full px-2 py-1 transition-colors ${
+                                        reply.isLiked
+                                          ? "bg-pink-100 text-pink-600"
+                                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                                      } ${
+                                        !currentUser
+                                          ? "cursor-not-allowed opacity-50"
+                                          : ""
+                                      }`}
+                                      onClick={() =>
+                                        handleLikeReplyComment(
+                                          comment._id,
+                                          reply._id
+                                        )
+                                      }
+                                      disabled={!currentUser}
+                                      title={
+                                        !currentUser
+                                          ? "Vui lòng đăng nhập để thích"
+                                          : ""
+                                      }
+                                    >
+                                      <Heart
+                                        size={14}
+                                        className={
+                                          reply.isLiked ? "fill-current" : ""
                                         }
-                                        disabled={!currentUser}
-                                      >
-                                        <Heart size={16} />
-                                        <span>{reply.likes}</span>
-                                      </button>
-                                    </div>
+                                      />
+                                      <span>{reply.likes || 0}</span>
+                                    </button>
                                   </div>
                                 </div>
                               ))}
-                            {/* Show more replies */}
-                            {comment.replies.length > REPLIES_PER_PAGE &&
-                              !comment.showAllReplies && (
-                                <button
-                                  className="text-xs text-blue-400 mt-2"
-                                  onClick={() => {
-                                    setThread((prev) => ({
-                                      ...prev,
-                                      comments: prev.comments.map((c) =>
-                                        c._id === comment._id
-                                          ? { ...c, showAllReplies: true }
-                                          : c
-                                      ),
-                                    }));
-                                  }}
-                                >
-                                  Xem thêm trả lời
-                                </button>
-                              )}
-                            {comment.replies.length > REPLIES_PER_PAGE &&
-                              comment.showAllReplies && (
-                                <button
-                                  className="text-xs text-blue-400 mt-2"
-                                  onClick={() => {
-                                    setThread((prev) => ({
-                                      ...prev,
-                                      comments: prev.comments.map((c) =>
-                                        c._id === comment._id
-                                          ? { ...c, showAllReplies: false }
-                                          : c
-                                      ),
-                                    }));
-                                  }}
-                                >
-                                  Ẩn bớt trả lời
-                                </button>
-                              )}
+
+                            {/* Show more/less replies */}
+                            {comment.replies.length > REPLIES_PER_PAGE && (
+                              <button
+                                className="text-sm text-pink-600 hover:text-pink-700 font-medium transition-colors"
+                                onClick={() => {
+                                  setThread((prev) => ({
+                                    ...prev,
+                                    comments: prev.comments.map((c) =>
+                                      c._id === comment._id
+                                        ? {
+                                            ...c,
+                                            showAllReplies: !c.showAllReplies,
+                                          }
+                                        : c
+                                    ),
+                                  }));
+                                }}
+                              >
+                                {comment.showAllReplies
+                                  ? `Ẩn bớt trả lời (${
+                                      comment.replies.length - REPLIES_PER_PAGE
+                                    } trả lời khác)`
+                                  : `Xem thêm ${
+                                      comment.replies.length - REPLIES_PER_PAGE
+                                    } trả lời khác`}
+                              </button>
+                            )}
                           </div>
                         )}
                       </div>
                     ))}
+
+                  {/* Empty state */}
+                  {Array.isArray(thread.comments) &&
+                    thread.comments.length === 0 && (
+                      <div className="text-center py-12">
+                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <MessageCircle size={24} className="text-gray-400" />
+                        </div>
+                        <h3 className="text-lg font-medium text-gray-600 mb-2">
+                          Chưa có bình luận nào
+                        </h3>
+                        <p className="text-gray-500">
+                          Hãy là người đầu tiên chia sẻ suy nghĩ của bạn!
+                        </p>
+                      </div>
+                    )}
+
                   {/* Pagination for comments */}
                   {totalCommentPages > 1 && (
-                    <div className="flex justify-center gap-2 mt-6">
+                    <div className="flex justify-center gap-2 mt-8 pt-6 border-t border-gray-100">
                       <button
-                        className="px-3 py-1 rounded  text-gray-300 "
+                        className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         disabled={commentPage === 1}
                         onClick={() =>
                           setCommentPage((p) => Math.max(1, p - 1))
                         }
                       >
-                        Trước
+                        ← Trước
                       </button>
-                      <span className="px-2 py-1">
-                        {commentPage} / {totalCommentPages}
-                      </span>
+                      <div className="flex items-center gap-1">
+                        {[...Array(totalCommentPages)].map((_, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => setCommentPage(idx + 1)}
+                            className={`px-3 py-2 rounded-lg transition-colors ${
+                              commentPage === idx + 1
+                                ? "bg-pink-500 text-white"
+                                : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+                            }`}
+                          >
+                            {idx + 1}
+                          </button>
+                        ))}
+                      </div>
                       <button
-                        className="px-3 py-1 rounded  text-gray-300 "
+                        className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         disabled={commentPage === totalCommentPages}
                         onClick={() =>
                           setCommentPage((p) =>
@@ -1226,7 +1330,7 @@ const ThreadDetail = () => {
                           )
                         }
                       >
-                        Sau
+                        Sau →
                       </button>
                     </div>
                   )}
@@ -1249,31 +1353,45 @@ const ThreadDetail = () => {
                       Không có chủ đề liên quan
                     </div>
                   ) : (
-                    (Array.isArray(relatedThreads) ? relatedThreads : [])
-                      .filter((t) => t && t._id !== threadId)
-                      .map((relatedThread) => (
-                        <Link
-                          key={relatedThread._id}
-                          to={`/forumthreads/${relatedThread._id}`}
-                          className="block bg-pink-50 hover:bg-pink-100 p-3 rounded-lg transition"
-                        >
-                          <h4 className="text-sm font-medium text-gray-800 line-clamp-2">
-                            {relatedThread.title}
-                          </h4>
-                          <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
-                            <span className="flex items-center gap-1">
-                              <MessageCircle size={12} />{" "}
-                              {relatedThread.commentsCount ||
-                                (relatedThread.comments
-                                  ? relatedThread.comments.length
-                                  : 0)}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Heart size={12} /> {relatedThread.likes || 0}
-                            </span>
-                          </div>
-                        </Link>
-                      ))
+                    <>
+                      <div className="text-xs text-gray-500 mb-2">
+                        Hiển thị{" "}
+                        {Math.min(
+                          10,
+                          (Array.isArray(relatedThreads)
+                            ? relatedThreads
+                            : []
+                          ).filter((t) => t && t._id !== threadId).length
+                        )}{" "}
+                        chủ đề liên quan
+                      </div>
+                      {(Array.isArray(relatedThreads) ? relatedThreads : [])
+                        .filter((t) => t && t._id !== threadId)
+                        .slice(0, 10)
+                        .map((relatedThread) => (
+                          <Link
+                            key={relatedThread._id}
+                            to={`/forumthreads/${relatedThread._id}`}
+                            className="block bg-pink-50 hover:bg-pink-100 p-3 rounded-lg transition"
+                          >
+                            <h4 className="text-sm font-medium text-gray-800 line-clamp-2">
+                              {relatedThread.title}
+                            </h4>
+                            <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
+                              <span className="flex items-center gap-1">
+                                <MessageCircle size={12} />{" "}
+                                {relatedThread.commentsCount ||
+                                  (relatedThread.comments
+                                    ? relatedThread.comments.length
+                                    : 0)}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Heart size={12} /> {relatedThread.likes || 0}
+                              </span>
+                            </div>
+                          </Link>
+                        ))}
+                    </>
                   )}
                 </div>
               </div>

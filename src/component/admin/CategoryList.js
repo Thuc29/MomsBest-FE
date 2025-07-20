@@ -8,6 +8,8 @@ import {
   FaEye,
   FaEyeSlash,
   FaSyncAlt,
+  FaChevronLeft,
+  FaChevronRight,
 } from "react-icons/fa";
 
 export default function CategoryList() {
@@ -15,6 +17,8 @@ export default function CategoryList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [toggleLoadingId, setToggleLoadingId] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const categoriesPerPage = 10;
 
   useEffect(() => {
     fetchCategories();
@@ -36,6 +40,13 @@ export default function CategoryList() {
       setLoading(false);
     }
   }
+
+  // Phân trang cho categories
+  const totalPages = Math.ceil(categories.length / categoriesPerPage);
+  const paginatedCategories = categories.slice(
+    (currentPage - 1) * categoriesPerPage,
+    currentPage * categoriesPerPage
+  );
 
   const handleToggleActive = async (id) => {
     setToggleLoadingId(id);
@@ -99,7 +110,14 @@ export default function CategoryList() {
           <FaListUl className="text-yellow-300 text-3xl" /> Quản lý chuyên mục
         </h1>
         <span className="bg-yellow-100 text-yellow-700 px-4 py-2 rounded-xl font-semibold shadow">
-          Tổng số: {categories.length}
+          {/* Thông tin phân trang */}
+          {categories.length > 0 && (
+            <div className="text-center text-yellow-600 font-semibold">
+              Hiển thị {(currentPage - 1) * categoriesPerPage + 1} -{" "}
+              {Math.min(currentPage * categoriesPerPage, categories.length)}{" "}
+              trong tổng số {categories.length} chuyên mục
+            </div>
+          )}
         </span>
       </div>
       <div className="overflow-x-auto">
@@ -133,7 +151,7 @@ export default function CategoryList() {
                 </td>
               </tr>
             ) : (
-              categories.map((cat) => (
+              paginatedCategories.map((cat) => (
                 <tr
                   key={cat._id}
                   className="hover:bg-yellow-50 transition-colors duration-200 border border-yellow-200 last:border-b-0"
@@ -209,6 +227,45 @@ export default function CategoryList() {
           </tbody>
         </table>
       </div>
+
+      {/* Phân trang */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-2 mt-6">
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+            disabled={currentPage === 1}
+            className="px-4 py-2 bg-yellow-400 hover:bg-yellow-500 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold rounded-xl flex items-center gap-2 shadow transition-all duration-200"
+          >
+            <FaChevronLeft /> Trước
+          </button>
+
+          <div className="flex gap-1">
+            {[...Array(totalPages)].map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentPage(index + 1)}
+                className={`px-3 py-2 rounded-lg font-bold transition-all duration-200 ${
+                  currentPage === index + 1
+                    ? "bg-yellow-400 text-white shadow-lg"
+                    : "bg-white text-yellow-600 hover:bg-yellow-100 shadow"
+                }`}
+              >
+                {index + 1}
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+            }
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 bg-yellow-400 hover:bg-yellow-500 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold rounded-xl flex items-center gap-2 shadow transition-all duration-200"
+          >
+            Sau <FaChevronRight />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
