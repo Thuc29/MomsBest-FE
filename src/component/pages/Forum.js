@@ -23,6 +23,7 @@ import Swal from "sweetalert2";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import ArticleDetailModal from "../ui/ArticleDetailModal";
+import ShareModal from "../ui/ShareModal";
 
 const defaultAvatar = "https://ui-avatars.com/api/?name=User&background=random";
 
@@ -316,6 +317,10 @@ const Forum = () => {
   const { threadId } = useParams();
   const [thread, setThread] = useState(null);
   const [threadComments, setThreadComments] = useState([]);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [selectedArticleForShare, setSelectedArticleForShare] = useState(null);
+  const [bookmarkedArticles, setBookmarkedArticles] = useState(new Set());
+  const [reportedArticles, setReportedArticles] = useState(new Set());
 
   // Lấy user hiện tại từ localStorage
   const { user } = useAuth();
@@ -907,6 +912,82 @@ const Forum = () => {
     setArticleViews(initialViews);
     setArticleComments(initialComments);
   }, []);
+
+  // Hàm xử lý bookmark bài viết
+  const handleBookmarkArticle = (articleId) => {
+    setBookmarkedArticles((prev) => {
+      const newBookmarked = new Set(prev);
+      if (newBookmarked.has(articleId)) {
+        newBookmarked.delete(articleId);
+        Swal.fire({
+          title: "Đã bỏ lưu",
+          text: "Bài viết đã được bỏ khỏi danh sách lưu",
+          icon: "info",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+      } else {
+        newBookmarked.add(articleId);
+        Swal.fire({
+          title: "Đã lưu",
+          text: "Bài viết đã được thêm vào danh sách lưu",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+      }
+      return newBookmarked;
+    });
+  };
+
+  // Hàm xử lý report bài viết
+  const handleReportArticle = async (articleId) => {
+    const { value: reason } = await Swal.fire({
+      title: "Báo cáo bài viết",
+      text: "Vui lòng chọn lý do báo cáo:",
+      input: "select",
+      inputOptions: {
+        inappropriate: "Nội dung không phù hợp",
+        spam: "Spam hoặc quảng cáo",
+        misleading: "Thông tin sai lệch",
+        copyright: "Vi phạm bản quyền",
+        other: "Lý do khác",
+      },
+      inputPlaceholder: "Chọn lý do",
+      showCancelButton: true,
+      confirmButtonText: "Báo cáo",
+      cancelButtonText: "Hủy",
+      inputValidator: (value) => {
+        if (!value) {
+          return "Vui lòng chọn lý do báo cáo";
+        }
+      },
+    });
+
+    if (reason) {
+      setReportedArticles((prev) => new Set(prev).add(articleId));
+
+      Swal.fire({
+        title: "Đã báo cáo",
+        text: "Cảm ơn bạn đã báo cáo. Chúng tôi sẽ xem xét trong thời gian sớm nhất.",
+        icon: "success",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    }
+  };
+
+  // Hàm xử lý chia sẻ bài viết
+  const handleShareArticle = (article) => {
+    setSelectedArticleForShare(article);
+    setShowShareModal(true);
+  };
+
+  // Hàm đóng modal chia sẻ
+  const handleCloseShareModal = () => {
+    setShowShareModal(false);
+    setSelectedArticleForShare(null);
+  };
 
   if (loading)
     return <div className="text-center py-20">Đang tải dữ liệu...</div>;
@@ -1675,38 +1756,71 @@ const Forum = () => {
                                     </span>
                                   </button>
 
-                                  <span className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-gray-100 text-gray-600">
-                                    <MessageSquare size={16} />
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleBookmarkArticle(article.id);
+                                    }}
+                                    className={`flex items-center gap-1 px-3 py-1.5 rounded-full transition ${
+                                      bookmarkedArticles.has(article.id)
+                                        ? "bg-blue-100 text-blue-600"
+                                        : "bg-gray-100 text-gray-600 hover:bg-blue-50"
+                                    }`}
+                                  >
+                                    <Bookmark
+                                      size={16}
+                                      className={
+                                        bookmarkedArticles.has(article.id)
+                                          ? "fill-current"
+                                          : ""
+                                      }
+                                    />
                                     <span className="text-sm font-medium">
-                                      {articleComments[article.id] || 0}
-                                    </span>
-                                  </span>
-
-                                  <button className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 hover:bg-blue-50 transition">
-                                    <Bookmark size={16} />
-                                    <span className="text-sm font-medium">
-                                      Lưu
+                                      {bookmarkedArticles.has(article.id)
+                                        ? "Đã lưu"
+                                        : "Lưu"}
                                     </span>
                                   </button>
 
-                                  <button className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 hover:bg-green-50 transition">
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleShareArticle(article);
+                                    }}
+                                    className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 hover:bg-green-50 transition"
+                                  >
                                     <Share size={16} />
                                     <span className="text-sm font-medium">
                                       Chia sẻ
                                     </span>
                                   </button>
 
-                                  <button className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 hover:bg-red-50 transition">
-                                    <Flag size={16} />
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleReportArticle(article.id);
+                                    }}
+                                    className={`flex items-center gap-1 px-3 py-1.5 rounded-full transition ${
+                                      reportedArticles.has(article.id)
+                                        ? "bg-red-100 text-red-600"
+                                        : "bg-gray-100 text-gray-600 hover:bg-red-50"
+                                    }`}
+                                  >
+                                    <Flag
+                                      size={16}
+                                      className={
+                                        reportedArticles.has(article.id)
+                                          ? "fill-current"
+                                          : ""
+                                      }
+                                    />
                                     <span className="text-sm font-medium">
-                                      Báo cáo
+                                      {reportedArticles.has(article.id)
+                                        ? "Đã báo cáo"
+                                        : "Báo cáo"}
                                     </span>
                                   </button>
                                 </div>
-
-                                <button className="bg-pink-500 hover:bg-pink-600 text-white px-4 py-1.5 rounded-full text-sm font-medium transition">
-                                  Theo dõi chủ đề
-                                </button>
                               </div>
                             </div>
                           ))}
@@ -1938,6 +2052,18 @@ const Forum = () => {
             likeCount={articleLikes[selectedLibraryArticle.id] || 1}
           />
         )}
+
+        {/* Share Modal */}
+        <ShareModal
+          isOpen={showShareModal}
+          onClose={handleCloseShareModal}
+          article={selectedArticleForShare}
+          shareUrl={
+            selectedArticleForShare
+              ? `${window.location.origin}/forum/library/article/${selectedArticleForShare.id}`
+              : ""
+          }
+        />
       </AnimatePresence>
     </div>
   );

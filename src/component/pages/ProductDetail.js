@@ -105,6 +105,9 @@ export default function ProductDetail() {
   });
   const [openReplyMenu, setOpenReplyMenu] = useState(null);
 
+  // State để lưu danh sách categories
+  const [categories, setCategories] = useState([]);
+
   const handleAddToCart = () => {
     addToCart(product, quantity);
     setCartMsg("Đã thêm vào giỏ hàng!");
@@ -226,16 +229,45 @@ export default function ProductDetail() {
     setLoadingFeatured(false);
   };
 
+  // Lấy danh sách categories
+  const getCategories = async () => {
+    try {
+      const res = await axios.get(
+        `https://momsbest-be.onrender.com/api/products/categories`
+      );
+      setCategories(res?.data || []);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
+
+  // Helper function để lấy tên category từ ID
+  const getCategoryName = (categoryId) => {
+    if (!categoryId || !categories.length) return "Chưa phân loại";
+
+    const category = categories.find((cat) => cat._id === categoryId);
+    return category ? category.name : "Chưa phân loại";
+  };
+
   // Lấy sản phẩm liên quan nâng cao
-  const getRelatedProducts = async (categoryId, currentProductId, brand) => {
+  const getRelatedProducts = async (categoryIds, currentProductId, brand) => {
     setLoadingRelated(true);
     try {
-      let res = await axios.get(
-        `https://momsbest-be.onrender.com/api/products?category_id=${encodeURIComponent(
-          categoryId
-        )}`
-      );
-      let related = (res?.data || []).filter((p) => p._id !== currentProductId);
+      let related = [];
+
+      // Lấy sản phẩm cùng danh mục
+      if (categoryIds && categoryIds.length > 0) {
+        const categoryIdStrings = categoryIds.map((cat) =>
+          typeof cat === "object" ? cat._id : cat
+        );
+
+        const res = await axios.get(
+          `https://momsbest-be.onrender.com/api/products?category_id=${encodeURIComponent(
+            categoryIdStrings[0]
+          )}`
+        );
+        related = (res?.data || []).filter((p) => p._id !== currentProductId);
+      }
 
       // Nếu ít hơn 4, lấy thêm cùng brand
       if (related.length < 4 && brand) {
@@ -412,6 +444,7 @@ export default function ProductDetail() {
 
   useEffect(() => {
     getFeaturedProducts();
+    getCategories();
   }, []);
 
   useEffect(() => {
@@ -421,8 +454,16 @@ export default function ProductDetail() {
   useEffect(() => {
     if (product) {
       getListReview();
-      if (product.category_id) {
-        getRelatedProducts(product.category_id, product._id, product.brand);
+      // Xử lý cả category_ids mới và category_id cũ
+      const categoryData =
+        product.category_ids && product.category_ids.length > 0
+          ? product.category_ids
+          : product.category_id
+          ? [product.category_id]
+          : [];
+
+      if (categoryData.length > 0) {
+        getRelatedProducts(categoryData, product._id, product.brand);
       }
     }
   }, [product]);
@@ -619,7 +660,24 @@ export default function ProductDetail() {
                 Thương hiệu: <b>{product?.brand}</b>
               </span>
               <span>
-                Danh mục: <b>{product?.category_id}</b>
+                Danh mục:{" "}
+                <b>
+                  {(() => {
+                    // Xử lý cả category_ids mới và category_id cũ
+                    if (
+                      product?.category_ids &&
+                      product.category_ids.length > 0
+                    ) {
+                      return product.category_ids
+                        .map((catId) => getCategoryName(catId))
+                        .join(", ");
+                    } else if (product?.category_id) {
+                      return getCategoryName(product.category_id);
+                    } else {
+                      return "Chưa phân loại";
+                    }
+                  })()}
+                </b>
               </span>
               <span>
                 Kho:{" "}

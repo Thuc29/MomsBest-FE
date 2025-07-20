@@ -685,23 +685,13 @@ export default function AdminDashboard() {
               <div className="bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl shadow-xl p-6 text-white">
                 <div className="flex items-center justify-between mb-4">
                   <FaMoneyBillWave className="text-3xl" />
-                  <span className="text-4xl font-bold">
-                    {stats.orderStats.totalOrders > 0
-                      ? Math.round(
-                          (stats.orderStats.totalRevenue || 0) /
-                            stats.orderStats.totalOrders /
-                            1000
-                        )
-                      : 0}
-                    K
-                  </span>
+                  <span className="text-4xl font-bold">{0}K</span>
                 </div>
                 <h3 className="text-lg font-semibold mb-2">
                   Giá trị đơn hàng trung bình
                 </h3>
                 <p className="text-purple-100">
-                  {(stats.orderStats.totalRevenue || 0).toLocaleString()}đ /{" "}
-                  {stats.orderStats.totalOrders || 0} đơn
+                  {(0).toLocaleString()}đ / {0} đơn
                 </p>
               </div>
             </div>

@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { BookOpen, Heart, Bookmark, Share, Flag } from "lucide-react";
+import { useState } from "react";
+import ShareModal from "./ShareModal";
 
 const ArticleDetailModal = ({
   article,
@@ -11,7 +13,17 @@ const ArticleDetailModal = ({
   isLiked,
   likeCount,
 }) => {
+  const [showShareModal, setShowShareModal] = useState(false);
+
   if (!article) return null;
+
+  const handleShareArticle = () => {
+    setShowShareModal(true);
+  };
+
+  const handleCloseShareModal = () => {
+    setShowShareModal(false);
+  };
 
   return (
     <motion.div
@@ -91,19 +103,12 @@ const ArticleDetailModal = ({
                     </span>
                   </button>
 
-                  <button className="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100 text-gray-600 hover:bg-blue-50 transition">
-                    <Bookmark size={16} />
-                    <span className="text-sm font-medium">Lưu</span>
-                  </button>
-
-                  <button className="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100 text-gray-600 hover:bg-green-50 transition">
+                  <button
+                    onClick={handleShareArticle}
+                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100 text-gray-600 hover:bg-green-50 transition"
+                  >
                     <Share size={16} />
                     <span className="text-sm font-medium">Chia sẻ</span>
-                  </button>
-
-                  <button className="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100 text-gray-600 hover:bg-red-50 transition">
-                    <Flag size={16} />
-                    <span className="text-sm font-medium">Báo cáo</span>
                   </button>
                 </div>
 
@@ -262,6 +267,14 @@ const ArticleDetailModal = ({
           </div>
         </div>
       </motion.div>
+
+      {/* Share Modal */}
+      <ShareModal
+        isOpen={showShareModal}
+        onClose={handleCloseShareModal}
+        article={article}
+        shareUrl={`${window.location.origin}/forum/library/article/${article.id}`}
+      />
     </motion.div>
   );
 };

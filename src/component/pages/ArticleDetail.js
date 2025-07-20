@@ -1,5 +1,21 @@
 import { useParams, Link } from "react-router-dom";
-import { ChevronLeft, BookOpen } from "lucide-react";
+import {
+  ChevronLeft,
+  BookOpen,
+  Heart,
+  Bookmark,
+  Share,
+  Flag,
+  Eye,
+  MessageSquare,
+  Calendar,
+  User,
+  Clock,
+  TrendingUp,
+} from "lucide-react";
+import { useState } from "react";
+import ShareModal from "../ui/ShareModal";
+import Swal from "sweetalert2";
 
 // Mock articles (nên đồng bộ với Library.js)
 const articles = [
@@ -217,6 +233,7 @@ const articles = [
 const ArticleDetail = () => {
   const { articleId } = useParams();
   const article = articles.find((a) => a.id === articleId);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   if (!article) {
     return (
@@ -227,7 +244,7 @@ const ArticleDetail = () => {
           </h2>
           <Link
             to="/forum/library"
-            className="inline-flex items-center text-blue-500 hover:text-blue-700"
+            className="inline-flex items-center mt-5 text-blue-500 hover:text-blue-700"
           >
             <ChevronLeft size={18} />
             <span>Quay lại thư viện</span>
@@ -237,49 +254,268 @@ const ArticleDetail = () => {
     );
   }
 
+  const handleShareClick = () => {
+    setShowShareModal(true);
+  };
+
+  const handleCloseShareModal = () => {
+    setShowShareModal(false);
+  };
+
   return (
     <div className="min-h-screen bg-cover bg-center bg-[url('https://images.pexels.com/photos/1323550/pexels-photo-1323550.jpeg?auto=compress&cs=tinysrgb&w=600')] flex flex-col font-space-grotesk">
+      {/* Header */}
       <section className="pt-24 pb-8">
         <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl">
-            <Link
-              to="/forum"
-              className="inline-flex items-center text-blue-500 hover:text-blue-700 mb-4"
-            >
-              <ChevronLeft size={18} />
-              <span>Quay lại thư viện</span>
-            </Link>
-            <div className="mb-4 flex items-center gap-2 text-sm text-gray-500">
-              <BookOpen size={16} />
-              <span>{article.category}</span>
+          <div className="max-w-6xl mx-auto">
+            {/* Breadcrumb */}
+            <div className="mb-6 justify-start">
+              <Link
+                to="/forum"
+                className="inline-flex mt-5 items-center bg-pink-100 p-3 rounded-3xl text-blue-500 hover:text-blue-700 text-sm font-medium"
+              >
+                <ChevronLeft size={16} />
+                <span>Quay lại thư viện</span>
+              </Link>
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4">
-              {article.title}
-            </h1>
-            <img
-              src={article.thumbnail}
-              alt={article.title}
-              className="w-full h-56 object-cover rounded-xl mb-6"
-            />
-            <div className="prose max-w-none text-gray-700 whitespace-pre-line">
-              {article.content}
+
+            <div className="flex flex-col lg:flex-row gap-8">
+              {/* Main Content */}
+              <div className="lg:w-2/3">
+                <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden">
+                  {/* Article Header */}
+                  <div className="relative">
+                    <img
+                      src={article.thumbnail}
+                      alt={article.title}
+                      className="w-full h-64 object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="bg-pink-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                          {article.category}
+                        </span>
+                        <span className="bg-white/20 text-white px-3 py-1 rounded-full text-sm">
+                          <BookOpen size={14} className="inline mr-1" />
+                          Bài viết chuyên môn
+                        </span>
+                      </div>
+                      <h1 className="text-3xl md:text-4xl font-bold mb-4 leading-tight">
+                        {article.title}
+                      </h1>
+                      <div className="flex items-center gap-6 text-sm text-white/80">
+                        <div className="flex items-center gap-2">
+                          <User size={16} />
+                          <span>Đăng bởi Mẹ Bé</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Calendar size={16} />
+                          <span>1 giờ trước</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Clock size={16} />
+                          <span>5 phút đọc</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Article Content */}
+                  <div className="p-8">
+                    <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed">
+                      {article.content.split("\n\n").map((paragraph, index) => (
+                        <p key={index} className="mb-6 text-base leading-7">
+                          {paragraph}
+                        </p>
+                      ))}
+                    </div>
+
+                    {/* Article Stats */}
+                    <div className="mt-8 pt-6 border-t border-gray-200">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-6 text-sm text-gray-500">
+                          <div className="flex items-center gap-2">
+                            <Eye size={16} />
+                            <span>1,234 lượt xem</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <MessageSquare size={16} />
+                            <span>12 bình luận</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Heart size={16} />
+                            <span>89 lượt thích</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <TrendingUp size={16} className="text-green-500" />
+                          <span className="text-sm text-green-600 font-medium">
+                            Đang thịnh hành
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Sidebar */}
+              <div className="lg:w-1/3">
+                <div className="space-y-6">
+                  {/* Action Buttons */}
+                  <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                      Tương tác
+                    </h3>
+                    <div className="space-y-3">
+                      <button className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-pink-500 hover:bg-pink-600 text-white rounded-lg font-medium transition">
+                        <Heart size={18} />
+                        <span>Thích bài viết</span>
+                      </button>
+                      <button className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition">
+                        <Bookmark size={18} />
+                        <span>Lưu bài viết</span>
+                      </button>
+                      <button
+                        onClick={handleShareClick}
+                        className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition"
+                      >
+                        <Share size={18} />
+                        <span>Chia sẻ</span>
+                      </button>
+                      <button className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-gray-500 hover:bg-gray-600 text-white rounded-lg font-medium transition">
+                        <Flag size={18} />
+                        <span>Báo cáo</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Article Info */}
+                  <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                      Thông tin bài viết
+                    </h3>
+                    <div className="space-y-3 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Danh mục:</span>
+                        <span className="font-medium text-gray-800">
+                          {article.category}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Tác giả:</span>
+                        <span className="font-medium text-gray-800">Mẹ Bé</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Ngày đăng:</span>
+                        <span className="font-medium text-gray-800">
+                          Hôm nay
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Thời gian đọc:</span>
+                        <span className="font-medium text-gray-800">
+                          5 phút
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Độ khó:</span>
+                        <span className="font-medium text-green-600">
+                          Dễ hiểu
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Related Articles */}
+                  <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                      Bài viết liên quan
+                    </h3>
+                    <div className="space-y-4">
+                      {articles
+                        .filter(
+                          (a) =>
+                            a.category === article.category &&
+                            a.id !== article.id
+                        )
+                        .slice(0, 3)
+                        .map((relatedArticle) => (
+                          <Link
+                            key={relatedArticle.id}
+                            to={`/forum/library/article/${relatedArticle.id}`}
+                            className="block group"
+                          >
+                            <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition">
+                              <img
+                                src={relatedArticle.thumbnail}
+                                alt={relatedArticle.title}
+                                className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <h4 className="font-medium text-gray-800 group-hover:text-pink-600 transition line-clamp-2 text-sm">
+                                  {relatedArticle.title}
+                                </h4>
+                                <p className="text-xs text-gray-500 mt-1">
+                                  {relatedArticle.category}
+                                </p>
+                              </div>
+                            </div>
+                          </Link>
+                        ))}
+                    </div>
+                  </div>
+
+                  {/* Quick Tips */}
+                  <div className="bg-gradient-to-br from-pink-50 to-purple-50 rounded-2xl shadow-xl p-6 border border-pink-200">
+                    <h3 className="text-lg font-semibold text-pink-800 mb-3 flex items-center gap-2">
+                      <span className="w-2 h-2 bg-pink-500 rounded-full"></span>
+                      💡 Mẹo hữu ích
+                    </h3>
+                    <div className="space-y-2 text-sm text-pink-700">
+                      <p>
+                        • Bài viết này chứa thông tin chuyên môn từ các chuyên
+                        gia
+                      </p>
+                      <p>• Áp dụng theo hướng dẫn để đạt hiệu quả tốt nhất</p>
+                      <p>• Chia sẻ kiến thức với cộng đồng mẹ và bé</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <Link
-              to={`/forum/library/article/${article.id}`}
-              className="text-pink-500 hover:text-pink-700 text-sm font-medium mt-auto"
-            >
-              Đọc tiếp →
-            </Link>
           </div>
         </div>
       </section>
-      <footer className="bg-white/80 backdrop-blur-sm py-6 mt-8">
+
+      {/* Footer */}
+      <footer className="bg-white/80 backdrop-blur-sm py-8 mt-8">
         <div className="container mx-auto text-center">
-          <p className="text-gray-600">
-            © 2025 Diễn đàn Mẹ và Bé. All rights reserved.
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <BookOpen size={20} className="text-pink-500" />
+            <h3 className="text-lg font-semibold text-gray-800">
+              Thư viện kiến thức
+            </h3>
+          </div>
+          <p className="text-gray-600 mb-4">
+            Chia sẻ kiến thức hữu ích cho cộng đồng mẹ và bé
           </p>
+          <div className="flex items-center justify-center gap-6 text-sm text-gray-500">
+            <span>© 2025 Diễn đàn Mẹ và Bé</span>
+            <span>•</span>
+            <span>All rights reserved</span>
+          </div>
         </div>
       </footer>
+
+      {/* Share Modal */}
+      <ShareModal
+        isOpen={showShareModal}
+        onClose={handleCloseShareModal}
+        article={article}
+        shareUrl={`${window.location.origin}/forum/library/article/${article.id}`}
+      />
     </div>
   );
 };
