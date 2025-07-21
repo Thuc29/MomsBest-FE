@@ -242,11 +242,12 @@ export default function ProductDetail() {
   };
 
   // Helper function để lấy tên category từ ID
-  const getCategoryName = (categoryId) => {
-    if (!categoryId || !categories.length) return "Chưa phân loại";
-
-    const category = categories.find((cat) => cat._id === categoryId);
-    return category ? category.name : "Chưa phân loại";
+  const getCategoryName = (cat) => {
+    if (!cat) return "Chưa phân loại";
+    if (typeof cat === "object" && cat.name) return cat.name;
+    // fallback nếu cat là id
+    const found = categories.find((c) => c._id === cat);
+    return found ? found.name : "Chưa phân loại";
   };
 
   // Lấy sản phẩm liên quan nâng cao
@@ -662,21 +663,9 @@ export default function ProductDetail() {
               <span>
                 Danh mục:{" "}
                 <b>
-                  {(() => {
-                    // Xử lý cả category_ids mới và category_id cũ
-                    if (
-                      product?.category_ids &&
-                      product.category_ids.length > 0
-                    ) {
-                      return product.category_ids
-                        .map((catId) => getCategoryName(catId))
-                        .join(", ");
-                    } else if (product?.category_id) {
-                      return getCategoryName(product.category_id);
-                    } else {
-                      return "Chưa phân loại";
-                    }
-                  })()}
+                  {product?.category_ids && product.category_ids.length > 0
+                    ? product.category_ids.map(getCategoryName).join(", ")
+                    : "Chưa phân loại"}
                 </b>
               </span>
               <span>
