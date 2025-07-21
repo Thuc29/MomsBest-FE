@@ -379,21 +379,7 @@ const Product = () => {
                             <h3 className="text-lg font-bold text-gray-800 line-clamp-1 group-hover:underline group-hover:text-pink-600 transition">
                               {product.name}
                             </h3>
-                            {Array.isArray(product.category_ids) &&
-                              product.category_ids.length > 0 && (
-                                <div className="flex flex-wrap gap-1 mb-1">
-                                  {product.category_ids.map((cat) =>
-                                    cat && cat.name ? (
-                                      <span
-                                        key={cat._id || cat}
-                                        className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-xs font-semibold mr-1 mb-1 inline-block"
-                                      >
-                                        {cat.name}
-                                      </span>
-                                    ) : null
-                                  )}
-                                </div>
-                              )}
+
                             <p className="text-gray-400 text-xs mb-1 line-clamp-1 flex items-center gap-1">
                               {product.description}
                             </p>

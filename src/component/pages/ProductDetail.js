@@ -262,7 +262,7 @@ export default function ProductDetail() {
         );
 
         const res = await axios.get(
-          `https://momsbest-be.onrender.com/api/products?category_id=${encodeURIComponent(
+          `https://momsbest-be.onrender.com/api/products?category_ids=${encodeURIComponent(
             categoryIdStrings[0]
           )}`
         );
